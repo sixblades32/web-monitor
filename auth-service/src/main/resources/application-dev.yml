@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: auth-service
+  security:
+    oauth2:
+      client:
+        registration:
+          discord:
+            client-id: ${DISCORD_CLIENT_ID:767419431357382656}
+            client-secret: ${DISCORD_CLIENT_SECRET:ENj1A0vJYcDHrRqiLO8N4mb4UiRuplHz}
+            client-authentication-method: post
+            authorization-grant-type: authorization_code
+            scope:
+              - identify
+              - email
+              - guilds.join
+            redirect-uri: "http://localhost:8010/api/auth/login/oauth2/code/discord"
+            client-name: Enigma Solutions
+        provider:
+          discord:
+            authorizationUri: https://discordapp.com/api/oauth2/authorize
+            tokenUri: https://discordapp.com/api/oauth2/token
+            userInfoUri: https://discordapp.com/api/users/@me
+            usernameAttribute: id
+
+server:
+  error:
+    include-stacktrace: never
+  port: ${SERVER_PORT:8010}
+  servlet:
+    session:
+      cookie:
+        name: U_SESSION
+    context-path: /api/auth/
+
+management:
+  server:
+    port: ${MANAGE_PORT:9010}
+    base-path: /manage
+
+security:
+  jwt:
+    uri: /auth/**
+    header: Authorization
+    prefix: Bearer
+    expiration: 86400
+    secret: ${JWT_SECRET_KEY:jwt-secret}
+  url:
+    login: ${DEFAULT_LOGIN_URL:http://localhost:8010/api/auth}
+    logout: ${DEFAULT_LOGOUT_URL:http://localhost:8010/api/auth}
+
+discord:
+  bot:
+    token: ${DISCORD_BOT_TOKEN:NzY3NDE5NDMxMzU3MzgyNjU2.X4xpCg.TTHtJEwsTv8ZlKQjJUVRFt1zBHI}
