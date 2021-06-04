@@ -16,6 +16,6 @@ pluginManagement {
 rootProject.name = 'web-monitor'
 
 include 'auth-service'
-//include 'discord-broadcast-service'
+include 'discord-broadcast-service'
 include 'web-broadcast-service'
 //include 'twitter-monitor'
