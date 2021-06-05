@@ -1,6 +1,5 @@
 package io.enigmarobotics.discordbroadcastservice.utils;
 
-import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.dto.models.Author;
 import io.enigmarobotics.discordbroadcastservice.dto.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.dto.models.Field;
@@ -11,7 +10,6 @@ import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Tweet;
 import io.enigmarobotics.discordbroadcastservice.dto.wrappers.TweetImage;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class DiscordUtils {
@@ -38,13 +36,14 @@ public class DiscordUtils {
                 .url(tweet.getImage())
                 .build();
 
-        Field field = Field.builder()
+        Field additionalInfoField = Field.builder()
                 .inline(false)
                 .name("**ADDITIONAL INFO**")
-                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() + ") • [**Likes**](" + tweet.getLikesUrl() + ")")
+                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() +
+                        ") • [**Likes**](" + tweet.getLikesUrl() + ")")
                 .build();
 
-        fields.add(field);
+        fields.add(additionalInfoField);
 
         return Embed.builder()
                 .author(author)
@@ -59,7 +58,8 @@ public class DiscordUtils {
     }
 
     public static Embed generateRetweetEmbed(Tweet tweet, int embedColor) {
-        String description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " + tweet.getText().replaceAll("\\R", "\n> ");
+        String description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+                tweet.getText().replaceAll("\\R", "\n> ");
         List<Field> fields = new ArrayList<>();
 
         Author author = Author.builder()
@@ -78,20 +78,21 @@ public class DiscordUtils {
                 .url(tweet.getImage())
                 .build();
 
-        Field field = Field.builder()
+        Field additionalInfoField = Field.builder()
                 .inline(false)
                 .name("**ADDITIONAL INFO**")
-                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() + ") • [**Likes**](" + tweet.getLikesUrl() + ")")
+                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() +
+                        ") • [**Likes**](" + tweet.getLikesUrl() + ")")
                 .build();
 
-        Field field1 = Field.builder()
+        Field tweetField = Field.builder()
                 .inline(false)
                 .name("TWEET")
                 .value("**[©" + retweeted.getUserName() + "](" + retweeted.getTweetUrl() + ")**")
                 .build();
 
-        fields.add(field1);
-        fields.add(field);
+        fields.add(tweetField);
+        fields.add(additionalInfoField);
 
         return Embed.builder()
                 .author(author)
@@ -105,7 +106,8 @@ public class DiscordUtils {
     }
 
     public static Embed generateReplyEmbed(Tweet tweet, int embedColor) {
-        String description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " + tweet.getText().replaceAll("\\R", "\n> ");
+        String description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+                tweet.getText().replaceAll("\\R", "\n> ");
         List<Field> fields = new ArrayList<>();
 
         Author author = Author.builder()
@@ -122,20 +124,21 @@ public class DiscordUtils {
                 .url(tweet.getImage())
                 .build();
 
-        Field field = Field.builder()
+        Field additionalInfoField = Field.builder()
                 .inline(false)
                 .name("**ADDITIONAL INFO**")
-                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() + ") • [**Likes**](" + tweet.getLikesUrl() + ")")
+                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() +
+                        ") • [**Likes**](" + tweet.getLikesUrl() + ")")
                 .build();
 
-        Field field1 = Field.builder()
+        Field tweetField = Field.builder()
                 .inline(false)
                 .name("TWEET")
                 .value("**[©" + tweet.getReplied().getUserName() + "](" + tweet.getReplied().getTweetUrl() + ")**")
                 .build();
 
-        fields.add(field1);
-        fields.add(field);
+        fields.add(tweetField);
+        fields.add(additionalInfoField);
 
         return Embed.builder()
                 .author(author)
@@ -165,13 +168,14 @@ public class DiscordUtils {
                 .url(tweet.getImage())
                 .build();
 
-        Field field = Field.builder()
+        Field additionalInfoField = Field.builder()
                 .inline(false)
                 .name("**ADDITIONAL INFO**")
-                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() + ") • [**Likes**](" + tweet.getLikesUrl() + ")")
+                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() +
+                        ") • [**Likes**](" + tweet.getLikesUrl() + ")")
                 .build();
 
-        fields.add(field);
+        fields.add(additionalInfoField);
 
         String description = "> " + tweet.getText().replaceAll("\\R", "\n> ");
 
@@ -206,7 +210,8 @@ public class DiscordUtils {
     public static Embed generateRetweetImageEmbed(TweetImage tweetImage, int embedColor) {
 
         Footer footer = Footer.builder()
-                .text("image from RETWEET  —  @" + tweetImage.getUserName() + " --> " + "@" + tweetImage.getRetweetedFrom())
+                .text("image from RETWEET  —  @" + tweetImage.getUserName() + " --> " + "@"
+                        + tweetImage.getRetweetedFrom())
                 .build();
 
         Image image = Image.builder()
@@ -226,25 +231,25 @@ public class DiscordUtils {
                 .text("Enigma Robotics")
                 .build();
 
-        Field field = Field.builder()
+        Field validMonitorsField = Field.builder()
                 .inline(false)
                 .name("**Valid monitors count:**")
                 .value(alert.getValidMonitorsCount())
                 .build();
 
-        Field field1 = Field.builder()
+        Field failedMonitorsField = Field.builder()
                 .inline(false)
                 .name("**Failed monitors count:**")
                 .value(alert.getFailedMonitorsCount())
                 .build();
 
-        Field field2 = Field.builder()
+        Field newFailedMonitorsField = Field.builder()
                 .inline(false)
                 .name("**Found the new failed monitor:**")
                 .value(alert.getFailedMonitorId())
                 .build();
 
-        Field field3 = Field.builder()
+        Field failedReasonField = Field.builder()
                 .inline(false)
                 .name("**Reason:**")
                 .value(alert.getReason())
@@ -252,10 +257,10 @@ public class DiscordUtils {
 
         List<Field> fields = new ArrayList<>();
 
-        fields.add(field);
-        fields.add(field1);
-        fields.add(field2);
-        fields.add(field3);
+        fields.add(validMonitorsField);
+        fields.add(failedMonitorsField);
+        fields.add(newFailedMonitorsField);
+        fields.add(failedReasonField);
 
 
         return Embed.builder()
