@@ -51,7 +51,9 @@ public enum TweetType {
 
         @Override
         public List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            return null;
+            Embed imageEmbed = DiscordUtils.generateRetweetImageEmbed(tweetImage, discordEmbedColorConfig.getRetweet());
+
+            return Collections.singletonList(imageEmbed);
         }
     },
     REPLY {
