@@ -2,6 +2,7 @@ package io.enigmasolutions.webmonitor.authservice.controllers;
 
 import io.enigmasolutions.webmonitor.authservice.dto.JwtTokenDto;
 import io.enigmasolutions.webmonitor.authservice.services.JwtService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -14,6 +15,7 @@ public class JwtController {
 
     private final JwtService jwtService;
 
+    @Autowired
     public JwtController(JwtService jwtService) {
         this.jwtService = jwtService;
     }

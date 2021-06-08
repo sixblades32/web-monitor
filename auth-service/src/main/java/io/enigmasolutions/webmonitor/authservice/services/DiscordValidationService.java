@@ -1,6 +1,7 @@
 package io.enigmasolutions.webmonitor.authservice.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,12 +17,15 @@ import java.util.Collections;
 @Service
 public class DiscordValidationService {
 
-    private final RestTemplate restTemplate;
     @Value("${discord.bot.token}")
     private String botToken;
+
     @Value("${discord.trusted-guild}")
     private String trustedGuild;
 
+    private final RestTemplate restTemplate;
+
+    @Autowired
     public DiscordValidationService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }

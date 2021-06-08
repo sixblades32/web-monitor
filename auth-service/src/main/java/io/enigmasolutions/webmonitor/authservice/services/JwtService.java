@@ -1,6 +1,7 @@
 package io.enigmasolutions.webmonitor.authservice.services;
 
 import io.enigmasolutions.webmonitor.authservice.dto.JwtTokenDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -12,6 +13,7 @@ public class JwtService {
     private final JwtTokenProvider jwtTokenProvider;
     private final DiscordValidationService discordValidationService;
 
+    @Autowired
     public JwtService(JwtTokenProvider jwtTokenProvider, DiscordValidationService discordValidationService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.discordValidationService = discordValidationService;
