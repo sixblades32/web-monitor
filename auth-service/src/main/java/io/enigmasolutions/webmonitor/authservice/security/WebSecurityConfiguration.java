@@ -46,19 +46,18 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .cors().and()
                 .authorizeRequests()
-                .antMatchers("/swagger-ui/**", "/v3/api-docs/**").anonymous()
+                .antMatchers(
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/jwt/refresh"
+                ).anonymous()
                 .requestMatchers(forPort(managementPort)).anonymous()
                 .anyRequest().authenticated();
 
         http
                 .csrf().disable()
                 .exceptionHandling()
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                .and()
-                .logout()
-                .invalidateHttpSession(true).clearAuthentication(true)
-                .logoutSuccessUrl(logoutUrl)
-                .deleteCookies("U_SESSION").permitAll();
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
         http
                 .oauth2Login()

@@ -3,6 +3,8 @@ package io.enigmasolutions.webmonitor.authservice.controllers;
 import io.enigmasolutions.webmonitor.authservice.dto.JwtTokenDto;
 import io.enigmasolutions.webmonitor.authservice.services.JwtService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,8 +23,10 @@ public class JwtController {
         return jwtService.generateJwtToken();
     }
 
-//    @PutMapping("/refresh")
-//    public JwtTokenDto refreshJwtToken() {
-//        return authService.refreshJwtToken();
-//    }
+    @PutMapping("/refresh")
+    public JwtTokenDto refreshJwtToken(
+            @RequestHeader("Authorization") String jwtToken
+    ) {
+        return jwtService.refreshJwtToken(jwtToken);
+    }
 }

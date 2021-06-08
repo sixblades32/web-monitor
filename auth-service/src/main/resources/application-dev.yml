@@ -51,4 +51,5 @@ security:
 
 discord:
   bot:
-    token: ${DISCORD_BOT_TOKEN:NzY3NDE5NDMxMzU3MzgyNjU2.X4xpCg.TTHtJEwsTv8ZlKQjJUVRFt1zBHI}
+    token: ${DISCORD_BOT_TOKEN:Bot NzY3NDE5NDMxMzU3MzgyNjU2.X4xpCg.TTHtJEwsTv8ZlKQjJUVRFt1zBHI}
+  trusted-guild: 688764592901324862
