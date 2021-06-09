@@ -1,4 +1,4 @@
-package io.enigmasolutions.webmonitor.authservice.dto;
+package io.enigmasolutions.webmonitor.authservice.models;
 
 import lombok.Builder;
 import lombok.Data;

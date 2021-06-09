@@ -1,13 +1,13 @@
 package io.enigmarobotics.discordbroadcastservice.utils;
 
-import io.enigmarobotics.discordbroadcastservice.dto.models.Author;
-import io.enigmarobotics.discordbroadcastservice.dto.models.Embed;
-import io.enigmarobotics.discordbroadcastservice.dto.models.Field;
-import io.enigmarobotics.discordbroadcastservice.dto.models.Footer;
-import io.enigmarobotics.discordbroadcastservice.dto.models.Image;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Tweet;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.TweetImage;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Author;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Field;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Footer;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Image;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Tweet;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.TweetImage;
 
 import java.util.ArrayList;
 import java.util.List;

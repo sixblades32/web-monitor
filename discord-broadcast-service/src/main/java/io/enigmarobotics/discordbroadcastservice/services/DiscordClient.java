@@ -1,9 +1,6 @@
 package io.enigmarobotics.discordbroadcastservice.services;
 
-import io.enigmarobotics.discordbroadcastservice.dto.models.*;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Tweet;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.TweetImage;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;

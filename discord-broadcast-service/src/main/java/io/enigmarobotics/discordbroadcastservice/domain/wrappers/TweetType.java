@@ -1,7 +1,7 @@
-package io.enigmarobotics.discordbroadcastservice.dto.wrappers;
+package io.enigmarobotics.discordbroadcastservice.domain.wrappers;
 
 import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
-import io.enigmarobotics.discordbroadcastservice.dto.models.Embed;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
 
 import java.util.ArrayList;

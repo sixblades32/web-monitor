@@ -1,11 +1,11 @@
 package io.enigmarobotics.discordbroadcastservice.services;
 
 import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
-import io.enigmarobotics.discordbroadcastservice.dto.models.Embed;
-import io.enigmarobotics.discordbroadcastservice.dto.models.Message;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Tweet;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.TweetImage;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Tweet;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.TweetImage;
 import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

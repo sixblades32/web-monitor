@@ -9,10 +9,13 @@ configurations {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.kafka:spring-kafka'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'io.projectreactor:reactor-test'
 }
 
 test {

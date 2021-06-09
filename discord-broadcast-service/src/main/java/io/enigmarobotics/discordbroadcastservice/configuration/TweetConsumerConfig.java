@@ -1,8 +1,8 @@
-package io.enigmarobotics.discordbroadcastservice.config;
+package io.enigmarobotics.discordbroadcastservice.configuration;
 
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Tweet;
-import io.enigmarobotics.discordbroadcastservice.dto.wrappers.TweetImage;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Tweet;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.TweetImage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;

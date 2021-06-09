@@ -1,6 +1,6 @@
 package io.enigmasolutions.webmonitor.authservice.controllers;
 
-import io.enigmasolutions.webmonitor.authservice.dto.JwtTokenDto;
+import io.enigmasolutions.webmonitor.authservice.models.JwtTokenDto;
 import io.enigmasolutions.webmonitor.authservice.services.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

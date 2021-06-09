@@ -5,7 +5,7 @@ import io.enigmarobotics.discordbroadcastservice.db.models.Customer;
 import io.enigmarobotics.discordbroadcastservice.db.models.Target;
 import io.enigmarobotics.discordbroadcastservice.db.repositories.CustomerRepository;
 import io.enigmarobotics.discordbroadcastservice.db.repositories.TargetRepository;
-import io.enigmarobotics.discordbroadcastservice.dto.models.Message;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

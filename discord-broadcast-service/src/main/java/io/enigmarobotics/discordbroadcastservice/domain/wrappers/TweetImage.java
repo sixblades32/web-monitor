@@ -1,4 +1,4 @@
-package io.enigmarobotics.discordbroadcastservice.dto.wrappers;
+package io.enigmarobotics.discordbroadcastservice.domain.wrappers;
 
 import lombok.Data;
 

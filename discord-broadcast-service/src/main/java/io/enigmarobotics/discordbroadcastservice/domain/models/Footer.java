@@ -1,4 +1,4 @@
-package io.enigmarobotics.discordbroadcastservice.dto.models;
+package io.enigmarobotics.discordbroadcastservice.domain.models;
 
 import lombok.Builder;
 import lombok.Data;

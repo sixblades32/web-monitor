@@ -1,6 +1,6 @@
 package io.enigmasolutions.webmonitor.authservice.services;
 
-import io.enigmasolutions.webmonitor.authservice.dto.JwtTokenDto;
+import io.enigmasolutions.webmonitor.authservice.models.JwtTokenDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
