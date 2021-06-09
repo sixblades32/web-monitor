@@ -7,6 +7,7 @@ import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Alert;
 import io.enigmarobotics.discordbroadcastservice.dto.wrappers.Tweet;
 import io.enigmarobotics.discordbroadcastservice.dto.wrappers.TweetImage;
 import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@Slf4j
 public class TweetConsumerService {
 
     private PostmanService postmanService;
@@ -30,7 +32,8 @@ public class TweetConsumerService {
             groupId = "${kafka.tweet-consumer.group-id}",
             containerFactory = "tweetKafkaListenerContainerFactory")
     public void consume(Tweet tweet) {
-        System.out.println("Received Message: " + tweet);
+
+        log.info("Received Tweet Message from: " + tweet.getUserName());
 
         List<Embed> embeds = tweet.getTweetType().generateTweetEmbed(tweet, discordEmbedColorConfig);
 
@@ -46,7 +49,9 @@ public class TweetConsumerService {
             groupId = "${kafka.tweet-image-consumer.group-id}",
             containerFactory = "tweetImageKafkaListenerContainerFactory")
     public void consume(TweetImage tweetImage) {
-        System.out.println("Received Message: " + tweetImage);
+
+        log.info("Received Tweet Image Message from: " + tweetImage.getUserName());
+
 
         List<Embed> embeds = tweetImage.getTweetType().generateImageEmbed(tweetImage, discordEmbedColorConfig);
 
@@ -62,7 +67,8 @@ public class TweetConsumerService {
             , groupId = "${kafka.alert-consumer.group-id}",
             containerFactory = "alertKafkaListenerContainerFactory")
     public void consume(Alert alert) {
-        System.out.println("Received Message: " + alert);
+
+        log.info("Received Alert Message");
 
         Embed alertEmbed = DiscordUtils.generateAlertEmbed(alert, discordEmbedColorConfig.getAlert());
 

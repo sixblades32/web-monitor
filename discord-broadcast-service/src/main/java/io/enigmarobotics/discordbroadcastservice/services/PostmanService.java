@@ -81,6 +81,7 @@ public class PostmanService {
             String url = customer.retrieveCommonWebhook();
 
             discordClient.sendEmbed(url, message);
+            log.info("Embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") common webhook.");
         });
     }
 
@@ -91,6 +92,7 @@ public class PostmanService {
             String url = customer.retrieveAdvancedWebhook();
 
             discordClient.sendEmbed(url, message);
+            log.info("Embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") advanced webhook.");
         });
     }
 

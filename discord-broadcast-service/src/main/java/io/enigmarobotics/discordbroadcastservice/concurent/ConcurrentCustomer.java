@@ -1,7 +1,9 @@
 package io.enigmarobotics.discordbroadcastservice.concurent;
 
 import io.enigmarobotics.discordbroadcastservice.db.models.Customer;
+import lombok.Data;
 
+@Data
 public class ConcurrentCustomer {
 
     private final Customer customer;
