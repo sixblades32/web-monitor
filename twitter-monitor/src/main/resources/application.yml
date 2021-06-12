@@ -1,0 +1,4 @@
+spring:
+    data:
+        mongodb:
+            uri: ${MONGODB_URI:mongodb+srv://admin:ZRgCRWfi3M76p8yo@socialmonitors.kwvqy.mongodb.net/advanced-private-monitor}
