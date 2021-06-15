@@ -10,3 +10,6 @@ kafka:
   tweet-consumer:
     group-id: web-broadcast-tweet
     topic: twitter-broadcast
+
+broadcast:
+  history-limit: 25
