@@ -1,1 +1,12 @@
-we
+security:
+  jwt:
+    header: Authorization
+    prefix: Bearer
+    expiration: 86400
+    secret: ${JWT_SECRET_KEY:jwt-secret}
+
+kafka:
+  bootstrap-servers: localhost:9092
+  tweet-consumer:
+    group-id: web-broadcast-tweet
+    topic: twitter-broadcast

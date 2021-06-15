@@ -3,6 +3,7 @@ package io.enigmasolutions.webmonitor.authservice.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,50 +18,37 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequestEnti
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
 
 import static io.enigmasolutions.webmonitor.authservice.security.OAuth2UserAgentUtils.withUserAgent;
 
+@Order(2)
 @Configuration
-public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-    @Value("${management.server.port}")
-    private int managementPort;
+public class GuestSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Value("${security.url.login}")
     private String loginUrl;
 
-    @Value("${security.url.login}")
-    private String logoutUrl;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors().and()
-                .authorizeRequests()
-                .antMatchers(
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**",
-                        "/jwt/refresh"
-                ).anonymous()
-                .requestMatchers(forPort(managementPort)).anonymous()
-                .anyRequest().authenticated();
-
-        http
+                .antMatcher("/guest/**")
                 .csrf().disable()
+                .cors()
+                .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
         http
+                .authorizeRequests()
+                .anyRequest().authenticated();
+
+        http
                 .oauth2Login()
+                .authorizationEndpoint().baseUri("/guest/oauth2/authorization")
+                .and()
+                .loginProcessingUrl("/guest/login/oauth2/code/discord")
                 .defaultSuccessUrl(loginUrl, true)
                 .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
                 .and()
@@ -93,24 +81,5 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         });
 
         return service;
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedMethods(Collections.singletonList("*"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-        configuration.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    private RequestMatcher forPort(final int port) {
-        return (HttpServletRequest request) -> port == request.getLocalPort();
     }
 }
