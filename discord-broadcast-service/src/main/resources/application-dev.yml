@@ -20,9 +20,9 @@ kafka:
   tweet-consumer:
     group-id: discord-broadcast-tweet
     topic: twitter-tweet-broadcast
-  tweet-image-consumer:
-    group-id: discord-broadcast-tweet-image
-    topic: twitter-image-broadcast
+  #  tweet-image-consumer:
+  #    group-id: discord-broadcast-tweet-image
+  #    topic: twitter-image-broadcast
   alert-consumer:
     group-id: discord-broadcast-alert
     topic: twitter-alert-broadcast

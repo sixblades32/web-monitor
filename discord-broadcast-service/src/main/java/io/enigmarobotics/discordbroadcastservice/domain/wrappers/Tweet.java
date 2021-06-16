@@ -2,6 +2,8 @@ package io.enigmarobotics.discordbroadcastservice.domain.wrappers;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class Tweet {
 
@@ -13,9 +15,10 @@ public class Tweet {
     private String userUrl;
     private Tweet retweeted;
     private Tweet replied;
-    private String image;
+    //    private String image;
     private String tweetUrl;
     private String retweetsUrl;
     private String likesUrl;
     private String followsUrl;
+    private List<String> tweetImageUrlList;
 }
