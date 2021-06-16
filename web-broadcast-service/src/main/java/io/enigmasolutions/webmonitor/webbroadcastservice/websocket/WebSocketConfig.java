@@ -41,6 +41,6 @@ public class WebSocketConfig {
     @Bean
     public WebSocketService webSocketService() {
         ReactorNettyRequestUpgradeStrategy strategy = new ReactorNettyRequestUpgradeStrategy();
-        return new DefaultHandshakeWebSocketService(strategy, jwtTokenProvider);
+        return new JwtHandshakeWebSocketService(strategy, jwtTokenProvider);
     }
 }

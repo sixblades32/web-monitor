@@ -18,7 +18,6 @@ public class TweetConsumerService {
             groupId = "${kafka.tweet-consumer.group-id}",
             containerFactory = "tweetKafkaListenerContainerFactory")
     public void consume(String tweet) {
-        log.info(tweet);
         broadcastService.tryEmitNext(tweet);
     }
 }

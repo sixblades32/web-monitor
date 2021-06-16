@@ -21,7 +21,7 @@ public class CustomerService {
     }
 
     /**
-     * Method have to invoked only with DefaultOAuth2User.class
+     * Method have to be invoked only with DefaultOAuth2User.class
      *
      * @return JwtTokenDto
      */

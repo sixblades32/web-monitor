@@ -7,11 +7,11 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
 @Component
-public class DefaultWebSocketHandler implements WebSocketHandler {
+public class BroadcastWebSocketHandler implements WebSocketHandler {
 
     private final BroadcastService broadcastService;
 
-    public DefaultWebSocketHandler(BroadcastService broadcastService) {
+    public BroadcastWebSocketHandler(BroadcastService broadcastService) {
         this.broadcastService = broadcastService;
     }
 

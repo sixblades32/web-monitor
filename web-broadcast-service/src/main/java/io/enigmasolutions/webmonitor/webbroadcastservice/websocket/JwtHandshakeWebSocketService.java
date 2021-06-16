@@ -1,7 +1,6 @@
 package io.enigmasolutions.webmonitor.webbroadcastservice.websocket;
 
 import io.enigmasolutions.webmonitor.webbroadcastservice.services.JwtTokenProvider;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -11,12 +10,11 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-@Slf4j
-public class DefaultHandshakeWebSocketService extends HandshakeWebSocketService {
+public class JwtHandshakeWebSocketService extends HandshakeWebSocketService {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    public DefaultHandshakeWebSocketService(
+    public JwtHandshakeWebSocketService(
             RequestUpgradeStrategy upgradeStrategy,
             JwtTokenProvider jwtTokenProvider
     ) {

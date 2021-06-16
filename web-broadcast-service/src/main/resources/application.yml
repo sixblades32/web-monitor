@@ -1,1 +1,29 @@
+spring:
+  application:
+    name: web-broadcast-service
 
+server:
+  error:
+    include-stacktrace: never
+  port: ${SERVER_PORT:8020}
+
+management:
+  server:
+    port: ${MANAGE_PORT:9020}
+    base-path: /manage
+
+security:
+  jwt:
+    header: Authorization
+    prefix: Bearer
+    expiration: 86400
+    secret: ${JWT_SECRET_KEY}
+
+kafka:
+  bootstrap-servers: localhost:9092
+  tweet-consumer:
+    group-id: web-broadcast-tweet
+    topic: twitter-broadcast
+
+broadcast:
+  history-limit: 100

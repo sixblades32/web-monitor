@@ -1,3 +1,17 @@
+spring:
+  application:
+    name: web-broadcast-service
+
+server:
+  error:
+    include-stacktrace: always
+  port: ${SERVER_PORT:8020}
+
+management:
+  server:
+    port: ${MANAGE_PORT:9020}
+    base-path: /manage
+
 security:
   jwt:
     header: Authorization

@@ -1,6 +1,11 @@
 spring:
   application:
     name: auth-service
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+  session:
+    store-type: redis
   security:
     oauth2:
       client:

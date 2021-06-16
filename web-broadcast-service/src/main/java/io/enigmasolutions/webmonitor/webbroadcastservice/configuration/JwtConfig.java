@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "security.jwt")
 public class JwtConfig {
 
-    private String Uri;
     private String header;
     private String prefix;
     private int expiration;
