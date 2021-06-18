@@ -1,7 +1,6 @@
 package io.enigmasolutions.webmonitor.authservice.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,12 +22,9 @@ public class DiscordValidationService {
     @Value("${discord.trusted-guild}")
     private String trustedGuild;
 
-    private final RestTemplate restTemplate;
+    private final static String BASE_PATH = "https://discord.com/api";
 
-    @Autowired
-    public DiscordValidationService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public boolean validateMutualGuilds(String discordId) {
         boolean result = false;
@@ -50,7 +46,7 @@ public class DiscordValidationService {
     }
 
     private ResponseEntity<Void> getEmptyGuildMember(String discordId) {
-        String url = "https://discord.com/api/guilds/" + trustedGuild + "/members/" + discordId;
+        String url = BASE_PATH + "/guilds/" + trustedGuild + "/members/" + discordId;
 
         HttpHeaders requestHeaders = new HttpHeaders();
 

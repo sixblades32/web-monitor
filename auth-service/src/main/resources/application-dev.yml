@@ -1,6 +1,11 @@
 spring:
   application:
     name: auth-service
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+  session:
+    store-type: redis
   security:
     oauth2:
       client:
@@ -14,7 +19,7 @@ spring:
               - identify
               - email
               - guilds.join
-            redirect-uri: "http://localhost:8010/api/auth/login/oauth2/code/discord"
+            redirect-uri: "http://localhost:8010/api/auth/guest/login/oauth2/code/discord"
             client-name: Enigma Solutions
         provider:
           discord:
@@ -40,7 +45,6 @@ management:
 
 security:
   jwt:
-    uri: /auth/**
     header: Authorization
     prefix: Bearer
     expiration: 86400

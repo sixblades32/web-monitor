@@ -1,6 +1,7 @@
 package io.enigmasolutions.webmonitor.authservice.services;
 
 import io.enigmasolutions.webmonitor.authservice.models.JwtTokenDto;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,40 +9,53 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JwtService {
+public class CustomerService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final DiscordValidationService discordValidationService;
 
     @Autowired
-    public JwtService(JwtTokenProvider jwtTokenProvider, DiscordValidationService discordValidationService) {
+    public CustomerService(JwtTokenProvider jwtTokenProvider, DiscordValidationService discordValidationService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.discordValidationService = discordValidationService;
     }
 
+    /**
+     * Method have to be invoked only with DefaultOAuth2User.class
+     *
+     * @return JwtTokenDto
+     */
     public JwtTokenDto generateJwtToken() {
-        DefaultOAuth2User defaultOAuth2User = getDefaultOAuth2User();
-        String discordId = defaultOAuth2User.getName();
+        DefaultOAuth2User authentication = getDefaultOAuth2User();
+        String discordId = authentication.getName();
 
-        validateGuild(discordId);
-
-        String generatedToken = jwtTokenProvider.generateToken(discordId);
+        String generatedToken = generateTokenByDiscordId(discordId);
 
         return JwtTokenDto.builder()
                 .jwt(generatedToken)
                 .build();
     }
 
-    public JwtTokenDto refreshJwtToken(String incomingToken) {
-        String discordId = jwtTokenProvider.getClaimsFromJWT(incomingToken).getSubject();
+    /**
+     * Method have to be invoked only with UsernamePasswordAuthenticationToken.class
+     *
+     * @return JwtTokenDto
+     */
+    public JwtTokenDto refreshJwtToken() {
+        Claims claims = resolveUsernamePasswordAuthenticationTokenClaims();
+        String discordId = claims.getSubject();
 
-        validateGuild(discordId);
-
-        String jwt = jwtTokenProvider.generateToken(discordId);
+        String generatedToken = generateTokenByDiscordId(discordId);
 
         return JwtTokenDto.builder()
-                .jwt(jwt)
+                .jwt(generatedToken)
                 .build();
+    }
+
+    private String generateTokenByDiscordId(String discordId) {
+        validateGuild(discordId);
+
+        return jwtTokenProvider.generateToken(discordId);
     }
 
     private void validateGuild(String discordId) {
@@ -53,5 +67,9 @@ public class JwtService {
 
     private DefaultOAuth2User getDefaultOAuth2User() {
         return (DefaultOAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    private Claims resolveUsernamePasswordAuthenticationTokenClaims() {
+        return (Claims) SecurityContextHolder.getContext().getAuthentication().getCredentials();
     }
 }

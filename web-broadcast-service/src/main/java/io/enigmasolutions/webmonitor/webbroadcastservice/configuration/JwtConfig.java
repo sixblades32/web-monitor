@@ -1,4 +1,4 @@
-package io.enigmasolutions.webmonitor.authservice.configuration;
+package io.enigmasolutions.webmonitor.webbroadcastservice.configuration;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
