@@ -11,7 +11,6 @@ import java.util.List;
 public enum TweetType {
 
     TWEET {
-
         @Override
         public List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig) {
             Embed imageEmbed = DiscordUtils.generateTweetImageEmbed(tweetImage, discordEmbedColorConfig.getTweet());
@@ -20,32 +19,30 @@ public enum TweetType {
         }
 
         @Override
-        public List<Embed> generateTweetEmbed(Tweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            Embed tweetEmbed = DiscordUtils.generateTweetEmbed(tweet, discordEmbedColorConfig.getTweet());
-
-            return Collections.singletonList(tweetEmbed);
+        public List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
+            return DiscordUtils.generateTweetEmbed(tweet, discordEmbedColorConfig.getTweet());
         }
 
         @Override
-        public Embed generateTweetEmbed(Tweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        public Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
             return null;
         }
     },
     RETWEET {
         @Override
-        public List<Embed> generateTweetEmbed(Tweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        public List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
             List<Embed> embeds = new ArrayList<>();
             Embed mainTweet = DiscordUtils.generateRetweetEmbed(tweet, discordEmbedColorConfig.getRetweet());
-            Embed retweetedTweet = DiscordUtils.generateTweetFromRetweetEmbed(tweet.getRetweeted(), tweet.getUserName(), discordEmbedColorConfig.getRetweet());
+            List<Embed> retweetedTweet = DiscordUtils.generateTweetFromRetweetEmbed(tweet.getRetweeted(), tweet.getUserName(), discordEmbedColorConfig.getRetweet());
 
             embeds.add(mainTweet);
-            embeds.add(retweetedTweet);
+            embeds.addAll(retweetedTweet);
 
-            return  embeds;
+            return embeds;
         }
 
         @Override
-        public Embed generateTweetEmbed(Tweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        public Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
             return null;
         }
 
@@ -58,14 +55,14 @@ public enum TweetType {
     },
     REPLY {
         @Override
-        public List<Embed> generateTweetEmbed(Tweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        public List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
             Embed replyEmbed = DiscordUtils.generateReplyEmbed(tweet, discordEmbedColorConfig.getReply());
 
             return Collections.singletonList(replyEmbed);
         }
 
         @Override
-        public Embed generateTweetEmbed(Tweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        public Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
             return null;
         }
 
@@ -75,9 +72,9 @@ public enum TweetType {
         }
     };
 
-    public abstract List<Embed> generateTweetEmbed(Tweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig);
+    public abstract List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig);
 
-    public abstract Embed generateTweetEmbed(Tweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig);
+    public abstract Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig);
 
     public abstract List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig);
 }

@@ -5,5 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TwitterClientRepository extends MongoRepository<TwitterConsumer, String> {
+public interface TwitterConsumerRepository extends MongoRepository<TwitterConsumer, String> {
 }

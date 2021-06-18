@@ -1,7 +1,7 @@
 package io.enigmarobotics.discordbroadcastservice.configuration;
 
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Tweet;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.BroadcastTweet;
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.TweetImage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -34,23 +34,29 @@ public class TweetConsumerConfig {
     private String discordBroadcastAlertGroupId;
 
     @Bean
-    public ConsumerFactory<String, Tweet> tweetConsumerFactory (){
+    public ConsumerFactory<String, BroadcastTweet> tweetConsumerFactory (){
 
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, discordBroadcastTweetGroupId);
+        props.put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class);
+        props.put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                JsonDeserializer.class);
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
         return new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(),
-                new JsonDeserializer<>(Tweet.class));
+                new JsonDeserializer<>(BroadcastTweet.class, false));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Tweet>
+    public ConcurrentKafkaListenerContainerFactory<String, BroadcastTweet>
     tweetKafkaListenerContainerFactory(){
 
-        ConcurrentKafkaListenerContainerFactory<String, Tweet> factory =
+        ConcurrentKafkaListenerContainerFactory<String, BroadcastTweet> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(tweetConsumerFactory());
 

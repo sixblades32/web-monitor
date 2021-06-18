@@ -20,7 +20,7 @@ public class MonitorController {
 
     @PostMapping("/home-timeline/start")
     public void startHomeTimelineMonitor(){
-        twitterHelperService.retrieveUser("newplayaaha");
+        homeTimelineMonitor.start();
     }
 
     @PostMapping("/user-timeline/start")
@@ -35,7 +35,7 @@ public class MonitorController {
 
     @PostMapping("/home-timeline/stop")
     public void stopHomeTimelineMonitor(){
-
+        homeTimelineMonitor.stop();
     }
 
     @PostMapping("/user-timeline/stop")

@@ -1,9 +1,8 @@
-package io.enigmasolutions.twittermonitor.services;
+package io.enigmasolutions.twittermonitor.services.rest;
 
 import io.enigmasolutions.twittermonitor.db.models.TwitterConsumer;
-import io.enigmasolutions.twittermonitor.models.twitter.User;
-import io.enigmasolutions.twittermonitor.utils.TwitterClientRestTemplate;
-import lombok.Data;
+import io.enigmasolutions.twittermonitor.models.twitter.FollowsList;
+import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,26 +11,26 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@Data
 public class TwitterClient {
+
+    private final String BASE_PATH = "https://api.twitter.com/1.1/";
+    private final String USERS_PATH = "users/lookup.json";
+    private final String FOLLOWS_PATH = "friends/ids.json";
 
     private final RestTemplate twitterRestTemplate;
     private TwitterConsumer twitterConsumer;
 
     public TwitterClient(TwitterConsumer twitterConsumer) {
         this.twitterConsumer = twitterConsumer;
-        this.twitterRestTemplate = new TwitterClientRestTemplate(twitterConsumer).getRestTemplate();
+        this.twitterRestTemplate = new TwitterRestTemplate(twitterConsumer.getCredentials()).getRestTemplate();
     }
 
-    public ResponseEntity<User[]> getUser(String path, MultiValueMap<String, String> params){
+    public ResponseEntity<User[]> getUser(MultiValueMap<String, String> params){
 
-
-        String url = "https://api.twitter.com/1.1/"+ path + ".json";
+        String url = BASE_PATH + USERS_PATH;
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParams(params);
-
-
 
         HttpHeaders headers = new HttpHeaders();
 
@@ -40,20 +39,17 @@ public class TwitterClient {
         return twitterRestTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, User[].class);
     }
 
+    public ResponseEntity<FollowsList> getFollows(MultiValueMap<String, String> params){
 
-    public ResponseEntity<String> post(String path, MultiValueMap<String, String> params){
-
-        String url = "https://api.twitter.com/1.1/"+ path + ".json";
+        String url = BASE_PATH + FOLLOWS_PATH;
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParams(params);
-
-
 
         HttpHeaders headers = new HttpHeaders();
 
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        return twitterRestTemplate.exchange(builder.toUriString(), HttpMethod.POST, request, String.class);
+        return twitterRestTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, FollowsList.class);
     }
 }

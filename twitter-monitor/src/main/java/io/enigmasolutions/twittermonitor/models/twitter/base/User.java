@@ -1,9 +1,14 @@
-package io.enigmasolutions.twittermonitor.models.twitter;
+package io.enigmasolutions.twittermonitor.models.twitter.base;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.Builder;
 import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 @Data
+@Builder
+@Jacksonized
 public class User {
     @JsonProperty("screen_name")
     private String screenName;

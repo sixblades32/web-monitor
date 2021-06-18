@@ -79,7 +79,6 @@ public class PostmanService {
 
         customers.stream().parallel().forEach(customer -> {
             String url = customer.retrieveCommonWebhook();
-
             discordClient.sendEmbed(url, message);
             log.info("Embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") common webhook.");
         });
