@@ -7,6 +7,8 @@ import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
 import java.util.Date;
 import java.util.List;
 
+// TODO: насколько я помню в Java 11, можно сделать через Interface
+
 public abstract class AbstractMonitor {
 
     public abstract void start();

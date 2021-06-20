@@ -9,7 +9,6 @@ import io.enigmasolutions.twittermonitor.services.utils.BroadcastTweetFromBaseGe
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -18,13 +17,12 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class HomeTimelineMonitor extends AbstractMonitor{
+public class HomeTimelineMonitor extends AbstractMonitor {
 
     private final TwitterScraperRepository twitterScraperRepository;
     private List<TwitterCustomClient> twitterCustomClients;
@@ -33,13 +31,17 @@ public class HomeTimelineMonitor extends AbstractMonitor{
     private final KafkaTemplate<String, BroadcastTweet> kafkaTemplate;
 
     private Boolean isRunning = false;
-    private List<TwitterCustomClient> failedCustomClietns;
-    private String status = "Stopped";
-    private int delay;
+    // TODO: нужно static
     private final int HOME_TIMELINE_DELAY = 4025;
+    // TODO: где происходит наполнение, Clietns орфографическая ошибка
+    private List<TwitterCustomClient> failedCustomClietns;
+    // TODO: все статусы надо вынести в общий Enum, скорее всего они общие для всей системы, isRunning можно убрать
+    private String status = "Stopped";
+    // TODO: можно сделать локальной переменной
+    private int delay;
 
 
-
+    // TODO: читабельный вид
     @Autowired
     public HomeTimelineMonitor(TwitterScraperRepository twitterScraperRepository,
                                TwitterHelperService twitterHelperService,
@@ -71,12 +73,14 @@ public class HomeTimelineMonitor extends AbstractMonitor{
 
                 Thread.sleep(delay);
 
+                // TODO: давай это тоже сделаем отдельным методом
                 if(!twitterHelperService.isInTweetCache(tweet.getTweetId()) && isTweetRelevant(tweet)){
                     BroadcastTweet broadcastTweet = broadcastTweetFromBaseGenerator.generate(tweet);
 
                     sendTweet(broadcastTweet);
                 }
             }catch (HttpClientErrorException exception){
+                // TODO: разве есть 600 ошибки?)
                 if(exception.getStatusCode().value() < 500 || exception.getStatusCode().value() >= 600){
                     log.error(exception.toString());
                 }else if(exception.getStatusCode().value() >= 400 &&
@@ -88,6 +92,7 @@ public class HomeTimelineMonitor extends AbstractMonitor{
 
                     log.error(exception.toString());
                 }
+                // TODO: лог, не System.out.println
                 System.out.println(exception.getStatusCode());
             } catch (InterruptedException exception) {
                 log.error(exception.toString());
@@ -103,6 +108,7 @@ public class HomeTimelineMonitor extends AbstractMonitor{
         status = "Stopped";
     }
 
+    // TODO: Давай уберем @NonNull и сделаем врапперы, кол-во сделаем опциональным, через параметр
     @NonNull
     public Tweet getTweet(){
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

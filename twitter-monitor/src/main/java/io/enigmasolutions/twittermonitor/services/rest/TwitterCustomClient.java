@@ -13,6 +13,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public class TwitterCustomClient {
+
+    // TODO: константы должны быть static
     private final String BASE_PATH = "https://api.twitter.com/1.1/";
     private final String HOME_TIMELINE_PATH = "statuses/home_timeline.json";
     private final String USER_TIMELINE_PATH = "statuses/user_timeline.json";
@@ -42,6 +44,7 @@ public class TwitterCustomClient {
         return getResponseEntity(params, tweetDeckAuth, USER_TIMELINE_PATH);
     }
 
+    // TODO: возможно это стоит сделать и для обычного клиента
     @NotNull
     private ResponseEntity<Tweet[]> getResponseEntity(
             MultiValueMap<String, String> params,

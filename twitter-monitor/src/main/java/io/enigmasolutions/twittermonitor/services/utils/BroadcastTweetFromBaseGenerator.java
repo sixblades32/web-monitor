@@ -1,18 +1,20 @@
 package io.enigmasolutions.twittermonitor.services.utils;
 
 import io.enigmasolutions.twittermonitor.models.broadcast.BroadcastTweet;
-import io.enigmasolutions.twittermonitor.models.twitter.base.ExtendedEntity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.Tweet;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
 
+// TODO: название класса не сосвесем понятно, зачем @Component
 @Component
 public class BroadcastTweetFromBaseGenerator {
 
+    // TODO: подробить на методы, кажется, так будет лучше читать этапы выполнения
+
     public BroadcastTweet generate(Tweet tweet) {
-        if (tweet == null){
+        if (tweet == null) {
             System.out.println(tweet);
         }
         List<String> images = new LinkedList<>();
@@ -23,6 +25,8 @@ public class BroadcastTweetFromBaseGenerator {
             image = tweet.getExtendedEntities().getMedia().get(0).getMediaUrl();
 
             System.out.println(image);
+
+            // TODO: привести к читабельному виду, stream() не нужно
 
             tweet.getExtendedEntities().getMedia().stream().forEach(media -> {
                 images.add(media.getMediaUrl());
@@ -42,7 +46,11 @@ public class BroadcastTweetFromBaseGenerator {
         }
 
         if (tweet.getEntities() != null) {
+            // TODO: можно вынести в один if, не создаем ненужные вложенности
+
             if (tweet.getEntities().getUrls().size() > 0) {
+                // TODO: привести к читабельному виду, stream() не нужно
+
                 tweet.getEntities().getUrls().stream().forEach(url -> {
                     String text = tweet.getText();
                     tweet.setText(text.replace(url.getUrl(), url.getExpandedUrl()));

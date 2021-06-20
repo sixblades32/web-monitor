@@ -13,11 +13,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 public class TwitterClient {
 
+    // TODO: константы должны быть static
     private final String BASE_PATH = "https://api.twitter.com/1.1/";
     private final String USERS_PATH = "users/lookup.json";
     private final String FOLLOWS_PATH = "friends/ids.json";
 
     private final RestTemplate twitterRestTemplate;
+    // TODO: final
     private TwitterConsumer twitterConsumer;
 
     public TwitterClient(TwitterConsumer twitterConsumer) {
@@ -32,6 +34,7 @@ public class TwitterClient {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParams(params);
 
+        // TODO: заменить на RequestEntity auth-service/src/main/java/io/enigmasolutions/webmonitor/authservice/services/DiscordValidationService.java
         HttpHeaders headers = new HttpHeaders();
 
         HttpEntity<String> request = new HttpEntity<>(headers);
@@ -46,6 +49,7 @@ public class TwitterClient {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParams(params);
 
+        // TODO: заменить на RequestEntity auth-service/src/main/java/io/enigmasolutions/webmonitor/authservice/services/DiscordValidationService.java
         HttpHeaders headers = new HttpHeaders();
 
         HttpEntity<String> request = new HttpEntity<>(headers);
