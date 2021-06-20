@@ -19,3 +19,5 @@ include 'auth-service'
 include 'discord-broadcast-service'
 include 'web-broadcast-service'
 include 'twitter-monitor'
+include 'broadcast-models'
+

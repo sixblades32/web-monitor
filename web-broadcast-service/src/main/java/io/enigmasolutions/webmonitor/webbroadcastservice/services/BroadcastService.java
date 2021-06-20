@@ -11,8 +11,7 @@ public class BroadcastService {
     private final Sinks.Many<String> sink;
 
     public BroadcastService(
-            @Value("${broadcast.history-limit}")
-                    Integer historyLimit
+            @Value("${broadcast.history-limit}") Integer historyLimit
     ) {
         this.sink = Sinks.many().replay().limit(historyLimit);
     }

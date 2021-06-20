@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.models.broadcast;
+package io.enigmasolutions.broadcastmodels;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,15 +7,15 @@ import java.util.List;
 
 @Data
 @Builder
-public class BroadcastTweet {
+public class Tweet {
     private String tweetType;
     private String text;
     private String userName;
     private String userId;
     private String userIcon;
     private String userUrl;
-    private BroadcastTweet retweeted;
-    private BroadcastTweet replied;
+    private Tweet retweeted;
+    private Tweet replied;
     private String tweetUrl;
     private String retweetsUrl;
     private String likesUrl;

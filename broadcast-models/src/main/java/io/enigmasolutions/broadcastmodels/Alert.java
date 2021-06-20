@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.models.broadcast;
+package io.enigmasolutions.broadcastmodels;
 
 import lombok.Data;
 
