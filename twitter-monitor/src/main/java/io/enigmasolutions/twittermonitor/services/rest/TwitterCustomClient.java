@@ -1,7 +1,7 @@
 package io.enigmasolutions.twittermonitor.services.rest;
 
 import io.enigmasolutions.twittermonitor.db.models.TwitterScraper;
-import io.enigmasolutions.twittermonitor.models.twitter.base.Tweet;
+import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +27,7 @@ public class TwitterCustomClient {
         this.twitterScraper = twitterScraper;
     }
 
-    public ResponseEntity<Tweet[]> getHomeTimelineTweets(MultiValueMap<String, String> params){
+    public ResponseEntity<TweetResponse[]> getHomeTimelineTweets(MultiValueMap<String, String> params){
 
         MultiValueMap<String,String> tweetDeckAuth = new LinkedMultiValueMap<>();
         tweetDeckAuth.add("x-csrf-token", twitterScraper.getTweetDeckAuth().getCsrfToken());
@@ -39,14 +39,14 @@ public class TwitterCustomClient {
         return getResponseEntity(params, tweetDeckAuth, HOME_TIMELINE_PATH);
     }
 
-    public ResponseEntity<Tweet[]> getUserTimelineTweets(MultiValueMap<String, String> params, MultiValueMap<String,String> tweetDeckAuth){
+    public ResponseEntity<TweetResponse[]> getUserTimelineTweets(MultiValueMap<String, String> params, MultiValueMap<String,String> tweetDeckAuth){
 
         return getResponseEntity(params, tweetDeckAuth, USER_TIMELINE_PATH);
     }
 
     // TODO: возможно это стоит сделать и для обычного клиента
     @NotNull
-    private ResponseEntity<Tweet[]> getResponseEntity(
+    private ResponseEntity<TweetResponse[]> getResponseEntity(
             MultiValueMap<String, String> params,
             MultiValueMap<String, String> tweetDeckAuth,
             String path
@@ -61,6 +61,6 @@ public class TwitterCustomClient {
 
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, Tweet[].class);
+        return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, TweetResponse[].class);
     }
 }

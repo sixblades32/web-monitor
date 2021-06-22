@@ -1,6 +1,6 @@
 package io.enigmasolutions.twittermonitor.configuration;
 
-import io.enigmasolutions.twittermonitor.models.broadcast.BroadcastTweet;
+import io.enigmasolutions.broadcastmodels.Tweet;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -25,15 +25,11 @@ public class TweetProducerConfiguration {
     @Value(value = "${kafka.tweet-consumer.group-id}")
     private String discordBroadcastTweetGroupId;
 
-    // TODO: remove this
-    @Value(value = "${kafka.tweet-image-consumer.group-id}")
-    private String discordBroadcastTweetImageGroupId;
-
     @Value(value = "${kafka.alert-consumer.group-id}")
     private String discordBroadcastAlertGroupId;
 
     @Bean
-    public ProducerFactory<String, BroadcastTweet> tweetProducerFactory() {
+    public ProducerFactory<String, Tweet> tweetProducerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -50,7 +46,7 @@ public class TweetProducerConfiguration {
     }
 
     @Bean
-    public KafkaTemplate<String, BroadcastTweet> kafkaTemplate() {
+    public KafkaTemplate<String, Tweet> kafkaTemplate() {
         return new KafkaTemplate<>(tweetProducerFactory());
     }
 }

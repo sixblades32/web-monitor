@@ -1,7 +1,6 @@
 package io.enigmasolutions.twittermonitor.models.twitter.base;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -9,7 +8,7 @@ import lombok.extern.jackson.Jacksonized;
 @Data
 @Builder
 @Jacksonized
-public class Tweet {
+public class TweetResponse {
 
     private final String TWITTER_URL = "https://twitter.com/";
 
@@ -25,10 +24,10 @@ public class Tweet {
     private ExtendedEntity extendedEntities;
     private User user;
     @JsonProperty("retweeted_status")
-    private Tweet retweetedStatus;
+    private TweetResponse retweetedStatus;
     @JsonProperty("quoted_status")
-    private Tweet quotedStatus;
-    private Tweet repliedStatus;
+    private TweetResponse quotedStatus;
+    private TweetResponse repliedStatus;
     @JsonProperty("quoted_status_permalink")
     private QuotedStatusPermalink quotedStatusPermalink;
     @JsonProperty("in_reply_to_status_id_str")
@@ -55,14 +54,14 @@ public class Tweet {
         return tweetType;
     }
 
-    public Tweet getRepliedStatus() {
+    public TweetResponse getRepliedStatus() {
         if (inReplyToStatusId != null) {
             User user = User.builder()
                     .id(inReplyToUserId)
                     .screenName(inReplyToScreenName)
                     .userUrl(TWITTER_URL + inReplyToScreenName)
                     .build();
-            Tweet replied = Tweet.builder()
+            TweetResponse replied = TweetResponse.builder()
                     .user(user)
                     .tweetUrl(TWITTER_URL + inReplyToScreenName + "/status/" + inReplyToStatusId)
                     .build();
