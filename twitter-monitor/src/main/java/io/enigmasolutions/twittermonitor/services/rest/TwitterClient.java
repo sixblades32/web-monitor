@@ -14,20 +14,17 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class TwitterClient {
 
     // TODO: константы должны быть static
-    private final String BASE_PATH = "https://api.twitter.com/1.1/";
-    private final String USERS_PATH = "users/lookup.json";
-    private final String FOLLOWS_PATH = "friends/ids.json";
+    private final static String BASE_PATH = "https://api.twitter.com/1.1/";
+    private final static String USERS_PATH = "users/lookup.json";
+    private final static String FOLLOWS_PATH = "friends/ids.json";
 
     private final RestTemplate twitterRestTemplate;
-    // TODO: final
-    private TwitterConsumer twitterConsumer;
 
     public TwitterClient(TwitterConsumer twitterConsumer) {
-        this.twitterConsumer = twitterConsumer;
         this.twitterRestTemplate = new TwitterRestTemplate(twitterConsumer.getCredentials()).getRestTemplate();
     }
 
-    public ResponseEntity<User[]> getUser(MultiValueMap<String, String> params){
+    public ResponseEntity<User[]> getUser(MultiValueMap<String, String> params) {
 
         String url = BASE_PATH + USERS_PATH;
 

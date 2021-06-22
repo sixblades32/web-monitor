@@ -11,7 +11,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +34,9 @@ public class TwitterHelperService {
     public void initTwitterClients() {
         List<TwitterConsumer> consumers = twitterConsumerRepository.findAll();
 
-        this.twitterClients = consumers.stream().map(TwitterClient::new).collect(Collectors.toList());
+        this.twitterClients = consumers.stream()
+                .map(TwitterClient::new)
+                .collect(Collectors.toList());
         this.tweetsCache = new LinkedList<>();
     }
 

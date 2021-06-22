@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
+import io.enigmasolutions.twittermonitor.models.monitor.Status;
 import io.enigmasolutions.twittermonitor.services.HomeTimelineTwitterMonitor;
 import io.enigmasolutions.twittermonitor.services.TwitterHelperService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +23,19 @@ public class HomeTimelineMonitorController {
     }
 
     @PostMapping("/start")
-    public void start(){
+    public void start() {
         homeTimelineMonitor.start();
     }
 
 
     @PostMapping("/home-timeline/stop")
-    public void stop(){
+    public void stop() {
         homeTimelineMonitor.stop();
     }
 
     @GetMapping("/status")
-    public void status(){
-
+    public Status status() {
+        return homeTimelineMonitor.getStatus();
     }
 
 }
