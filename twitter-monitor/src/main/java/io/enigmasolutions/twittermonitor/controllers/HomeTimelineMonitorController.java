@@ -28,7 +28,7 @@ public class HomeTimelineMonitorController {
     }
 
 
-    @PostMapping("/home-timeline/stop")
+    @PostMapping("/stop")
     public void stop() {
         homeTimelineMonitor.stop();
     }

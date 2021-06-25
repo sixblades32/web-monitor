@@ -1,6 +1,7 @@
 package io.enigmarobotics.discordbroadcastservice.configuration;
 
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.BroadcastTweet;
 import io.enigmasolutions.broadcastmodels.Tweet;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -30,7 +31,7 @@ public class TweetConsumerConfig {
     private String discordBroadcastAlertGroupId;
 
     @Bean
-    public ConsumerFactory<String, Tweet> tweetConsumerFactory (){
+    public ConsumerFactory<String, BroadcastTweet> tweetConsumerFactory (){
 
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
@@ -45,14 +46,14 @@ public class TweetConsumerConfig {
 
         return new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(),
-                new JsonDeserializer<>(Tweet.class, false));
+                new JsonDeserializer<>(BroadcastTweet.class, false));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Tweet>
+    public ConcurrentKafkaListenerContainerFactory<String, BroadcastTweet>
     tweetKafkaListenerContainerFactory(){
 
-        ConcurrentKafkaListenerContainerFactory<String, Tweet> factory =
+        ConcurrentKafkaListenerContainerFactory<String, BroadcastTweet> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(tweetConsumerFactory());
 

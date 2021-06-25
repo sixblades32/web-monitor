@@ -11,16 +11,16 @@ import java.util.List;
 public class TweetGenerator {
 
     public Tweet generate(TweetResponse tweetResponse) {
-        if (tweetResponse == null) {
-            System.out.println(tweetResponse);
-        }
+
         List<String> images = new LinkedList<>();
         String videoUrl = null;
         String image = null;
 
         if (tweetResponse.getExtendedEntities() != null) {
             retrieveImages(tweetResponse, images);
-            image = images.get(0);
+            if (!images.isEmpty()){
+                image = images.get(0);
+            }
             videoUrl = retrieveVideo(tweetResponse);
         }
 
@@ -58,15 +58,16 @@ public class TweetGenerator {
         return tweetBuilder;
     }
 
-
     public void retrieveImages(TweetResponse tweetResponse, List<String> images) {
 
         tweetResponse.getExtendedEntities()
                 .getMedia()
                 .forEach(media -> {
-                    images.add(media.getMediaUrl());
-                    String text = tweetResponse.getText();
-                    tweetResponse.setText(text.replace(media.getUrl(), ""));
+                    if(media.getSourceUserId() == null){
+                        images.add(media.getMediaUrl());
+                        String text = tweetResponse.getText();
+                        tweetResponse.setText(text.replace(media.getUrl(), ""));
+                    }
                 });
     }
 

@@ -14,45 +14,32 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
-import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Slf4j
 @Component
 public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
 
     private final TwitterScraperRepository twitterScraperRepository;
-    private List<TwitterCustomClient> twitterCustomClients;
     private final TweetGenerator tweetGenerator;
     private final TwitterHelperService twitterHelperService;
     private final KafkaTemplate<String, Tweet> kafkaTemplate;
+    private static final String TIMELINE_PATH = "statuses/home_timeline.json";
 
     @Autowired
     public HomeTimelineTwitterMonitor(TwitterScraperRepository twitterScraperRepository,
                                       TwitterHelperService twitterHelperService,
                                       TweetGenerator tweetGenerator,
                                       KafkaTemplate<String,Tweet> kafkaTemplate) {
-        super(4025, twitterScraperRepository);
+        super(4025, twitterScraperRepository, twitterHelperService, kafkaTemplate, tweetGenerator);
         this.twitterScraperRepository = twitterScraperRepository;
         this.twitterHelperService = twitterHelperService;
         this.tweetGenerator = tweetGenerator;
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @PostConstruct
-    public void initTwitterCustomClients() {
-        List<TwitterScraper> scrapers = twitterScraperRepository.findAll();
-
-        this.twitterCustomClients = scrapers.stream()
-                .map(TwitterCustomClient::new)
-                .collect(Collectors.toList());
-    }
-
     @Override
     protected void executeTwitterMonitoring() {
         try {
-            TweetResponse tweetResponse = getTweetResponse();
+            TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH);
             sendTweet(tweetResponse);
         } catch (HttpClientErrorException exception) {
 
@@ -68,35 +55,18 @@ public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
         }
     }
 
-
     @Override
-    protected TweetResponse getTweetResponse() {
-        TweetResponse tweetResponse = null;
-
+    protected MultiValueMap<String, String> generateParams(){
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("tweet_mode", "extended");
         params.add("count", "1");
         params.add("include_entities", "1");
         params.add("include_user_entities", "1");
 
-        TwitterCustomClient currentClient = refreshClient();
-        TweetResponse[] tweetResponseArray = currentClient
-                .getHomeTimelineTweets(params)
-                .getBody();
-
-        if (tweetResponseArray != null && tweetResponseArray.length > 0) {
-            tweetResponse = tweetResponseArray[0];
-        }
-
-        return tweetResponse;
+        return params;
     }
 
-    @Override
-    protected void sendTweet(TweetResponse tweetResponse) {
-        if (!twitterHelperService.isInTweetCache(tweetResponse.getTweetId()) && isTweetRelevant(tweetResponse)) {
-            Tweet tweet = tweetGenerator.generate(tweetResponse);
-            kafkaTemplate.send("twitter-tweet-broadcast", tweet);
-        }
-    }
+
+
 
 }

@@ -1,7 +1,8 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
+import io.enigmasolutions.twittermonitor.models.monitor.UserStartForm;
 import io.enigmasolutions.twittermonitor.services.GraphQLUserTimelineMonitor;
-import io.enigmasolutions.twittermonitor.services.UserTimelineMonitor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,13 +17,13 @@ public class GraphQLUserTimelineMonitorController {
     }
 
     @PostMapping("/start")
-    public void start(@RequestBody String username){
-
+    public void start(@RequestBody UserStartForm body){
+        graphQLUserTimelineMonitor.start(body.getUserName());
     }
 
     @PostMapping("/stop")
     public void stop(){
-
+        graphQLUserTimelineMonitor.stop();
     }
 
     @GetMapping("/status")
