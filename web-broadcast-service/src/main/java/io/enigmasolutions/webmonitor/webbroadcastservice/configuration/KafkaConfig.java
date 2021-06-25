@@ -16,7 +16,7 @@ import java.util.Map;
 
 @EnableKafka
 @Configuration
-public class TweetConsumerConfig {
+public class KafkaConfig {
 
     @Value(value = "${kafka.bootstrap-servers}")
     private String bootstrapAddress;
