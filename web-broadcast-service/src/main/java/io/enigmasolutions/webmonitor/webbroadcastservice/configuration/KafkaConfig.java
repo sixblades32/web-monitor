@@ -21,15 +21,11 @@ public class KafkaConfig {
     @Value(value = "${kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
-    @Value(value = "${kafka.tweet-consumer.group-id}")
-    private String tweetConsumerGroupId;
-
     @Bean
-    public ConsumerFactory<String, String> tweetConsumerFactory() {
+    public ConsumerFactory<String, String> consumerFactory() {
 
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, tweetConsumerGroupId);
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
         return new DefaultKafkaConsumerFactory<>(props,
@@ -38,12 +34,11 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String>
-    tweetKafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(tweetConsumerFactory());
+        factory.setConsumerFactory(consumerFactory());
 
         return factory;
     }

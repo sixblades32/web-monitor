@@ -33,7 +33,7 @@ public class TweetGenerator {
     }
     public Tweet.TweetBuilder tuneTweetBuilder(TweetResponse tweetResponse, String image, List<String> images, String videoUrl){
         Tweet.TweetBuilder tweetBuilder = Tweet.builder()
-                .tweetType(tweetResponse.getTweetType())
+                .type(tweetResponse.getTweetType())
                 .text(tweetResponse.getText())
                 .userName(tweetResponse.getUser().getScreenName())
                 .userIcon(tweetResponse.getUser().getUserImage())

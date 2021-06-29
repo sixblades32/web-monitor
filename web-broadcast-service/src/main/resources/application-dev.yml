@@ -24,6 +24,12 @@ kafka:
   tweet-consumer:
     group-id: web-broadcast-tweet
     topic: twitter-broadcast
+  recognition-consumer:
+    group-id: web-broadcast-recognition
+    topic: recognition-broadcast
+  staff-consumer:
+    group-id: web-broadcast-staff
+    topic: staff-broadcast
 
 broadcast:
   history-limit: 25
