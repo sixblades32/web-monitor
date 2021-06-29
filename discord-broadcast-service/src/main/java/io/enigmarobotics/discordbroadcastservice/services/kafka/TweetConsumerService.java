@@ -11,6 +11,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -25,21 +26,36 @@ public class TweetConsumerService {
         this.discordEmbedColorConfig = discordEmbedColorConfig;
     }
 
-    @KafkaListener(topics = "${kafka.tweet-consumer.topic}",
-            groupId = "${kafka.tweet-consumer.group-id}",
+    @KafkaListener(topics = "${kafka.tweet-consumer-base.topic}",
+            groupId = "${kafka.tweet-consumer-base.group-id}",
             containerFactory = "tweetKafkaListenerContainerFactory")
-    public void consume(BroadcastTweet tweet) {
+    public void consumeBaseTopic(BroadcastTweet tweet) {
 
-        log.info("Received Tweet Message from: " + tweet.getUserName());
+        log.info("Received Base Tweet Message from: " + tweet.getUserName());
 
+        Message message = generateMessage(tweet);
+
+        postmanService.processCommon(message);
+    }
+
+    @KafkaListener(topics = "${kafka.tweet-consumer-live-release.topic}",
+            groupId = "${kafka.tweet-consumer-live-release.group-id}",
+            containerFactory = "tweetKafkaListenerContainerFactory")
+    public void consumeLiveReleaseTopic(BroadcastTweet tweet) {
+
+        log.info("Received Live Release Tweet Message from: " + tweet.getUserName());
+
+        Message message = generateMessage(tweet);
+
+        postmanService.processAdvanced(message);
+    }
+
+    private Message generateMessage(BroadcastTweet tweet){
         List<Embed> embeds = tweet.getTweetType().generateTweetEmbed(tweet, discordEmbedColorConfig);
 
-        embeds.stream().forEach(System.out::println);
-        Message message = Message.builder()
+        return Message.builder()
                 .content("")
                 .embeds(embeds)
                 .build();
-
-        postmanService.sendTwitterEmbed(message, tweet.getUserId());
     }
 }

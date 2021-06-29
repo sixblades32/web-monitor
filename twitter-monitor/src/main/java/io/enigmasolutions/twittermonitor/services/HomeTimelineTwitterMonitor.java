@@ -18,11 +18,8 @@ import org.springframework.web.client.HttpClientErrorException;
 @Component
 public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
 
-    private final TwitterScraperRepository twitterScraperRepository;
-    private final TweetGenerator tweetGenerator;
-    private final TwitterHelperService twitterHelperService;
-    private final KafkaTemplate<String, Tweet> kafkaTemplate;
     private static final String TIMELINE_PATH = "statuses/home_timeline.json";
+
 
     @Autowired
     public HomeTimelineTwitterMonitor(TwitterScraperRepository twitterScraperRepository,
@@ -30,10 +27,6 @@ public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
                                       TweetGenerator tweetGenerator,
                                       KafkaTemplate<String,Tweet> kafkaTemplate) {
         super(4025, twitterScraperRepository, twitterHelperService, kafkaTemplate, tweetGenerator);
-        this.twitterScraperRepository = twitterScraperRepository;
-        this.twitterHelperService = twitterHelperService;
-        this.tweetGenerator = tweetGenerator;
-        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override

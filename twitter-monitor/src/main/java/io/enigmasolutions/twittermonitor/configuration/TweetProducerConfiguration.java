@@ -22,7 +22,7 @@ public class TweetProducerConfiguration {
     @Value(value = "${kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
-    @Value(value = "${kafka.tweet-consumer.group-id}")
+    @Value(value = "${kafka.tweet-consumer-base.group-id}")
     private String discordBroadcastTweetGroupId;
 
     @Value(value = "${kafka.alert-consumer.group-id}")

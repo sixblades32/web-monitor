@@ -82,8 +82,6 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor{
                 .getGraphQLApiTimelineTweets(getParams())
                 .getBody();
 
-        System.out.println(graphQlDataResponse);
-
         if (graphQlDataResponse != null) {
             tweetResponse = baseTweetResponseGenerator.generate(graphQlDataResponse.getUser()
                     .getResult()

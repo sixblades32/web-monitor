@@ -1,6 +1,8 @@
 package io.enigmasolutions.twittermonitor.services;
 
+import io.enigmasolutions.twittermonitor.db.models.Target;
 import io.enigmasolutions.twittermonitor.db.models.TwitterConsumer;
+import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.FollowsList;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
@@ -21,23 +23,48 @@ import java.util.stream.Collectors;
 @Service
 public class TwitterHelperService {
     private final TwitterConsumerRepository twitterConsumerRepository;
+    private final TargetRepository targetRepository;
 
     private List<TwitterClient> twitterClients;
+    private List<String> commonTargetIds;
+    public List<String> advancedTargetIds = new LinkedList<>();
     private List<String> tweetsCache;
 
     @Autowired
-    public TwitterHelperService(TwitterConsumerRepository twitterClientRepository) {
+    public TwitterHelperService(TwitterConsumerRepository twitterClientRepository, TargetRepository targetRepository) {
+        this.targetRepository = targetRepository;
         this.twitterConsumerRepository = twitterClientRepository;
     }
 
     @PostConstruct
+    public void init(){
+        initTargets();
+        initTwitterClients();
+        this.tweetsCache = new LinkedList<>();
+    }
+
+    private void initTargets() {
+        List<Target> targets = targetRepository.findAll();
+
+        commonTargetIds = targets.stream()
+                .map(Target::getIdentifier)
+                .collect(Collectors.toList());
+    }
+
     public void initTwitterClients() {
         List<TwitterConsumer> consumers = twitterConsumerRepository.findAll();
 
         this.twitterClients = consumers.stream()
                 .map(TwitterClient::new)
                 .collect(Collectors.toList());
-        this.tweetsCache = new LinkedList<>();
+    }
+
+    public Boolean checkCommonPass(String id) {
+        return commonTargetIds.contains(id);
+    }
+
+    public Boolean checkLiveReleasePass(String id) {
+        return advancedTargetIds.contains(id);
     }
 
     public User retrieveUser(String screenName) {

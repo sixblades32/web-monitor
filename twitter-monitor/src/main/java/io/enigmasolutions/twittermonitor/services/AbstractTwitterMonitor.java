@@ -97,7 +97,12 @@ public abstract class AbstractTwitterMonitor {
     protected void sendTweet(TweetResponse tweetResponse){
         if (!twitterHelperService.isInTweetCache(tweetResponse.getTweetId()) && isTweetRelevant(tweetResponse)) {
             Tweet tweet = tweetGenerator.generate(tweetResponse);
-            kafkaTemplate.send("twitter-tweet-broadcast", tweet);
+            if (isCommonTargetValid(tweetResponse)){
+                kafkaTemplate.send("twitter-tweet-broadcast-base", tweet);
+            }
+            if(isLiveReleaseTargetValid(tweetResponse)){
+                kafkaTemplate.send("twitter-tweet-broadcast-live-release", tweet);
+            }
         }
     };
 
@@ -117,7 +122,7 @@ public abstract class AbstractTwitterMonitor {
         }
     }
 
-    protected Boolean isTweetRelevant(TweetResponse tweetResponse) {
+    private Boolean isTweetRelevant(TweetResponse tweetResponse) {
         return new Date().getTime() - Date.parse(tweetResponse.getCreatedAt()) <= 25000;
     }
 
@@ -126,5 +131,17 @@ public abstract class AbstractTwitterMonitor {
         twitterCustomClients.add(client);
 
         return client;
+    }
+
+    private Boolean isCommonTargetValid(TweetResponse tweetResponse){
+        String targetId = tweetResponse.getUser().getId();
+
+        return twitterHelperService.checkCommonPass(targetId);
+    }
+
+    private Boolean isLiveReleaseTargetValid(TweetResponse tweetResponse){
+        String targetId = tweetResponse.getUser().getId();
+
+        return twitterHelperService.checkLiveReleasePass(targetId);
     }
 }

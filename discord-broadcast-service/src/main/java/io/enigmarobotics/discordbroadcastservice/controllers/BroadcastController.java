@@ -47,7 +47,7 @@ public class BroadcastController {
                 .embeds(embeds)
                 .build();
 
-        postmanService.sendTwitterEmbed(message, tweet.getUserId());
+//        postmanService.sendTwitterEmbed(message, tweet.getUserId());
     }
 
     @PostMapping("/image")
@@ -60,7 +60,7 @@ public class BroadcastController {
                 .embeds(embeds)
                 .build();
 
-        postmanService.sendTwitterEmbed(message, tweetImage.getUserId());
+//        postmanService.sendTwitterEmbed(message, tweetImage.getUserId());
     }
 
     @PostMapping("/alert")

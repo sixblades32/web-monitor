@@ -21,7 +21,7 @@ public class ConcurrentCustomer {
 
     public synchronized String retrieveAdvancedWebhook() {
         String url = customer.getDiscordBroadcast().getAdvancedWebhooks().remove(0);
-        customer.getDiscordBroadcast().getCommonWebhooks().add(url);
+        customer.getDiscordBroadcast().getAdvancedWebhooks().add(url);
 
         return url;
     }

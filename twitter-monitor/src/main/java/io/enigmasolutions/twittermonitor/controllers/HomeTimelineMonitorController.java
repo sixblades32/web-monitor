@@ -14,12 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeTimelineMonitorController {
 
     private final HomeTimelineTwitterMonitor homeTimelineMonitor;
-    private final TwitterHelperService twitterHelperService;
 
     @Autowired
     public HomeTimelineMonitorController(HomeTimelineTwitterMonitor homeTimelineMonitor, TwitterHelperService twitterHelperService) {
         this.homeTimelineMonitor = homeTimelineMonitor;
-        this.twitterHelperService = twitterHelperService;
     }
 
     @PostMapping("/start")

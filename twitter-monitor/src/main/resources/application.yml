@@ -5,9 +5,12 @@ spring:
 
 kafka:
   bootstrap-servers: localhost:9092
-  tweet-consumer:
+  tweet-consumer-base:
     group-id: discord-broadcast-tweet
     topic: twitter-tweet-broadcast
+  tweet-consumer-live-release:
+    group-id: discord-broadcast-tweet
+    topic: twitter-tweet-broadcast-live-release
   alert-consumer:
     group-id: discord-broadcast-alert
     topic: twitter-alert-broadcast

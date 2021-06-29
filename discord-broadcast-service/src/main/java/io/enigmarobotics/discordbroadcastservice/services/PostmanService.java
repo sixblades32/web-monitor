@@ -26,11 +26,7 @@ public class PostmanService {
 
     private final DiscordClient discordClient;
     private final CustomerRepository CustomerRepository;
-    private final TargetRepository TargetRepository;
 
-    private final List<String> advancedTargetIds = new LinkedList<>();
-
-    private List<String> commonTargetIds;
     private List<ConcurrentCustomer> customers;
 
     @Autowired
@@ -41,13 +37,11 @@ public class PostmanService {
     ) {
         this.discordClient = discordClient;
         this.CustomerRepository = CustomerRepository;
-        this.TargetRepository = TargetRepository;
     }
 
     @PostConstruct
     public void init() {
         initCustomers();
-        initTargets();
     }
 
     private void initCustomers() {
@@ -57,49 +51,28 @@ public class PostmanService {
                 .collect(Collectors.toList());
     }
 
-    private void initTargets() {
-        List<Target> targets = TargetRepository.findAll();
-
-        commonTargetIds = targets.stream()
-                .map(Target::getIdentifier)
-                .collect(Collectors.toList());
-    }
-
     public void sendAlertEmbed(Message message) {
         discordClient.sendEmbed(alertDiscordUrl, message);
     }
 
-    public void sendTwitterEmbed(Message message, String userId) {
-        CompletableFuture.runAsync(() -> processCommon(message, userId));
-        CompletableFuture.runAsync(() -> processAdvanced(message, userId));
-    }
 
-    private void processCommon(Message message, String userId) {
-        if (!checkCommonPass(userId)) return;
+    public void processCommon(Message message) {
 
         customers.stream().parallel().forEach(customer -> {
             String url = customer.retrieveCommonWebhook();
+
             discordClient.sendEmbed(url, message);
             log.info("Embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") common webhook.");
         });
     }
 
-    private void processAdvanced(Message message, String userId) {
-        if (!checkAdvancedPass(userId)) return;
+    public void processAdvanced(Message message) {
 
         customers.stream().parallel().forEach(customer -> {
             String url = customer.retrieveAdvancedWebhook();
 
             discordClient.sendEmbed(url, message);
-            log.info("Embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") advanced webhook.");
+            log.info("Embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") live release webhook.");
         });
-    }
-
-    private Boolean checkCommonPass(String id) {
-        return commonTargetIds.contains(id);
-    }
-
-    private Boolean checkAdvancedPass(String id) {
-        return advancedTargetIds.contains(id);
     }
 }
