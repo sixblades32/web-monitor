@@ -1,17 +1,19 @@
-package io.enigmasolutions.twittermonitor.services.utils;
+package io.enigmasolutions.twittermonitor.utils;
 
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import io.enigmasolutions.twittermonitor.models.twitter.graphQL.GraphQLTweet;
-import org.springframework.stereotype.Component;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLTweet;
 
-@Component
 public class BaseTweetResponseGenerator {
 
-    public TweetResponse generate(GraphQLTweet graphQLTweet){
+    private BaseTweetResponseGenerator() {
 
-        TweetResponse tweetResponse = TweetResponse.builder()
+    }
+
+    // TODO: здесь по-моему может быть рекурсия?
+    public static TweetResponse generate(GraphQLTweet graphQLTweet) {
+        return TweetResponse.builder()
                 .createdAt(graphQLTweet.getLegacy().getCreatedAt())
-                .tweetType(graphQLTweet.getLegacy().getTweetType())
+                .type(graphQLTweet.getLegacy().getTweetType())
                 .tweetId(graphQLTweet.getRestId())
                 .text(graphQLTweet.getLegacy().getText())
                 .entities(graphQLTweet.getLegacy().getEntities())
@@ -28,8 +30,5 @@ public class BaseTweetResponseGenerator {
                 .likesUrl(graphQLTweet.getLikesUrl())
                 .followsUrl(graphQLTweet.getLikesUrl())
                 .build();
-
-        return tweetResponse;
-
     }
 }

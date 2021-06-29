@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.services;
+package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,11 +6,9 @@ import io.enigmasolutions.broadcastmodels.Tweet;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
-import io.enigmasolutions.twittermonitor.models.twitter.graphQL.Data;
-import io.enigmasolutions.twittermonitor.models.twitter.graphQL.QueryStringData;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.Data;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.QueryStringData;
 import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
-import io.enigmasolutions.twittermonitor.services.utils.BaseTweetResponseGenerator;
-import io.enigmasolutions.twittermonitor.services.utils.TweetGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -21,30 +19,23 @@ import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
 
+import static io.enigmasolutions.twittermonitor.utils.BaseTweetResponseGenerator.generate;
+
 @Component
 @Slf4j
-public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor{
-    private final TwitterScraperRepository twitterScraperRepository;
-    private final BaseTweetResponseGenerator baseTweetResponseGenerator;
-    private final TweetGenerator tweetGenerator;
+public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
+
     private final TwitterHelperService twitterHelperService;
-    private final KafkaTemplate<String, Tweet> kafkaTemplate;
 
     private User user;
 
     public GraphQLUserTimelineMonitor(
             TwitterScraperRepository twitterScraperRepository,
-            BaseTweetResponseGenerator baseTweetResponseGenerator,
             TwitterHelperService twitterHelperService,
-            TweetGenerator tweetGenerator,
-            KafkaTemplate<String,Tweet> kafkaTemplate
+            KafkaTemplate<String, Tweet> kafkaTemplate
     ) {
-        super(1900, twitterScraperRepository, twitterHelperService, kafkaTemplate, tweetGenerator);
-        this.twitterScraperRepository = twitterScraperRepository;
-        this.baseTweetResponseGenerator = baseTweetResponseGenerator;
+        super(1900, twitterScraperRepository, twitterHelperService, kafkaTemplate);
         this.twitterHelperService = twitterHelperService;
-        this.tweetGenerator = tweetGenerator;
-        this.kafkaTemplate = kafkaTemplate;
     }
 
     public void start(String screenName) {
@@ -73,9 +64,8 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor{
         }
     }
 
-    private TweetResponse getTweetResponse(){
+    private TweetResponse getTweetResponse() {
         TweetResponse tweetResponse = null;
-
 
         TwitterCustomClient currentClient = refreshClient();
         Data graphQlDataResponse = currentClient
@@ -83,7 +73,7 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor{
                 .getBody();
 
         if (graphQlDataResponse != null) {
-            tweetResponse = baseTweetResponseGenerator.generate(graphQlDataResponse.getUser()
+            tweetResponse = generate(graphQlDataResponse.getUser()
                     .getResult()
                     .getTimeline()
                     .getNestedTimeline()
@@ -98,7 +88,7 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor{
     }
 
     @Override
-    protected MultiValueMap<String, String> generateParams(){
+    protected MultiValueMap<String, String> generateParams() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         String variables = null;
@@ -117,6 +107,8 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor{
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
+
+        //TODO: нужно что-то придумать с этим, т.к. будет НПЕ
 
         try {
             variables = objectMapper.writeValueAsString(data);

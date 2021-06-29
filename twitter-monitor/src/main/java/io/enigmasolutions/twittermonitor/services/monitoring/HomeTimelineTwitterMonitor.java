@@ -1,11 +1,8 @@
-package io.enigmasolutions.twittermonitor.services;
+package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.broadcastmodels.Tweet;
-import io.enigmasolutions.twittermonitor.db.models.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
-import io.enigmasolutions.twittermonitor.services.utils.TweetGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -20,13 +17,11 @@ public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
 
     private static final String TIMELINE_PATH = "statuses/home_timeline.json";
 
-
     @Autowired
     public HomeTimelineTwitterMonitor(TwitterScraperRepository twitterScraperRepository,
                                       TwitterHelperService twitterHelperService,
-                                      TweetGenerator tweetGenerator,
                                       KafkaTemplate<String,Tweet> kafkaTemplate) {
-        super(4025, twitterScraperRepository, twitterHelperService, kafkaTemplate, tweetGenerator);
+        super(4025, twitterScraperRepository, twitterHelperService, kafkaTemplate);
     }
 
     @Override

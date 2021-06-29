@@ -1,6 +1,6 @@
 package io.enigmasolutions.twittermonitor.db.repositories;
 
-import io.enigmasolutions.twittermonitor.db.models.Target;
+import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

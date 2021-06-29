@@ -1,12 +1,12 @@
-package io.enigmasolutions.twittermonitor.db.models;
+package io.enigmasolutions.twittermonitor.db.models.documents;
 
+import io.enigmasolutions.twittermonitor.db.models.references.Credentials;
 import lombok.Data;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "clients")
 @Data
+@Document(collection = "twitter-consumers")
 public class TwitterConsumer {
     @Id
     private String id;

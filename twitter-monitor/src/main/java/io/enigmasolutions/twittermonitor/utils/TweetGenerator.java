@@ -1,46 +1,44 @@
-package io.enigmasolutions.twittermonitor.services.utils;
+package io.enigmasolutions.twittermonitor.utils;
 
 import io.enigmasolutions.broadcastmodels.Tweet;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
 
-@Component
 public class TweetGenerator {
 
-    public Tweet generate(TweetResponse tweetResponse) {
+    private TweetGenerator() {
+
+    }
+
+    public static Tweet generate(TweetResponse tweetResponse) {
 
         List<String> images = new LinkedList<>();
         String videoUrl = null;
-        String image = null;
 
         if (tweetResponse.getExtendedEntities() != null) {
             retrieveImages(tweetResponse, images);
-            if (!images.isEmpty()){
-                image = images.get(0);
-            }
             videoUrl = retrieveVideo(tweetResponse);
         }
 
         replaceUrls(tweetResponse);
 
-        Tweet.TweetBuilder tweetBuilder = tuneTweetBuilder(tweetResponse, image, images, videoUrl);
+        Tweet.TweetBuilder tweetBuilder = tuneTweetBuilder(tweetResponse, images, videoUrl);
 
         return tweetBuilder.build();
 
     }
-    public Tweet.TweetBuilder tuneTweetBuilder(TweetResponse tweetResponse, String image, List<String> images, String videoUrl){
+
+    public static Tweet.TweetBuilder tuneTweetBuilder(TweetResponse tweetResponse, List<String> images, String videoUrl) {
         Tweet.TweetBuilder tweetBuilder = Tweet.builder()
-                .type(tweetResponse.getTweetType())
+                .type(tweetResponse.getType())
                 .text(tweetResponse.getText())
                 .userName(tweetResponse.getUser().getScreenName())
                 .userIcon(tweetResponse.getUser().getUserImage())
                 .userUrl(tweetResponse.getUser().getUserUrl())
                 .userId(tweetResponse.getUser().getId())
                 .tweetUrl(tweetResponse.getTweetUrl())
-                .image(image)
                 .images(images)
                 .media(videoUrl)
                 .followsUrl(tweetResponse.getFollowsUrl())
@@ -58,12 +56,25 @@ public class TweetGenerator {
         return tweetBuilder;
     }
 
-    public void retrieveImages(TweetResponse tweetResponse, List<String> images) {
+    public static String retrieveVideo(TweetResponse tweetResponse) {
 
+        return tweetResponse.getExtendedEntities()
+                .getMedia()
+                .get(0)
+                .getVideoInfo() != null ? tweetResponse.getExtendedEntities()
+                .getMedia()
+                .get(0)
+                .getVideoInfo()
+                .getVariants()
+                .get(0)
+                .getUrl() : null;
+    }
+
+    private static void retrieveImages(TweetResponse tweetResponse, List<String> images) {
         tweetResponse.getExtendedEntities()
                 .getMedia()
                 .forEach(media -> {
-                    if(media.getSourceUserId() == null){
+                    if (media.getSourceUserId() == null) {
                         images.add(media.getMediaUrl());
                         String text = tweetResponse.getText();
                         tweetResponse.setText(text.replace(media.getUrl(), ""));
@@ -71,21 +82,7 @@ public class TweetGenerator {
                 });
     }
 
-    public String retrieveVideo(TweetResponse tweetResponse) {
-
-        return tweetResponse.getExtendedEntities()
-                .getMedia()
-                .get(0)
-                .getVideoInfo() != null ? tweetResponse.getExtendedEntities()
-                                                        .getMedia()
-                                                        .get(0)
-                                                        .getVideoInfo()
-                                                        .getVariants()
-                                                        .get(0)
-                                                        .getUrl() : null;
-    }
-
-    public void replaceUrls(TweetResponse tweetResponse) {
+    private static void replaceUrls(TweetResponse tweetResponse) {
         if (tweetResponse.getEntities() != null && tweetResponse.getEntities().getUrls().size() > 0) {
 
             tweetResponse.getEntities()

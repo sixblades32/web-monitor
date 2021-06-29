@@ -1,13 +1,10 @@
-package io.enigmasolutions.twittermonitor.services;
+package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.broadcastmodels.Tweet;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
-import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
-import io.enigmasolutions.twittermonitor.services.utils.TweetGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -18,25 +15,19 @@ import org.springframework.web.client.HttpClientErrorException;
 @Slf4j
 public class UserTimelineMonitor extends AbstractTwitterMonitor {
 
-    private final TwitterHelperService twitterHelperService;
-    private final TwitterScraperRepository twitterScraperRepository;
-    private final TweetGenerator tweetGenerator;
-    private final KafkaTemplate<String, Tweet> kafkaTemplate;
     private static final String TIMELINE_PATH = "statuses/user_timeline.json";
+
+    private final TwitterHelperService twitterHelperService;
 
     private User user;
 
     public UserTimelineMonitor(
             TwitterScraperRepository twitterScraperRepository,
             TwitterHelperService twitterHelperService,
-            TweetGenerator tweetGenerator,
-            KafkaTemplate<String,Tweet> kafkaTemplate
+            KafkaTemplate<String, Tweet> kafkaTemplate
     ) {
-        super(700, twitterScraperRepository, twitterHelperService, kafkaTemplate, tweetGenerator);
-        this.twitterScraperRepository = twitterScraperRepository;
+        super(700, twitterScraperRepository, twitterHelperService, kafkaTemplate);
         this.twitterHelperService = twitterHelperService;
-        this.tweetGenerator = tweetGenerator;
-        this.kafkaTemplate = kafkaTemplate;
     }
 
     public void start(String screenName) {

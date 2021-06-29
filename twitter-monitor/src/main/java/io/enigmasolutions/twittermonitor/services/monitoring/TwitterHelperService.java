@@ -1,34 +1,32 @@
-package io.enigmasolutions.twittermonitor.services;
+package io.enigmasolutions.twittermonitor.services.monitoring;
 
-import io.enigmasolutions.twittermonitor.db.models.Target;
-import io.enigmasolutions.twittermonitor.db.models.TwitterConsumer;
+import io.enigmasolutions.twittermonitor.db.models.documents.Target;
+import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
-import io.enigmasolutions.twittermonitor.models.twitter.FollowsList;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
-import io.enigmasolutions.twittermonitor.services.rest.TwitterClient;
+import io.enigmasolutions.twittermonitor.models.twitter.common.FollowsList;
+import io.enigmasolutions.twittermonitor.services.rest.TwitterRegularClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class TwitterHelperService {
+
+    private final List<String> advancedTargetIds = new LinkedList<>();
+    private final List<String> tweetsCache = new LinkedList<>();
+
     private final TwitterConsumerRepository twitterConsumerRepository;
     private final TargetRepository targetRepository;
 
-    private List<TwitterClient> twitterClients;
+    private List<TwitterRegularClient> twitterRegularClients;
     private List<String> commonTargetIds;
-    public List<String> advancedTargetIds = new LinkedList<>();
-    private List<String> tweetsCache;
 
     @Autowired
     public TwitterHelperService(TwitterConsumerRepository twitterClientRepository, TargetRepository targetRepository) {
@@ -40,7 +38,6 @@ public class TwitterHelperService {
     public void init(){
         initTargets();
         initTwitterClients();
-        this.tweetsCache = new LinkedList<>();
     }
 
     private void initTargets() {
@@ -54,8 +51,8 @@ public class TwitterHelperService {
     public void initTwitterClients() {
         List<TwitterConsumer> consumers = twitterConsumerRepository.findAll();
 
-        this.twitterClients = consumers.stream()
-                .map(TwitterClient::new)
+        this.twitterRegularClients = consumers.stream()
+                .map(TwitterRegularClient::new)
                 .collect(Collectors.toList());
     }
 
@@ -70,7 +67,9 @@ public class TwitterHelperService {
     public User retrieveUser(String screenName) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("screen_name", screenName);
-        TwitterClient currentClient = refreshClient();
+        TwitterRegularClient currentClient = refreshClient();
+
+        //TODO: нужно что-то придумать с этим, т.к. будет НПЕ
         return Arrays.asList(currentClient.getUser(params).getBody()).get(0);
     }
 
@@ -78,13 +77,15 @@ public class TwitterHelperService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("user_id", id);
         params.add("stringify_ids", "true");
-        TwitterClient currentClient = refreshClient();
+        TwitterRegularClient currentClient = refreshClient();
+
         return currentClient.getFollows(params).getBody();
     }
 
-    public TwitterClient refreshClient() {
-        TwitterClient client = twitterClients.remove(0);
-        twitterClients.add(client);
+    public TwitterRegularClient refreshClient() {
+        TwitterRegularClient client = twitterRegularClients.remove(0);
+        twitterRegularClients.add(client);
+
         return client;
     }
 

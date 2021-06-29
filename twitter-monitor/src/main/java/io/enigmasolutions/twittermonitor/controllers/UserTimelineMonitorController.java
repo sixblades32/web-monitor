@@ -1,23 +1,24 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
-import io.enigmasolutions.twittermonitor.models.monitor.UserStartForm;
-import io.enigmasolutions.twittermonitor.services.UserTimelineMonitor;
+import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
+import io.enigmasolutions.twittermonitor.services.monitoring.UserTimelineMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/twitter-monitor/user-timeline")
 public class UserTimelineMonitorController {
-    private UserTimelineMonitor userTimelineMonitor;
+
+    private final UserTimelineMonitor userTimelineMonitor;
 
     @Autowired
-    public UserTimelineMonitorController(UserTimelineMonitor userTimelineMonitor){
+    public UserTimelineMonitorController(UserTimelineMonitor userTimelineMonitor) {
         this.userTimelineMonitor = userTimelineMonitor;
     }
 
     @PostMapping("/start")
-    public void start(@RequestBody UserStartForm body){
-        userTimelineMonitor.start(body.getUserName());
+    public void start(@RequestBody UserStartForm body) {
+        userTimelineMonitor.start(body.getUsername());
     }
 
     @PostMapping("/stop")

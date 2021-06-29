@@ -1,10 +1,8 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
-import io.enigmasolutions.twittermonitor.db.models.TwitterConsumer;
-import io.enigmasolutions.twittermonitor.db.models.User;
+import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
-import io.enigmasolutions.twittermonitor.models.monitor.UserStartForm;
-import io.enigmasolutions.twittermonitor.services.TwitterHelperService;
+import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,8 +12,8 @@ import java.util.List;
 @RequestMapping("/config")
 public class MonitorConfigurationController {
 
-    private TwitterHelperService twitterHelperService;
-    private TwitterConsumerRepository twitterConsumerRepository;
+    private final TwitterHelperService twitterHelperService;
+    private final TwitterConsumerRepository twitterConsumerRepository;
 
     @Autowired
     public MonitorConfigurationController(TwitterHelperService twitterHelperService, TwitterConsumerRepository twitterConsumerRepository) {
@@ -24,7 +22,7 @@ public class MonitorConfigurationController {
     }
 
     @PostMapping("/consumers")
-    public void createConsumer(@RequestBody TwitterConsumer consumer){
+    public void createConsumer(@RequestBody TwitterConsumer consumer) {
 
         twitterConsumerRepository.insert(consumer);
     }

@@ -1,11 +1,11 @@
-package io.enigmasolutions.twittermonitor.db.models;
+package io.enigmasolutions.twittermonitor.db.models.documents;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "targets")
 @Data
+@Document(collection = "targets")
 public class Target {
     @Id
     private String id;

@@ -1,7 +1,6 @@
 package io.enigmasolutions.twittermonitor.configuration;
 
 import io.enigmasolutions.broadcastmodels.Tweet;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,16 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class TweetProducerConfiguration {
+public class KafkaConfig {
 
     @Value(value = "${kafka.bootstrap-servers}")
     private String bootstrapAddress;
-
-    @Value(value = "${kafka.tweet-consumer-base.group-id}")
-    private String discordBroadcastTweetGroupId;
-
-    @Value(value = "${kafka.alert-consumer.group-id}")
-    private String discordBroadcastAlertGroupId;
 
     @Bean
     public ProducerFactory<String, Tweet> tweetProducerFactory() {
@@ -36,8 +29,6 @@ public class TweetProducerConfiguration {
                 bootstrapAddress);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG,
-                discordBroadcastTweetGroupId);
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
         return new DefaultKafkaProducerFactory<>(props,

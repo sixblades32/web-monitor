@@ -1,15 +1,13 @@
-package io.enigmasolutions.twittermonitor.services;
+package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.broadcastmodels.Tweet;
-import io.enigmasolutions.twittermonitor.db.models.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.monitor.Status;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
-import io.enigmasolutions.twittermonitor.services.utils.TweetGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
@@ -18,6 +16,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static io.enigmasolutions.twittermonitor.utils.TweetGenerator.generate;
+
 @Slf4j
 public abstract class AbstractTwitterMonitor {
 
@@ -25,7 +25,6 @@ public abstract class AbstractTwitterMonitor {
     private final TwitterScraperRepository twitterScraperRepository;
     private final TwitterHelperService twitterHelperService;
     private final KafkaTemplate<String, Tweet> kafkaTemplate;
-    private final TweetGenerator tweetGenerator;
 
     protected List<TwitterCustomClient> twitterCustomClients;
     protected List<TwitterCustomClient> failedCustomClients;
@@ -36,13 +35,11 @@ public abstract class AbstractTwitterMonitor {
     public AbstractTwitterMonitor(int timelineDelay,
                                   TwitterScraperRepository twitterScraperRepository,
                                   TwitterHelperService twitterHelperService,
-                                  KafkaTemplate<String,Tweet> kafkaTemplate,
-                                  TweetGenerator tweetGenerator) {
+                                  KafkaTemplate<String, Tweet> kafkaTemplate) {
         this.timelineDelay = timelineDelay;
         this.twitterScraperRepository = twitterScraperRepository;
         this.twitterHelperService = twitterHelperService;
         this.kafkaTemplate = kafkaTemplate;
-        this.tweetGenerator = tweetGenerator;
     }
 
     public MultiValueMap<String, String> getParams() {
@@ -96,7 +93,7 @@ public abstract class AbstractTwitterMonitor {
 
     protected void sendTweet(TweetResponse tweetResponse){
         if (!twitterHelperService.isInTweetCache(tweetResponse.getTweetId()) && isTweetRelevant(tweetResponse)) {
-            Tweet tweet = tweetGenerator.generate(tweetResponse);
+            Tweet tweet = generate(tweetResponse);
             if (isCommonTargetValid(tweetResponse)){
                 kafkaTemplate.send("twitter-tweet-broadcast-base", tweet);
             }

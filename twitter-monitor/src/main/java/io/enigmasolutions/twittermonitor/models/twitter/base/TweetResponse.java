@@ -1,9 +1,12 @@
 package io.enigmasolutions.twittermonitor.models.twitter.base;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.enigmasolutions.broadcastmodels.TweetType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+
+import static io.enigmasolutions.broadcastmodels.TweetType.*;
 
 @Data
 @Builder
@@ -12,7 +15,7 @@ public class TweetResponse {
 
     private final String TWITTER_URL = "https://twitter.com/";
 
-    private String tweetType;
+    private TweetType type;
     @JsonProperty("created_at")
     private String createdAt;
     @JsonProperty("id_str")
@@ -42,32 +45,33 @@ public class TweetResponse {
     private String likesUrl;
     private String followsUrl;
 
-    public String getTweetType() {
-        tweetType = "TWEET";
+    public TweetType getType() {
+        type = TWEET;
 
         if (retweetedStatus != null || quotedStatus != null) {
-            tweetType = "RETWEET";
+            type = RETWEET;
         } else if (inReplyToStatusId != null) {
-            tweetType = "REPLY";
+            type = REPLY;
+        } else {
+            // TODO: добавить какой-нибудь рантайм экспешн --> package exceptions UnsupportedTweetTypeException, чтобы дальше это дело не разлетолсь по консумерам
         }
 
-        return tweetType;
+        return type;
     }
 
     public TweetResponse getRepliedStatus() {
-        if (inReplyToStatusId != null) {
-            User user = User.builder()
-                    .id(inReplyToUserId)
-                    .screenName(inReplyToScreenName)
-                    .userUrl(TWITTER_URL + inReplyToScreenName)
-                    .build();
-            TweetResponse replied = TweetResponse.builder()
-                    .user(user)
-                    .tweetUrl(TWITTER_URL + inReplyToScreenName + "/status/" + inReplyToStatusId)
-                    .build();
-            return replied;
-        }
-        return null;
+        if (inReplyToStatusId == null) return null;
+
+        User user = User.builder()
+                .id(inReplyToUserId)
+                .screenName(inReplyToScreenName)
+                .userUrl(TWITTER_URL + inReplyToScreenName)
+                .build();
+
+        return TweetResponse.builder()
+                .user(user)
+                .tweetUrl(TWITTER_URL + inReplyToScreenName + "/status/" + inReplyToStatusId)
+                .build();
     }
 
     public String getTweetUrl() {

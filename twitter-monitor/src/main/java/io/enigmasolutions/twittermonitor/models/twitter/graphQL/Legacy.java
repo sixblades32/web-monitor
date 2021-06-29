@@ -1,20 +1,22 @@
-package io.enigmasolutions.twittermonitor.models.twitter.graphQL;
+package io.enigmasolutions.twittermonitor.models.twitter.graphql;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.enigmasolutions.broadcastmodels.TweetType;
 import io.enigmasolutions.twittermonitor.models.twitter.base.Entity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.ExtendedEntity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.QuotedStatusPermalink;
-
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import lombok.Builder;
 import lombok.Data;
+
+import static io.enigmasolutions.broadcastmodels.TweetType.*;
 
 @Data
 @Builder
 public class Legacy {
     private final String TWITTER_URL = "https://twitter.com/";
 
-    private String tweetType;
+    private TweetType tweetType;
     @JsonProperty("created_at")
     private String createdAt;
     @JsonProperty("conversation_id_str")
@@ -38,13 +40,15 @@ public class Legacy {
     @JsonProperty("in_reply_to_screen_name")
     private String inReplyToScreenName;
 
-    public String getTweetType() {
-        tweetType = "TWEET";
+    public TweetType getTweetType() {
+        tweetType = TWEET;
 
         if (retweetedStatus != null || quotedStatus != null) {
-            tweetType = "RETWEET";
+            tweetType = RETWEET;
         } else if (inReplyToStatusId != null) {
-            tweetType = "REPLY";
+            tweetType = REPLY;
+        } else {
+            // TODO: добавить какой-нибудь рантайм экспешн --> package exceptions UnsupportedTweetTypeException, чтобы дальше это дело не разлетолсь по консумерам
         }
 
         return tweetType;

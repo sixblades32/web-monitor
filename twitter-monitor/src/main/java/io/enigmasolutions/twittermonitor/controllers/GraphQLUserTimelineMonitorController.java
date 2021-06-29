@@ -1,24 +1,24 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
-import io.enigmasolutions.twittermonitor.models.monitor.UserStartForm;
-import io.enigmasolutions.twittermonitor.services.GraphQLUserTimelineMonitor;
-
+import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
+import io.enigmasolutions.twittermonitor.services.monitoring.GraphQLUserTimelineMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/twitter-monitor/graphql-user-timeline")
 public class GraphQLUserTimelineMonitorController {
-    private GraphQLUserTimelineMonitor graphQLUserTimelineMonitor;
+
+    private final GraphQLUserTimelineMonitor graphQLUserTimelineMonitor;
 
     @Autowired
-    public GraphQLUserTimelineMonitorController(GraphQLUserTimelineMonitor graphQLUserTimelineMonitor){
+    public GraphQLUserTimelineMonitorController(GraphQLUserTimelineMonitor graphQLUserTimelineMonitor) {
         this.graphQLUserTimelineMonitor = graphQLUserTimelineMonitor;
     }
 
     @PostMapping("/start")
-    public void start(@RequestBody UserStartForm body){
-        graphQLUserTimelineMonitor.start(body.getUserName());
+    public void start(@RequestBody UserStartForm body) {
+        graphQLUserTimelineMonitor.start(body.getUsername());
     }
 
     @PostMapping("/stop")

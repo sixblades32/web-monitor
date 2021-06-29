@@ -1,0 +1,18 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/twitter-monitor
+
+kafka:
+  bootstrap-servers: localhost:9092
+  tweet-producer-base-topic: twitter-tweet-broadcast-base
+  tweet-producer-live-release-topic: twitter-tweet-broadcast-live-release
+  tweet-producer-alert-topic: twitter-alert-broadcast
+
+monitor:
+  home-timeline:
+    delay: 4025
+    count: 1
+  user-timeline:
+    delay: 700
+    count: 1

@@ -1,18 +1,16 @@
 package io.enigmasolutions.twittermonitor.services.rest;
 
-import io.enigmasolutions.twittermonitor.db.models.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import io.enigmasolutions.twittermonitor.models.twitter.graphQL.Data;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.Data;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 public class TwitterCustomClient {
 
@@ -42,7 +40,7 @@ public class TwitterCustomClient {
     private MultiValueMap<String, String> generateAuthData(){
         MultiValueMap<String,String> authData = new LinkedMultiValueMap<>();
         authData.add("x-csrf-token", twitterScraper.getTweetDeckAuth().getCsrfToken());
-        authData.add("x-act-as-user-id", twitterScraper.getUser().getId());
+        authData.add("x-act-as-user-id", twitterScraper.getTwitterUser().getTwitterId());
         authData.add("Authorization", twitterScraper.getTweetDeckAuth().getBearer());
         authData.add("Cookie", "auth_token=" + twitterScraper.getTweetDeckAuth().getAuthToken() +
                 "; ct0=" + twitterScraper.getTweetDeckAuth().getCsrfToken());
