@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class Tweet {
-    private String tweetType;
+    private String type;
     private String text;
     private String userName;
     private String userId;

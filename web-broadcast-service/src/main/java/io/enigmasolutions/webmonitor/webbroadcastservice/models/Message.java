@@ -8,5 +8,6 @@ import lombok.Data;
 public class Message<T> {
 
     private Timeline timeline;
+    private String timestamp;
     private T data;
 }

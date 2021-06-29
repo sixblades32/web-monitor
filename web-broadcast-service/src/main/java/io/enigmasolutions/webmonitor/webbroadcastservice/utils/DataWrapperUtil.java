@@ -9,12 +9,13 @@ public class DataWrapperUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static <T> String wrapData(Timeline timeline, String data, Class<T> tClass)
+    public static <T> String wrapData(Timeline timeline, String timestamp, String data, Class<T> tClass)
             throws JsonProcessingException {
         T tweet = objectMapper.readValue(data, tClass);
 
         Message<T> message = Message.<T>builder()
                 .timeline(timeline)
+                .timestamp(timestamp)
                 .data(tweet)
                 .build();
 
