@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/twitter-monitor/home-timeline")
+@RequestMapping("/home-timeline")
 public class HomeTimelineMonitorController {
 
     private final HomeTimelineTwitterMonitor homeTimelineMonitor;

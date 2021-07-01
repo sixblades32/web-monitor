@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/twitter-monitor/user-timeline")
+@RequestMapping("/user-timeline")
 public class UserTimelineMonitorController {
 
     private final UserTimelineMonitor userTimelineMonitor;
