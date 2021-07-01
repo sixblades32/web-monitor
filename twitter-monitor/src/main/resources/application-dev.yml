@@ -29,5 +29,5 @@ monitor:
 
 aws:
   rekognition:
-    access-key:
-    secret-key:
+    access-key: AKIAZCHZYD2SJULQYADP
+    secret-key: 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
