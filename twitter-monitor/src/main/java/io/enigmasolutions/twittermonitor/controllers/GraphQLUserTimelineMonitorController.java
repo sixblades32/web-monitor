@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/twitter-monitor/graphql-user-timeline")
+@RequestMapping("/graphql-user-timeline")
 public class GraphQLUserTimelineMonitorController {
 
     private final GraphQLUserTimelineMonitor graphQLUserTimelineMonitor;

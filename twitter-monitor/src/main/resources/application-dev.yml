@@ -1,7 +1,16 @@
+server:
+  port: 8030
+  servlet:
+    context-path: /twitter-monitor
+
 spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/twitter-monitor
+  security:
+    user:
+      name: admin
+      password: password
 
 kafka:
   bootstrap-servers: localhost:9092
@@ -16,3 +25,9 @@ monitor:
   user-timeline:
     delay: 700
     count: 1
+
+
+aws:
+  rekognition:
+    access-key: AKIAZCHZYD2SJULQYADP
+    secret-key: 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
