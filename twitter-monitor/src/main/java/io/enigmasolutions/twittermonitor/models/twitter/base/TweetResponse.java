@@ -52,8 +52,6 @@ public class TweetResponse {
             type = RETWEET;
         } else if (inReplyToStatusId != null) {
             type = REPLY;
-        } else {
-            // TODO: добавить какой-нибудь рантайм экспешн --> package exceptions UnsupportedTweetTypeException, чтобы дальше это дело не разлетолсь по консумерам
         }
 
         return type;
@@ -70,7 +68,7 @@ public class TweetResponse {
 
         return TweetResponse.builder()
                 .user(user)
-                .tweetUrl(TWITTER_URL + inReplyToScreenName + "/status/" + inReplyToStatusId)
+                .tweetId(inReplyToStatusId)
                 .build();
     }
 

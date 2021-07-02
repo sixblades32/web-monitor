@@ -18,7 +18,7 @@ public class UserTimelineMonitorController {
 
     @PostMapping("/start")
     public void start(@RequestBody UserStartForm body) {
-        userTimelineMonitor.start(body.getUsername());
+        userTimelineMonitor.start(body.getScreenName());
     }
 
     @PostMapping("/stop")

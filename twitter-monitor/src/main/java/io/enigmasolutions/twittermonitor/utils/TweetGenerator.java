@@ -49,7 +49,7 @@ public class TweetGenerator {
             tweetBuilder.retweeted(generate(tweetResponse.getRetweetedStatus()));
         } else if (tweetResponse.getQuotedStatus() != null) {
             tweetBuilder.retweeted(generate(tweetResponse.getQuotedStatus()));
-        } else if (tweetResponse.getInReplyToScreenName() != null) {
+        } else if (tweetResponse.getInReplyToStatusId() != null) {
             tweetBuilder.replied(generate(tweetResponse.getRepliedStatus()));
         }
 

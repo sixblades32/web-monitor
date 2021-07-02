@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class BroadcastTweet {
 
-    private TweetType tweetType;
+    private TweetType type;
     private String text;
     private String userName;
     private String userId;
@@ -15,7 +15,6 @@ public class BroadcastTweet {
     private String userUrl;
     private BroadcastTweet retweeted;
     private BroadcastTweet replied;
-    private String image;
     private List<String> images;
     private String media;
     private String tweetUrl;

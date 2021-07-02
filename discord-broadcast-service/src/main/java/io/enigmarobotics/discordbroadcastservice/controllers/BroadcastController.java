@@ -40,7 +40,7 @@ public class BroadcastController {
     @PostMapping("/tweet")
     public void sendEmbed(@RequestBody BroadcastTweet tweet) {
 
-        List<Embed> embeds = tweet.getTweetType().generateTweetEmbed(tweet, discordEmbedColorConfig);
+        List<Embed> embeds = tweet.getType().generateTweetEmbed(tweet, discordEmbedColorConfig);
 
         Message message = Message.builder()
                 .content("")

@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.models.twitter.graphql;
+package io.enigmasolutions.twittermonitor.models.twitter.graphQL;
 
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import lombok.Builder;

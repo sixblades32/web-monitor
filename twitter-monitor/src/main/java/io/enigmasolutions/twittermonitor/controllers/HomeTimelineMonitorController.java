@@ -16,7 +16,7 @@ public class HomeTimelineMonitorController {
     private final HomeTimelineTwitterMonitor homeTimelineMonitor;
 
     @Autowired
-    public HomeTimelineMonitorController(HomeTimelineTwitterMonitor homeTimelineMonitor, TwitterHelperService twitterHelperService) {
+    public HomeTimelineMonitorController(HomeTimelineTwitterMonitor homeTimelineMonitor) {
         this.homeTimelineMonitor = homeTimelineMonitor;
     }
 

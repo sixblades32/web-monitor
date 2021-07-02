@@ -66,11 +66,17 @@ public class TwitterHelperService {
 
     public User retrieveUser(String screenName) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        User user = null;
         params.add("screen_name", screenName);
         TwitterRegularClient currentClient = refreshClient();
 
-        //TODO: нужно что-то придумать с этим, т.к. будет НПЕ
-        return Arrays.asList(currentClient.getUser(params).getBody()).get(0);
+        User[] userResponseArray = currentClient.getUser(params).getBody();
+
+        if (userResponseArray != null && userResponseArray.length > 0){
+            user = userResponseArray[0];
+        }
+
+        return user;
     }
 
     public FollowsList getFollowsList(String id) {
@@ -109,5 +115,13 @@ public class TwitterHelperService {
         };
 
         timer.schedule(timerTask, 60000);
+    }
+
+    public List<String> getAdvancedTargetIds() {
+        return advancedTargetIds;
+    }
+
+    public List<String> getCommonTargetIds() {
+        return commonTargetIds;
     }
 }

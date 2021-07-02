@@ -18,7 +18,7 @@ public class GraphQLUserTimelineMonitorController {
 
     @PostMapping("/start")
     public void start(@RequestBody UserStartForm body) {
-        graphQLUserTimelineMonitor.start(body.getUsername());
+        graphQLUserTimelineMonitor.start(body.getScreenName());
     }
 
     @PostMapping("/stop")

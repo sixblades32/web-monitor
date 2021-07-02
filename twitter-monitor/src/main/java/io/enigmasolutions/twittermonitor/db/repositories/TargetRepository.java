@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TargetRepository extends MongoRepository<Target, String> {
-
+    Target deleteTargetByIdentifier(String identifier);
 }

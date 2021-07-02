@@ -51,7 +51,8 @@ public class TweetConsumerService {
     }
 
     private Message generateMessage(BroadcastTweet tweet){
-        List<Embed> embeds = tweet.getTweetType().generateTweetEmbed(tweet, discordEmbedColorConfig);
+        System.out.println(tweet);
+        List<Embed> embeds = tweet.getType().generateTweetEmbed(tweet, discordEmbedColorConfig);
 
         return Message.builder()
                 .content("")

@@ -50,6 +50,7 @@ public abstract class AbstractTwitterMonitor {
     public void initTwitterCustomClients() {
         List<TwitterScraper> scrapers = twitterScraperRepository.findAll();
 
+        System.out.println(scrapers);
         this.twitterCustomClients = scrapers.stream()
                 .map(TwitterCustomClient::new)
                 .collect(Collectors.toList());
@@ -92,8 +93,11 @@ public abstract class AbstractTwitterMonitor {
     };
 
     protected void sendTweet(TweetResponse tweetResponse){
+        if (tweetResponse == null) return;
+
         if (!twitterHelperService.isInTweetCache(tweetResponse.getTweetId()) && isTweetRelevant(tweetResponse)) {
             Tweet tweet = generate(tweetResponse);
+
             if (isCommonTargetValid(tweetResponse)){
                 kafkaTemplate.send("twitter-tweet-broadcast-base", tweet);
             }

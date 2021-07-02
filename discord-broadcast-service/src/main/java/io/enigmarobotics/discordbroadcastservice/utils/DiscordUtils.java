@@ -20,6 +20,7 @@ public class DiscordUtils {
         String description = "> " + tweet.getText().replaceAll("\\R", "\n> ");
         List<Field> fields = new ArrayList<>();
         List<Embed> embeds = new LinkedList<>();
+        Image image = null;
 
         Author author = Author.builder()
                 .name(tweet.getUserName())
@@ -30,10 +31,11 @@ public class DiscordUtils {
         Footer footer = Footer.builder()
                 .text("TWEET — " + tweet.getUserName())
                 .build();
-
-        Image image = Image.builder()
-                .url(tweet.getImage())
-                .build();
+        if (tweet.getImages().size() > 0){
+            image = Image.builder()
+                    .url(tweet.getImages().get(0))
+                    .build();
+        }
 
         Field additionalInfoField = Field.builder()
                 .inline(false)
@@ -47,7 +49,7 @@ public class DiscordUtils {
         embeds.add(Embed.builder()
                 .author(author)
                 .footer(footer)
-                .title(String.valueOf(tweet.getTweetType()))
+                .title(String.valueOf(tweet.getType()))
                 .description(description)
                 .color(embedColor)
                 .fields(fields)
@@ -61,7 +63,7 @@ public class DiscordUtils {
                         .image(url)
                         .userName(tweet.getUserName())
                         .userId(tweet.getUserId())
-                        .tweetType(tweet.getTweetType());
+                        .tweetType(tweet.getType());
 
                 if (tweet.getRetweeted() != null) {
                     builder.retweetedFrom(tweet.getRetweeted().getUserName());
@@ -70,7 +72,7 @@ public class DiscordUtils {
                 return builder.build();
             }).collect(Collectors.toList());
 
-            tweetImages.stream().forEach(tweetImage -> {
+            tweetImages.forEach(tweetImage -> {
                 Embed imageEmbed = generateTweetImageEmbed(tweetImage, embedColor);
 
                 embeds.add(imageEmbed);
@@ -83,6 +85,7 @@ public class DiscordUtils {
 
     public static Embed generateRetweetEmbed(BroadcastTweet tweet, int embedColor) {
         String description = "";
+        Image image = null;
         if(tweet.getText() != ""){
             description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
                     tweet.getText().replaceAll("\\R", "\n> ");
@@ -104,9 +107,11 @@ public class DiscordUtils {
                 .text("RETWEET  —  @" + tweet.getUserName() + " --> " + "@" + retweeted.getUserName())
                 .build();
 
-        Image image = Image.builder()
-                .url(tweet.getImage())
-                .build();
+        if (tweet.getImages().size() > 0){
+            image = Image.builder()
+                    .url(tweet.getImages().get(0))
+                    .build();
+        }
 
         Field additionalInfoField = Field.builder()
                 .inline(false)
@@ -127,7 +132,7 @@ public class DiscordUtils {
         return Embed.builder()
                 .author(author)
                 .footer(footer)
-                .title(String.valueOf(tweet.getTweetType()))
+                .title(String.valueOf(tweet.getType()))
                 .description(description)
                 .color(embedColor)
                 .fields(fields)
@@ -139,6 +144,7 @@ public class DiscordUtils {
         String description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
                 tweet.getText().replaceAll("\\R", "\n> ");
         List<Field> fields = new ArrayList<>();
+        Image image = null;
 
         Author author = Author.builder()
                 .name(tweet.getUserName())
@@ -150,9 +156,11 @@ public class DiscordUtils {
                 .text("REPLY  —  @" + tweet.getUserName() + " --> " + "@" + tweet.getReplied().getUserName())
                 .build();
 
-        Image image = Image.builder()
-                .url(tweet.getImage())
-                .build();
+        if (tweet.getImages().size() > 0){
+            image = Image.builder()
+                    .url(tweet.getImages().get(0))
+                    .build();
+        }
 
         Field additionalInfoField = Field.builder()
                 .inline(false)
@@ -173,7 +181,7 @@ public class DiscordUtils {
         return Embed.builder()
                 .author(author)
                 .footer(footer)
-                .title(String.valueOf(tweet.getTweetType()))
+                .title(String.valueOf(tweet.getType()))
                 .description(description)
                 .color(embedColor)
                 .fields(fields)
@@ -194,6 +202,8 @@ public class DiscordUtils {
             description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n";
         }
 
+        Image image = null;
+
         Author author = Author.builder()
                 .name(tweet.getUserName())
                 .url(tweet.getTweetUrl())
@@ -204,9 +214,11 @@ public class DiscordUtils {
                 .text("RETWEET  —  @" + retweetedBy + " --> " + "@" + tweet.getUserName())
                 .build();
 
-        Image image = Image.builder()
-                .url(tweet.getImage())
-                .build();
+        if (tweet.getImages().size() > 0){
+            image = Image.builder()
+                    .url(tweet.getImages().get(0))
+                    .build();
+        }
 
         Field additionalInfoField = Field.builder()
                 .inline(false)
@@ -234,7 +246,7 @@ public class DiscordUtils {
                         .image(url)
                         .userName(tweet.getUserName())
                         .userId(tweet.getUserId())
-                        .tweetType(tweet.getTweetType());
+                        .tweetType(tweet.getType());
 
                 if (tweet.getRetweeted() != null) {
                     builder.retweetedFrom(tweet.getRetweeted().getUserName());
@@ -243,7 +255,7 @@ public class DiscordUtils {
                 return builder.build();
             }).collect(Collectors.toList());
 
-            tweetImages.stream().forEach(tweetImage -> {
+            tweetImages.forEach(tweetImage -> {
                 Embed imageEmbed = generateTweetImageEmbed(tweetImage, embedColor);
 
                 embeds.add(imageEmbed);
