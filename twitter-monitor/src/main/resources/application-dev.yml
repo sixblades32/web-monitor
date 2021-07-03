@@ -31,3 +31,6 @@ aws:
   rekognition:
     access-key: AKIAZCHZYD2SJULQYADP
     secret-key: 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
+
+pastebin:
+  developer-key: HQ_O6vDxEYArhfwUWEWVJYrihA_Cv839

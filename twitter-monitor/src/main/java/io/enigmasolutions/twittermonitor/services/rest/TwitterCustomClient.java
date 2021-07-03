@@ -88,8 +88,6 @@ public class TwitterCustomClient {
                 .headers(headers)
                 .build();
 
-        System.out.println(requestEntity.toString());
-
         return restTemplate.exchange(requestEntity, Data.class);
     }
 }
