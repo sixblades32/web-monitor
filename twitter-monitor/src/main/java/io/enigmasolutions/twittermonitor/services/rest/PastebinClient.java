@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class PastebinClient {
 
-    private final String API_PATH = "https://pastebin.com/raw/";
+    private static final String API_PATH = "https://pastebin.com/raw/";
     private final RestTemplate restTemplate = new RestTemplate();
 
     public ResponseEntity<String> getResponseEntity(String id){

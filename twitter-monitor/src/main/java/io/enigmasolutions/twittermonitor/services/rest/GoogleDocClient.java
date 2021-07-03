@@ -10,8 +10,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class GoogleDocClient {
 
-    private final String BASE_PATH = "https://docs.google.com/document/d/";
-    private final String EXPORT_PATH = "/export";
+    private static final String BASE_PATH = "https://docs.google.com/document/d/";
+    private static final String EXPORT_PATH = "/export";
     private final RestTemplate restTemplate = new RestTemplate();
 
     public ResponseEntity<String> getResponseEntity(String id){
