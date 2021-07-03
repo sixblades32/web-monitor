@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("twitter-monitor/config")
+@RequestMapping("/config")
 public class MonitorConfigurationController {
 
     private final TwitterHelperService twitterHelperService;
@@ -72,12 +72,12 @@ public class MonitorConfigurationController {
         twitterConsumerRepository.deleteById(id);
     }
 
-    @GetMapping("targets/global")
+    @GetMapping("/targets/global")
     public List<Target> getGlobalTargets(){
         return targetRepository.findAll();
     }
 
-    @PostMapping("targets/global")
+    @PostMapping("/targets/global")
     public void createGlobalTarget(@RequestBody UserStartForm body){
         User user = twitterHelperService.retrieveUser(body.getScreenName());
 
@@ -90,7 +90,7 @@ public class MonitorConfigurationController {
         twitterHelperService.getCommonTargetIds().add(user.getId());
     }
 
-    @DeleteMapping("targets/global")
+    @DeleteMapping("/targets/global")
     public void deleteGlobalTarget(@RequestBody UserStartForm body){
         User user = twitterHelperService.retrieveUser(body.getScreenName());
 
@@ -98,19 +98,19 @@ public class MonitorConfigurationController {
         twitterHelperService.getCommonTargetIds().remove(user.getId());
     }
 
-    @GetMapping("targets/temporary")
+    @GetMapping("/targets/temporary")
     public List<String> getTemporaryTargets(){
         return twitterHelperService.getAdvancedTargetIds();
     }
 
-    @PostMapping("targets/temporary")
+    @PostMapping("/targets/temporary")
     public void createTemporaryTarget(@RequestBody UserStartForm body){
         User user = twitterHelperService.retrieveUser(body.getScreenName());
 
         twitterHelperService.getAdvancedTargetIds().add(user.getId());
     }
 
-    @DeleteMapping("targets/temporary")
+    @DeleteMapping("/targets/temporary")
     public void deleteTemporaryTarget(@RequestBody UserStartForm body){
         User user = twitterHelperService.retrieveUser(body.getScreenName());
 

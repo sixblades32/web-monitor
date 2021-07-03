@@ -50,7 +50,6 @@ public abstract class AbstractTwitterMonitor {
     public void initTwitterCustomClients() {
         List<TwitterScraper> scrapers = twitterScraperRepository.findAll();
 
-        System.out.println(scrapers);
         this.twitterCustomClients = scrapers.stream()
                 .map(TwitterCustomClient::new)
                 .collect(Collectors.toList());

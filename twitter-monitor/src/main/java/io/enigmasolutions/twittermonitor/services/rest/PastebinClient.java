@@ -16,11 +16,8 @@ public class PastebinClient {
 
         String url = API_PATH + id;
 
-        HttpHeaders headers = new HttpHeaders();
-
         RequestEntity<Void> requestEntity = RequestEntity
                 .get(url)
-                .headers(headers)
                 .build();
 
         return restTemplate.exchange(requestEntity, String.class);
