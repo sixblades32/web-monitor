@@ -2,7 +2,7 @@ package io.enigmasolutions.twittermonitor.services.rest;
 
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import io.enigmasolutions.twittermonitor.models.twitter.graphQL.Data;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.Data;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;

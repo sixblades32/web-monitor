@@ -4,30 +4,36 @@ import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.model.DetectTextRequest;
 import com.amazonaws.services.rekognition.model.Image;
 import com.amazonaws.services.rekognition.model.TextDetection;
-import com.amazonaws.util.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 
 @Service
-public class OcrDecoder extends AbstractDecoder {
+public class OcrRecognitionProcessor extends ImageRecognitionProcessor {
 
     private final AmazonRekognition client;
 
-    public OcrDecoder(AmazonRekognition client) {
+    @Autowired
+    public OcrRecognitionProcessor(AmazonRekognition client) {
         this.client = client;
     }
 
     @Override
-    protected String processDataFromInputStream(InputStream inputStream) throws IOException {
+    protected String processDataFromBufferedImage(BufferedImage bufferedImage) throws IOException {
         StringBuilder result = new StringBuilder();
 
-        byte[] b = IOUtils.toByteArray(inputStream);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(bufferedImage, "jpg", baos);
+
+        byte[] byteArray = baos.toByteArray();
         DetectTextRequest request = new DetectTextRequest()
-                .withImage(new Image().withBytes(ByteBuffer.wrap(b)));
+                .withImage(new Image().withBytes(ByteBuffer.wrap(byteArray)));
 
         List<TextDetection> textDetections = client.detectText(request).getTextDetections();
 

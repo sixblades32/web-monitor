@@ -1,7 +1,7 @@
 package io.enigmasolutions.twittermonitor.utils;
 
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import io.enigmasolutions.twittermonitor.models.twitter.graphQL.GraphQLTweet;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLTweet;
 
 public class BaseTweetResponseGenerator {
 

@@ -1,15 +1,18 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
-import io.enigmasolutions.broadcastmodels.Tweet;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
+import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
+import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
+import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -18,17 +21,28 @@ public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
     private static final String TIMELINE_PATH = "statuses/home_timeline.json";
 
     @Autowired
-    public HomeTimelineTwitterMonitor(TwitterScraperRepository twitterScraperRepository,
-                                      TwitterHelperService twitterHelperService,
-                                      KafkaTemplate<String,Tweet> kafkaTemplate) {
-        super(4025, twitterScraperRepository, twitterHelperService, kafkaTemplate);
+    public HomeTimelineTwitterMonitor(
+            TwitterScraperRepository twitterScraperRepository,
+            TwitterHelperService twitterHelperService,
+            KafkaProducer kafkaProducer,
+            List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
+            List<ImageRecognitionProcessor> imageRecognitionProcessors
+    ) {
+        super(
+                4025,
+                twitterScraperRepository,
+                twitterHelperService,
+                kafkaProducer,
+                plainTextRecognitionProcessors,
+                imageRecognitionProcessors
+        );
     }
 
     @Override
     protected void executeTwitterMonitoring() {
         try {
             TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH);
-            sendTweet(tweetResponse);
+            processTweetResponse(tweetResponse);
         } catch (HttpClientErrorException exception) {
 
             if (exception.getStatusCode().value() >= 400 &&

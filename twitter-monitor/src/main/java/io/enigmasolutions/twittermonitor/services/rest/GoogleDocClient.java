@@ -10,13 +10,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class GoogleDocClient {
 
-    private static final String BASE_PATH = "https://docs.google.com/document/d/";
     private static final String EXPORT_PATH = "/export";
+
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public ResponseEntity<String> getResponseEntity(String id){
-
-        String url = UriComponentsBuilder.fromHttpUrl(BASE_PATH + id + EXPORT_PATH)
+    public ResponseEntity<String> getResponseEntity(String url) {
+        String exportUrl = UriComponentsBuilder.fromHttpUrl(url + EXPORT_PATH)
                 .queryParam("format", "txt")
                 .build()
                 .toUriString();
@@ -24,7 +23,7 @@ public class GoogleDocClient {
         HttpHeaders headers = new HttpHeaders();
 
         RequestEntity<Void> requestEntity = RequestEntity
-                .get(url)
+                .get(exportUrl)
                 .headers(headers)
                 .build();
 

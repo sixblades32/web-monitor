@@ -5,17 +5,14 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 
 @Service
-public class QRCodeDecoder extends AbstractDecoder {
+public class QrRecognitionProcessor extends ImageRecognitionProcessor {
 
     @Override
-    protected String processDataFromInputStream(InputStream inputStream) throws NotFoundException, IOException {
-        BufferedImage bufferedImage = ImageIO.read(inputStream);
+    protected String processDataFromBufferedImage(BufferedImage bufferedImage) throws NotFoundException, IOException {
         LuminanceSource source = new BufferedImageLuminanceSource(bufferedImage);
         BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
         Result result = new MultiFormatReader().decode(bitmap);

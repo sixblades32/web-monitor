@@ -1,15 +1,18 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
-import io.enigmasolutions.broadcastmodels.Tweet;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
+import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
+import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
+import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.List;
 
 @Component
 @Slf4j
@@ -24,9 +27,18 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
     public UserTimelineMonitor(
             TwitterScraperRepository twitterScraperRepository,
             TwitterHelperService twitterHelperService,
-            KafkaTemplate<String, Tweet> kafkaTemplate
+            KafkaProducer kafkaProducer,
+            List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
+            List<ImageRecognitionProcessor> imageRecognitionProcessors
     ) {
-        super(700, twitterScraperRepository, twitterHelperService, kafkaTemplate);
+        super(
+                700,
+                twitterScraperRepository,
+                twitterHelperService,
+                kafkaProducer,
+                plainTextRecognitionProcessors,
+                imageRecognitionProcessors
+        );
         this.twitterHelperService = twitterHelperService;
     }
 
@@ -40,13 +52,13 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
     protected void executeTwitterMonitoring() {
         try {
             TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH);
-            sendTweet(tweetResponse);
+            processTweetResponse(tweetResponse);
         } catch (HttpClientErrorException exception) {
 
             if (exception.getStatusCode().value() >= 400 &&
                     exception.getStatusCode().value() < 500 &&
                     exception.getStatusCode().value() != 404) {
-                if (failedCustomClients.size() > 15) {
+                if (failedCustomClients.size() < 15) {
                     stop();
                 }
             }

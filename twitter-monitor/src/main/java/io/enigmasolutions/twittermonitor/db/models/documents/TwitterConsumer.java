@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(collection = "consumers")
+@Document(collection = "twitter-consumers")
 public class TwitterConsumer {
     @Id
     private String id;

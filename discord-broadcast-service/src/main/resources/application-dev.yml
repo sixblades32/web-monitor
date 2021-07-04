@@ -4,11 +4,11 @@ server:
 spring:
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://admin:ZRgCRWfi3M76p8yo@socialmonitors.kwvqy.mongodb.net/advanced-private-monitor}
+      uri: mongodb+srv://admin:ZRgCRWfi3M76p8yo@socialmonitors.kwvqy.mongodb.net/advanced-private-monitor
 
 alert:
   discord:
-    url: ${ALERT_DISCORD_URL:https://discord.com/api/webhooks/830449746653085707/na-oTYH5X5wL8WABdJO4uHUsD8y4jTnIj8xvBiH3x9xfmtzVq8yXY_6NjqoIWJLITIrR}
+    url: :https://discord.com/api/webhooks/830449746653085707/na-oTYH5X5wL8WABdJO4uHUsD8y4jTnIj8xvBiH3x9xfmtzVq8yXY_6NjqoIWJLITIrR
 
 discord:
   embed:
@@ -21,11 +21,11 @@ discord:
 kafka:
   bootstrap-servers: localhost:9092
   tweet-consumer-base:
-    group-id: discord-broadcast-tweet
+    group-id: discord-broadcast-tweet-base-group
     topic: twitter-tweet-broadcast-base
   tweet-consumer-live-release:
-    group-id: discord-broadcast-tweet
+    group-id: discord-broadcast-tweet-live-release-group
     topic: twitter-tweet-broadcast-live-release
   alert-consumer:
-    group-id: discord-broadcast-alert
-    topic: twitter-alert-broadcast
+    group-id: discord-broadcast-alert-group
+    topic: twitter-monitor-alert-broadcast

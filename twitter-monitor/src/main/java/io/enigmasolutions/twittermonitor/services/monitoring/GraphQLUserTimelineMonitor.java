@@ -2,15 +2,14 @@ package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.enigmasolutions.broadcastmodels.Tweet;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
-import io.enigmasolutions.twittermonitor.models.twitter.graphQL.Data;
-import io.enigmasolutions.twittermonitor.models.twitter.graphQL.QueryStringData;
-import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.QueryStringData;
+import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
+import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
+import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -18,8 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
-
-import static io.enigmasolutions.twittermonitor.utils.BaseTweetResponseGenerator.generate;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -32,9 +30,18 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
     public GraphQLUserTimelineMonitor(
             TwitterScraperRepository twitterScraperRepository,
             TwitterHelperService twitterHelperService,
-            KafkaTemplate<String, Tweet> kafkaTemplate
+            KafkaProducer kafkaProducer,
+            List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
+            List<ImageRecognitionProcessor> imageRecognitionProcessors
     ) {
-        super(1900, twitterScraperRepository, twitterHelperService, kafkaTemplate);
+        super(
+                1900,
+                twitterScraperRepository,
+                twitterHelperService,
+                kafkaProducer,
+                plainTextRecognitionProcessors,
+                imageRecognitionProcessors
+        );
         this.twitterHelperService = twitterHelperService;
     }
 
@@ -49,7 +56,7 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
         try {
             TweetResponse tweetResponse = getTweetResponse();
 
-            sendTweet(tweetResponse);
+            processTweetResponse(tweetResponse);
         } catch (HttpClientErrorException exception) {
 
 //            if (exception.getStatusCode().value() >= 400 &&
@@ -67,22 +74,24 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
     private TweetResponse getTweetResponse() {
         TweetResponse tweetResponse = null;
 
-        TwitterCustomClient currentClient = refreshClient();
-        Data graphQlDataResponse = currentClient
-                .getGraphQLApiTimelineTweets(getParams())
-                .getBody();
+        // TODO: закомментировал, т.к. ломает билд, убрать при исправлении
 
-        if (graphQlDataResponse != null) {
-            tweetResponse = generate(graphQlDataResponse.getUser()
-                    .getResult()
-                    .getTimeline()
-                    .getNestedTimeline()
-                    .getInstructions().get(0)
-                    .getEntries().get(0)
-                    .getContent()
-                    .getItemContent()
-                    .getTweet());
-        }
+//        TwitterCustomClient currentClient = refreshClient();
+//        Data graphQlDataResponse = currentClient
+//                .getGraphQLApiTimelineTweets(getParams())
+//                .getBody();
+//
+//        if (graphQlDataResponse != null) {
+//            tweetResponse = generate(graphQlDataResponse.getUser()
+//                    .getResult()
+//                    .getTimeline()
+//                    .getNestedTimeline()
+//                    .getInstructions().get(0)
+//                    .getEntries().get(0)
+//                    .getContent()
+//                    .getItemContent()
+//                    .getTweet());
+//        }
 
         return tweetResponse;
     }

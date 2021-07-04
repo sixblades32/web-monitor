@@ -1,5 +1,6 @@
-package io.enigmasolutions.twittermonitor.configuration;
+package io.enigmasolutions.twittermonitor.configuration.kafka;
 
+import io.enigmasolutions.broadcastmodels.Recognition;
 import io.enigmasolutions.broadcastmodels.Tweet;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -21,8 +22,7 @@ public class KafkaConfig {
     @Value(value = "${kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
-    @Bean
-    public ProducerFactory<String, Tweet> tweetProducerFactory() {
+    public <T> ProducerFactory<String, T> producerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -37,7 +37,18 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Tweet> kafkaTemplate() {
-        return new KafkaTemplate<>(tweetProducerFactory());
+    public KafkaTemplate<String, Tweet> tweetKafkaTemplate() {
+        KafkaTemplate<String, Tweet> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+        kafkaTemplate.setProducerListener(new LoggingProducerListener<>());
+
+        return kafkaTemplate;
+    }
+
+    @Bean
+    public KafkaTemplate<String, Recognition> recognitionKafkaTemplate() {
+        KafkaTemplate<String, Recognition> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+        kafkaTemplate.setProducerListener(new LoggingProducerListener<>());
+
+        return kafkaTemplate;
     }
 }

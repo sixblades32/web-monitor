@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.models.twitter.graphQL;
+package io.enigmasolutions.twittermonitor.models.twitter.graphql;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

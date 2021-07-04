@@ -6,10 +6,9 @@ import io.enigmasolutions.twittermonitor.db.models.references.TwitterUser;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 @Data
-@Document(collection = "scrapers")
+@Document(collection = "twitter-scrapers")
 public class TwitterScraper {
     @Id
     private String id;

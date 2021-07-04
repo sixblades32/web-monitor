@@ -22,13 +22,13 @@ security:
 kafka:
   bootstrap-servers: localhost:9092
   tweet-consumer:
-    group-id: web-broadcast-tweet
-    topic: twitter-broadcast
+    group-id: web-broadcast-tweet-group
+    topic: twitter-tweet-broadcast-base
   recognition-consumer:
-    group-id: web-broadcast-recognition
-    topic: recognition-broadcast
+    group-id: web-broadcast-recognition-group
+    topic: twitter-tweet-recognition-broadcast
   staff-consumer:
-    group-id: web-broadcast-staff
+    group-id: web-broadcast-staff-group
     topic: staff-broadcast
 
 broadcast:

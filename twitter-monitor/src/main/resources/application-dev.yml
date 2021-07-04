@@ -14,9 +14,11 @@ spring:
 
 kafka:
   bootstrap-servers: localhost:9092
-  tweet-producer-base-topic: twitter-tweet-broadcast-base
-  tweet-producer-live-release-topic: twitter-tweet-broadcast-live-release
-  tweet-producer-alert-topic: twitter-alert-broadcast
+  producer:
+    tweet-base-topic: twitter-tweet-broadcast-base
+    tweet-live-release-topic: twitter-tweet-broadcast-live-release
+    tweet-recognition-topic: twitter-tweet-recognition-broadcast
+    twitter-monitor-alert-topic: twitter-monitor-alert-broadcast
 
 monitor:
   home-timeline:
