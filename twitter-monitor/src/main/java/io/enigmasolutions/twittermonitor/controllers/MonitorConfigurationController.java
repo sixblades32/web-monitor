@@ -3,12 +3,8 @@ package io.enigmasolutions.twittermonitor.controllers;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
-import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
-import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
-import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
-import io.enigmasolutions.twittermonitor.models.twitter.base.User;
-import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
+import io.enigmasolutions.twittermonitor.services.configuration.MonitorConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,103 +14,82 @@ import java.util.List;
 @RequestMapping("/config")
 public class MonitorConfigurationController {
 
-    private final TwitterHelperService twitterHelperService;
-    private final TwitterConsumerRepository twitterConsumerRepository;
-    private final TwitterScraperRepository twitterScraperRepository;
-    private final TargetRepository targetRepository;
+    private final MonitorConfigurationService monitorConfigurationService;
 
     @Autowired
-    public MonitorConfigurationController(TwitterHelperService twitterHelperService,
-                                          TwitterConsumerRepository twitterConsumerRepository,
-                                          TwitterScraperRepository twitterScraperRepository,
-                                          TargetRepository targetRepository) {
-        this.twitterHelperService = twitterHelperService;
-        this.twitterConsumerRepository = twitterConsumerRepository;
-        this.twitterScraperRepository = twitterScraperRepository;
-        this.targetRepository = targetRepository;
+    public MonitorConfigurationController(MonitorConfigurationService monitorConfigurationService) {
+        this.monitorConfigurationService = monitorConfigurationService;
     }
 
     @PostMapping("/consumers")
     public void createConsumer(@RequestBody TwitterConsumer consumer) {
 
-        twitterConsumerRepository.insert(consumer);
+        monitorConfigurationService.createConsumer(consumer);
     }
 
     @GetMapping("/consumers")
-    public List<TwitterConsumer> getConsumers(){
-        return twitterConsumerRepository.findAll();
+    public List<TwitterConsumer> getConsumers() {
+
+        return monitorConfigurationService.getConsumers();
     }
 
     @DeleteMapping("/consumers")
-    public void deleteConsumer(@RequestBody TwitterConsumer twitterConsumer){
+    public void deleteConsumer(@RequestBody TwitterConsumer twitterConsumer) {
 
-        String id = twitterConsumer.getId();
-
-        twitterConsumerRepository.deleteById(id);
+        monitorConfigurationService.deleteConsumer(twitterConsumer);
     }
 
     @PostMapping("/scrapers")
     public void createScraper(@RequestBody TwitterScraper scraper) {
 
-        twitterScraperRepository.insert(scraper);
+        monitorConfigurationService.createScraper(scraper);
     }
 
     @GetMapping("/scrapers")
-    public List<TwitterScraper> getScrapers(){
-        return twitterScraperRepository.findAll();
+    public List<TwitterScraper> getScrapers() {
+        return monitorConfigurationService.getScrapers();
     }
 
     @DeleteMapping("/scrapers")
-    public void deleteScraper(@RequestBody TwitterScraper twitterScraper){
+    public void deleteScraper(@RequestBody TwitterScraper twitterScraper) {
 
-        String id = twitterScraper.getId();
-
-        twitterConsumerRepository.deleteById(id);
+        monitorConfigurationService.deleteScraper(twitterScraper);
     }
 
     @GetMapping("/targets/global")
-    public List<Target> getGlobalTargets(){
-        return targetRepository.findAll();
+    public List<Target> getGlobalTargets() {
+
+        return monitorConfigurationService.getGlobalTargets();
     }
 
     @PostMapping("/targets/global")
-    public void createGlobalTarget(@RequestBody UserStartForm body){
-        User user = twitterHelperService.retrieveUser(body.getScreenName());
+    public void createGlobalTarget(@RequestBody UserStartForm body) {
 
-        Target target = Target.builder()
-                .username(user.getScreenName().toLowerCase())
-                .identifier(user.getId())
-                .build();
-
-        targetRepository.insert(target);
-        twitterHelperService.getCommonTargetIds().add(user.getId());
+        monitorConfigurationService.createGlobalTarget(body);
     }
 
     @DeleteMapping("/targets/global")
-    public void deleteGlobalTarget(@RequestBody UserStartForm body){
-        User user = twitterHelperService.retrieveUser(body.getScreenName());
+    public void deleteGlobalTarget(@RequestBody UserStartForm body) {
 
-        targetRepository.deleteTargetByIdentifier(user.getId());
-        twitterHelperService.getCommonTargetIds().remove(user.getId());
+        monitorConfigurationService.deleteGlobalTarget(body);
     }
 
     @GetMapping("/targets/temporary")
-    public List<String> getTemporaryTargets(){
-        return twitterHelperService.getAdvancedTargetIds();
+    public List<String> getTemporaryTargets() {
+
+        return monitorConfigurationService.getTemporaryTargets();
     }
 
     @PostMapping("/targets/temporary")
-    public void createTemporaryTarget(@RequestBody UserStartForm body){
-        User user = twitterHelperService.retrieveUser(body.getScreenName());
+    public void createTemporaryTarget(@RequestBody UserStartForm body) {
 
-        twitterHelperService.getAdvancedTargetIds().add(user.getId());
+        monitorConfigurationService.createTemporaryTarget(body);
     }
 
     @DeleteMapping("/targets/temporary")
-    public void deleteTemporaryTarget(@RequestBody UserStartForm body){
-        User user = twitterHelperService.retrieveUser(body.getScreenName());
+    public void deleteTemporaryTarget(@RequestBody UserStartForm body) {
 
-        twitterHelperService.getAdvancedTargetIds().remove(user.getId());
+        monitorConfigurationService.deleteTemporaryTarget(body);
     }
 
 

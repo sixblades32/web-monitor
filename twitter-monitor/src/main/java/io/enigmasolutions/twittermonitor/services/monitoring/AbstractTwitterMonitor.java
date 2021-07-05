@@ -2,6 +2,7 @@ package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.broadcastmodels.Recognition;
 import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.TweetType;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.monitor.Status;
@@ -182,6 +183,19 @@ public abstract class AbstractTwitterMonitor {
     ) {
         try {
             Recognition recognition = recognitionProcessor.processDataFromUrl(url);
+
+            recognition.setTweetType(tweetResponse.getType());
+            recognition.setUserName(tweetResponse.getUser().getScreenName());
+
+            if(tweetResponse.getType() == TweetType.RETWEET){
+                if(tweetResponse.getRetweetedStatus() != null){
+                    recognition.setNestedUserName(tweetResponse.getRetweetedStatus().getUser().getScreenName());
+                }else if (tweetResponse.getQuotedStatus() != null){
+                    recognition.setNestedUserName(tweetResponse.getQuotedStatus().getUser().getScreenName());
+                }
+            }else if(tweetResponse.getType() == TweetType.REPLY){
+                recognition.setNestedUserName(tweetResponse.getInReplyToScreenName());
+            }
 
             CompletableFuture.runAsync(() -> processCommonTargetRecognition(tweetResponse, recognition));
             CompletableFuture.runAsync(() -> processLiveReleaseTargetRecognition(tweetResponse, recognition));

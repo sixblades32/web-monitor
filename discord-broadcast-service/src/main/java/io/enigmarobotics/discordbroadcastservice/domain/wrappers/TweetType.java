@@ -22,11 +22,6 @@ public enum TweetType {
         public List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
             return DiscordUtils.generateTweetEmbed(tweet, discordEmbedColorConfig.getTweet());
         }
-
-        @Override
-        public Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            return null;
-        }
     },
     RETWEET {
         @Override
@@ -39,11 +34,6 @@ public enum TweetType {
             embeds.addAll(retweetedTweet);
 
             return embeds;
-        }
-
-        @Override
-        public Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            return null;
         }
 
         @Override
@@ -62,19 +52,11 @@ public enum TweetType {
         }
 
         @Override
-        public Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            return null;
-        }
-
-        @Override
         public List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig) {
             return null;
         }
     };
 
     public abstract List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig);
-
-    public abstract Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig);
-
     public abstract List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig);
 }

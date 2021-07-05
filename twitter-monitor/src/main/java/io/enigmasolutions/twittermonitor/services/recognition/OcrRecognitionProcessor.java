@@ -4,6 +4,8 @@ import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.model.DetectTextRequest;
 import com.amazonaws.services.rekognition.model.Image;
 import com.amazonaws.services.rekognition.model.TextDetection;
+import io.enigmasolutions.broadcastmodels.Recognition;
+import io.enigmasolutions.broadcastmodels.RecognitionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +27,7 @@ public class OcrRecognitionProcessor extends ImageRecognitionProcessor {
     }
 
     @Override
-    protected String processDataFromBufferedImage(BufferedImage bufferedImage) throws IOException {
+    protected Recognition processDataFromBufferedImage(BufferedImage bufferedImage, String url) throws IOException {
         StringBuilder result = new StringBuilder();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -44,6 +46,10 @@ public class OcrRecognitionProcessor extends ImageRecognitionProcessor {
             }
         }
 
-        return result.toString();
+        return Recognition.builder()
+                .recognitionType(RecognitionType.OCR)
+                .source(url)
+                .result(result.toString())
+                .build();
     }
 }
