@@ -8,11 +8,13 @@ import io.enigmasolutions.twittermonitor.models.twitter.base.QuotedStatusPermali
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 import static io.enigmasolutions.broadcastmodels.TweetType.*;
 
 @Data
 @Builder
+@Jacksonized
 public class Legacy {
     private final String TWITTER_URL = "https://twitter.com/";
 

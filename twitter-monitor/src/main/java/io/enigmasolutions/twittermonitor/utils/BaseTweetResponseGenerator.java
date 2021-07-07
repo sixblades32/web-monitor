@@ -19,9 +19,13 @@ public class BaseTweetResponseGenerator {
                 .entities(graphQLTweet.getLegacy().getEntities())
                 .extendedEntities(graphQLTweet.getLegacy().getExtendedEntities())
                 .user(graphQLTweet.getCore().getUser())
-                .retweetedStatus(generate(graphQLTweet.getLegacy().getRetweetedStatus()))
-                .quotedStatus(generate(graphQLTweet.getLegacy().getQuotedStatus()))
-                .repliedStatus(generate(graphQLTweet.getLegacy().getRepliedStatus()))
+                // TODO: split to different method
+//                .retweetedStatus(graphQLTweet.getLegacy().getRetweetedStatus() != null ?
+//                        generate(graphQLTweet.getLegacy().getRetweetedStatus()) : null)
+//                .quotedStatus(graphQLTweet.getLegacy().getQuotedStatus() != null ?
+//                        generate(graphQLTweet.getLegacy().getQuotedStatus()) : null)
+//                .repliedStatus(graphQLTweet.getLegacy().getRepliedStatus() != null ?
+//                        generate(graphQLTweet.getLegacy().getRepliedStatus()) : null)
                 .inReplyToScreenName(graphQLTweet.getLegacy().getInReplyToScreenName())
                 .inReplyToStatusId(graphQLTweet.getLegacy().getInReplyToStatusId())
                 .inReplyToUserId(graphQLTweet.getLegacy().getInReplyToUserId())

@@ -5,19 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.QueryStringData;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
+import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.util.UriUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import static io.enigmasolutions.twittermonitor.utils.BaseTweetResponseGenerator.generate;
 
 @Component
 @Slf4j
@@ -76,22 +78,23 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
 
         // TODO: закомментировал, т.к. ломает билд, убрать при исправлении
 
-//        TwitterCustomClient currentClient = refreshClient();
-//        Data graphQlDataResponse = currentClient
-//                .getGraphQLApiTimelineTweets(getParams())
-//                .getBody();
-//
-//        if (graphQlDataResponse != null) {
-//            tweetResponse = generate(graphQlDataResponse.getUser()
-//                    .getResult()
-//                    .getTimeline()
-//                    .getNestedTimeline()
-//                    .getInstructions().get(0)
-//                    .getEntries().get(0)
-//                    .getContent()
-//                    .getItemContent()
-//                    .getTweet());
-//        }
+        TwitterCustomClient currentClient = refreshClient();
+        GraphQLResponse graphQlDataResponse = currentClient
+                .getGraphQLApiTimelineTweets(getParams())
+                .getBody();
+
+        if (graphQlDataResponse != null) {
+            tweetResponse = generate(graphQlDataResponse.getData()
+                    .getUser()
+                    .getResult()
+                    .getTimeline()
+                    .getNestedTimeline()
+                    .getInstructions().get(0)
+                    .getEntries().get(0)
+                    .getContent()
+                    .getItemContent()
+                    .getTweet());
+        }
 
         return tweetResponse;
     }
@@ -109,9 +112,10 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                 .withTweetQuoteCount(true)
                 .includePromotedContent(true)
                 .withTweetResult(false)
+                .withReactions(false)
+                .withSuperFollowsTweetFields(false)
                 .withUserResults(false)
                 .withVoice(false)
-                .withNonLegacyCard(true)
                 .withBirdwatchPivots(false)
                 .build();
 
@@ -125,7 +129,7 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
             e.printStackTrace();
         }
 
-        params.add("variables", UriUtils.encode(variables, StandardCharsets.UTF_8));
+        params.add("variables", variables);
 
         return params;
     }
