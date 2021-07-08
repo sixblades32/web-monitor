@@ -62,7 +62,7 @@ public class PostmanService {
             String url = customer.retrieveCommonWebhook();
 
             discordClient.sendEmbed(url, message);
-            log.info("Embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") common webhook.");
+            log.info("Tweet embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") common webhook.");
         });
     }
 
@@ -72,7 +72,16 @@ public class PostmanService {
             String url = customer.retrieveAdvancedWebhook();
 
             discordClient.sendEmbed(url, message);
-            log.info("Embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") live release webhook.");
+            log.info("Tweet embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") live release webhook.");
+        });
+    }
+
+    public void sendRecognition(Message message) {
+        customers.stream().parallel().forEach(customer -> {
+            String url = customer.retrieveCommonWebhook();
+
+            discordClient.sendEmbed(url, message);
+            log.info("Recognition embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") live release webhook.");
         });
     }
 }

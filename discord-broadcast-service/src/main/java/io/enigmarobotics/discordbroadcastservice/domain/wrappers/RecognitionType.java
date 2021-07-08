@@ -6,37 +6,38 @@ import io.enigmarobotics.discordbroadcastservice.domain.models.Footer;
 public enum RecognitionType {
     PASTEBIN {
         @Override
-        public Footer generateTweetRecognitionFooter(BroadcastRecognition recognition) {
+        public String toString() {
+            return "Pastebin";
+        }
+    },
+    GOOGLE_DOC {
+        @Override
+        public String toString() {
+            return "GoogleDoc";
+        }
+    },
+    OCR,
+    QR;
 
-            return Footer.builder()
-                    .text("Pastebin Recognition from TWEET  —  @" + recognition.getUserName())
-                    .build();
-        }
-    },
-    GOOGLE_DOCS {
-        @Override
-        public Footer generateTweetRecognitionFooter(BroadcastRecognition recognition) {
-            return Footer.builder()
-                    .text("GoogleDocs Recognition from TWEET  —  @" + recognition.getUserName())
-                    .build();
-        }
-    },
-    OCR {
-        @Override
-        public Footer generateTweetRecognitionFooter(BroadcastRecognition recognition) {
-            return Footer.builder()
-                    .text("OCR Recognition Result from TWEET  —  @" + recognition.getUserName())
-                    .build();
-        }
-    },
-    OR {
-        @Override
-        public Footer generateTweetRecognitionFooter(BroadcastRecognition recognition) {
-            return Footer.builder()
-                    .text("QR Recognition Result from TWEET  —  @" + recognition.getUserName())
-                    .build();
-        }
+    public String getTitle(){
+        return this + " Recognition Result: ";
     };
 
-    public abstract Footer generateTweetRecognitionFooter(BroadcastRecognition recognition);
+    public Footer generateTweetRecognitionFooter(BroadcastRecognition recognition){
+        return Footer.builder()
+                .text(this + " Recognition Result from TWEET  —  @" + recognition.getUserName())
+                .build();
+    };
+
+    public Footer generateRetweetRecognitionFooter(BroadcastRecognition recognition){
+        return Footer.builder()
+                .text(this + " Recognition from RETWEET  —  @" + recognition.getUserName() + " --> " + recognition.getNestedUserName())
+                .build();
+    };
+
+    public Footer generateReplyRecognitionFooter(BroadcastRecognition recognition){
+        return Footer.builder()
+                .text(this + " Recognition from REPLY  —  @" + recognition.getUserName() + " --> " + recognition.getNestedUserName())
+                .build();
+    };
 }

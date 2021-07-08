@@ -2,7 +2,7 @@ package io.enigmasolutions.broadcastmodels;
 
 public enum RecognitionType {
     PASTEBIN,
-    GOOGLE_DOCS,
+    GOOGLE_DOC,
     OCR,
     OR
 }

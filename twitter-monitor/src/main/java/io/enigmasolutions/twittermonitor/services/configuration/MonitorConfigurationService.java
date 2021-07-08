@@ -11,6 +11,7 @@ import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -72,6 +73,7 @@ public class MonitorConfigurationService {
         return targetRepository.findAll();
     }
 
+    @Transactional
     public void createGlobalTarget(UserStartForm body) {
 
         User user = twitterHelperService.retrieveUser(body.getScreenName());
@@ -85,6 +87,7 @@ public class MonitorConfigurationService {
         twitterHelperService.getCommonTargetIds().add(user.getId());
     }
 
+    @Transactional
     public void deleteGlobalTarget(UserStartForm body) {
 
         User user = twitterHelperService.retrieveUser(body.getScreenName());
