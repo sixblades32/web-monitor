@@ -13,6 +13,7 @@ public class KafkaProuderPropertiesConfig {
 
     private String tweetBaseTopic;
     private String tweetLiveReleaseTopic;
-    private String tweetRecognitionTopic;
+    private String tweetRecognitionBaseTopic;
+    private String tweetRecognitionLiveReleaseTopic;
     private String twitterMonitorAlertTopic;
 }

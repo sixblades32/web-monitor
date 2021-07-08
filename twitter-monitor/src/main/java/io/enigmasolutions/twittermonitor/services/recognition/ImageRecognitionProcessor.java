@@ -19,15 +19,10 @@ public abstract class ImageRecognitionProcessor implements RecognitionProcessor 
         InputStream inputStream = readInputStream(url);
         BufferedImage bufferedImage = ImageIO.read(inputStream);
 
-        String result = processDataFromBufferedImage(bufferedImage);
-
-        return Recognition.builder()
-                .source(url)
-                .result(result)
-                .build();
+        return processDataFromBufferedImage(bufferedImage, url);
     }
 
-    protected abstract String processDataFromBufferedImage(BufferedImage bufferedImage)
+    protected abstract Recognition processDataFromBufferedImage(BufferedImage bufferedImage, String url)
             throws IOException, NotFoundException;
 
     protected InputStream readInputStream(String url) throws IOException {

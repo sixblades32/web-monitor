@@ -1,9 +1,9 @@
 package io.enigmarobotics.discordbroadcastservice.utils;
 
+import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.*;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.BroadcastTweet;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.TweetImage;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.*;
+import io.enigmasolutions.broadcastmodels.Recognition;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -343,6 +343,45 @@ public class DiscordUtils {
                 .title("Alert System")
                 .color(embedColor)
                 .fields(fields)
+                .build();
+    }
+
+    public static Embed generateTweetRecognitionEmbed(BroadcastRecognition recognition, int embedColor) {
+
+        Footer footer = recognition.getRecognitionType().generateTweetRecognitionFooter(recognition);
+        String title = recognition.getRecognitionType().getTitle();
+
+        return Embed.builder()
+                .title(title)
+                .footer(footer)
+                .description(recognition.getResult())
+                .color(embedColor)
+                .build();
+    }
+
+    public static Embed generateRetweetRecognitionEmbed(BroadcastRecognition recognition, int embedColor) {
+
+        Footer footer = recognition.getRecognitionType().generateRetweetRecognitionFooter(recognition);
+        String title = recognition.getRecognitionType().getTitle();
+
+        return Embed.builder()
+                .title(title)
+                .footer(footer)
+                .description(recognition.getResult())
+                .color(embedColor)
+                .build();
+    }
+
+    public static Embed generateReplyRecognitionEmbed(BroadcastRecognition recognition, int embedColor) {
+
+        Footer footer = recognition.getRecognitionType().generateReplyRecognitionFooter(recognition);
+        String title = recognition.getRecognitionType().getTitle();
+
+        return Embed.builder()
+                .title(title)
+                .footer(footer)
+                .description(recognition.getResult())
+                .color(embedColor)
                 .build();
     }
 }

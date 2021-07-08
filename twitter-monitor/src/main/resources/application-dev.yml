@@ -7,6 +7,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/twitter-monitor
+      database: twitter-monitor
   security:
     user:
       name: admin
@@ -17,7 +18,8 @@ kafka:
   producer:
     tweet-base-topic: twitter-tweet-broadcast-base
     tweet-live-release-topic: twitter-tweet-broadcast-live-release
-    tweet-recognition-topic: twitter-tweet-recognition-broadcast
+    tweet-recognition-base-topic: twitter-recognition-broadcast-base
+    tweet-recognition-live-release-topic: twitter-recognition-broadcast-live-release
     twitter-monitor-alert-topic: twitter-monitor-alert-broadcast
 
 monitor:

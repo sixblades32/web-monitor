@@ -24,9 +24,13 @@ public enum TweetType {
         }
 
         @Override
-        public Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            return null;
+        public List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig) {
+            Embed recognitionEmbed = DiscordUtils.generateTweetRecognitionEmbed(recognition, discordEmbedColorConfig.getTweet());
+
+            return Collections.singletonList(recognitionEmbed);
         }
+
+
     },
     RETWEET {
         @Override
@@ -42,15 +46,17 @@ public enum TweetType {
         }
 
         @Override
-        public Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            return null;
-        }
-
-        @Override
         public List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig) {
             Embed imageEmbed = DiscordUtils.generateRetweetImageEmbed(tweetImage, discordEmbedColorConfig.getRetweet());
 
             return Collections.singletonList(imageEmbed);
+        }
+
+        @Override
+        public List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig) {
+            Embed recognitionEmbed = DiscordUtils.generateRetweetRecognitionEmbed(recognition, discordEmbedColorConfig.getRetweet());
+
+            return Collections.singletonList(recognitionEmbed);
         }
     },
     REPLY {
@@ -62,19 +68,19 @@ public enum TweetType {
         }
 
         @Override
-        public Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        public List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig) {
             return null;
         }
 
         @Override
-        public List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            return null;
+        public List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig) {
+            Embed recognitionEmbed = DiscordUtils.generateReplyRecognitionEmbed(recognition, discordEmbedColorConfig.getReply());
+
+            return Collections.singletonList(recognitionEmbed);
         }
     };
 
     public abstract List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig);
-
-    public abstract Embed generateTweetEmbed(BroadcastTweet tweet, String retweetedBy, DiscordEmbedColorConfig discordEmbedColorConfig);
-
     public abstract List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig);
+    public abstract List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig);
 }

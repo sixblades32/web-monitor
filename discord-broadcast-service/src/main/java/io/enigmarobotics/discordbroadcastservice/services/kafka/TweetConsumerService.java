@@ -3,6 +3,7 @@ package io.enigmarobotics.discordbroadcastservice.services.kafka;
 import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.BroadcastRecognition;
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.BroadcastTweet;
 import io.enigmarobotics.discordbroadcastservice.services.PostmanService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -33,7 +33,7 @@ public class TweetConsumerService {
 
         log.info("Received Base Tweet Message from: " + tweet.getUserName());
 
-        Message message = generateMessage(tweet);
+        Message message = generateTweetMessage(tweet);
 
         postmanService.processCommon(message);
     }
@@ -45,13 +45,20 @@ public class TweetConsumerService {
 
         log.info("Received Live Release Tweet Message from: " + tweet.getUserName());
 
-        Message message = generateMessage(tweet);
+        Message message = generateTweetMessage(tweet);
 
         postmanService.processAdvanced(message);
     }
 
-    private Message generateMessage(BroadcastTweet tweet){
-        System.out.println(tweet);
+    public void consumeRecognition(BroadcastRecognition recognition){
+
+        log.info("Received Recognition Result from" + recognition.getUserName());
+
+        Message message = generateRecognitionMessage(recognition);
+        postmanService.sendRecognition(message);
+    }
+
+    private Message generateTweetMessage(BroadcastTweet tweet){
         List<Embed> embeds = tweet.getType().generateTweetEmbed(tweet, discordEmbedColorConfig);
 
         return Message.builder()
@@ -59,4 +66,16 @@ public class TweetConsumerService {
                 .embeds(embeds)
                 .build();
     }
+
+    private Message generateRecognitionMessage(BroadcastRecognition recognition) {
+
+        List<Embed> embeds = recognition.getTweetType().generateRecognitionEmbed(recognition, discordEmbedColorConfig);
+
+        return Message.builder()
+                .content("")
+                .embeds(embeds)
+                .build();
+    }
+
+
 }

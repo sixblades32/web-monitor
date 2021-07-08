@@ -31,10 +31,10 @@ public class KafkaProducer {
     }
 
     public void sendTweetToBaseBroadcastRecognition(Recognition recognition) {
-        recognitionKafkaTemplate.send(kafkaProuderPropertiesConfig.getTweetRecognitionTopic(), recognition);
+        recognitionKafkaTemplate.send(kafkaProuderPropertiesConfig.getTweetRecognitionBaseTopic(), recognition);
     }
 
     public void sendTweetLiveReleaseRecognition(Recognition recognition) {
-        recognitionKafkaTemplate.send(kafkaProuderPropertiesConfig.getTweetRecognitionTopic(), recognition);
+        recognitionKafkaTemplate.send(kafkaProuderPropertiesConfig.getTweetRecognitionLiveReleaseTopic(), recognition);
     }
 }
