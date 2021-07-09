@@ -22,6 +22,15 @@ public enum TweetType {
         public List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
             return DiscordUtils.generateTweetEmbed(tweet, discordEmbedColorConfig.getTweet());
         }
+
+        @Override
+        public List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig) {
+            Embed recognitionEmbed = DiscordUtils.generateTweetRecognitionEmbed(recognition, discordEmbedColorConfig.getTweet());
+
+            return Collections.singletonList(recognitionEmbed);
+        }
+
+
     },
     RETWEET {
         @Override
@@ -42,6 +51,13 @@ public enum TweetType {
 
             return Collections.singletonList(imageEmbed);
         }
+
+        @Override
+        public List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig) {
+            Embed recognitionEmbed = DiscordUtils.generateRetweetRecognitionEmbed(recognition, discordEmbedColorConfig.getRetweet());
+
+            return Collections.singletonList(recognitionEmbed);
+        }
     },
     REPLY {
         @Override
@@ -55,8 +71,16 @@ public enum TweetType {
         public List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig) {
             return null;
         }
+
+        @Override
+        public List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig) {
+            Embed recognitionEmbed = DiscordUtils.generateReplyRecognitionEmbed(recognition, discordEmbedColorConfig.getReply());
+
+            return Collections.singletonList(recognitionEmbed);
+        }
     };
 
     public abstract List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig);
     public abstract List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig);
+    public abstract List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig);
 }
