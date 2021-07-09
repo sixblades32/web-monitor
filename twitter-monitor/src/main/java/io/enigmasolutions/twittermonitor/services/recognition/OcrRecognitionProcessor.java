@@ -47,7 +47,7 @@ public class OcrRecognitionProcessor extends ImageRecognitionProcessor {
         }
 
         return Recognition.builder()
-                .recognitionType(RecognitionType.OCR)
+                .type(RecognitionType.OCR)
                 .source(url)
                 .result(result.toString())
                 .build();

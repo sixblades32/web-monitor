@@ -1,23 +1,22 @@
 package io.enigmasolutions.broadcastmodels;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
-@Jacksonized
+@AllArgsConstructor
+@NoArgsConstructor
 public class Tweet {
     private TweetType type;
     private String text;
-    private String userName;
-    private String userId;
-    private String userIcon;
-    private String userUrl;
+    private TwitterUser user;
     private Tweet retweeted;
-    private Tweet replied;
+    private BriefTweet replied;
     private String tweetUrl;
     private String retweetsUrl;
     private String likesUrl;

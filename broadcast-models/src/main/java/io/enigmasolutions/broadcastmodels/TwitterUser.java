@@ -1,5 +1,6 @@
 package io.enigmasolutions.broadcastmodels;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Staff {
-    private StaffType type;
-    private String text;
-    private DiscordUser discordUser;
+public class TwitterUser {
+    private String name;
+    private String icon;
+    private String login;
+    private String url;
+    private String id;
 }

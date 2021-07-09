@@ -31,7 +31,7 @@ public class GoogleDocRecognitionProcessor extends PlainTextRecognitionProcessor
                 .getBody();
 
         return Recognition.builder()
-                .recognitionType(RecognitionType.GOOGLE_DOC)
+                .type(RecognitionType.GOOGLE_DOC)
                 .source(url)
                 .result(result)
                 .build();

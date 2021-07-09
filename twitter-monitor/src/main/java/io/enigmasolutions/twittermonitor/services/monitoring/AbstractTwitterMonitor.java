@@ -16,7 +16,6 @@ import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.MultiValueMap;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -251,14 +250,14 @@ public abstract class AbstractTwitterMonitor {
         return twitterHelperService.checkLiveReleasePass(targetId);
     }
 
-    private String getRecognitionNestedUserName(TweetResponse tweetResponse){
-        if(tweetResponse.getType() == TweetType.RETWEET){
-            if(tweetResponse.getRetweetedStatus() != null){
+    private String getRecognitionNestedUserName(TweetResponse tweetResponse) {
+        if (tweetResponse.getType() == TweetType.RETWEET) {
+            if (tweetResponse.getRetweetedStatus() != null) {
                 return tweetResponse.getRetweetedStatus().getUser().getScreenName();
-            }else if (tweetResponse.getQuotedStatus() != null){
+            } else if (tweetResponse.getQuotedStatus() != null) {
                 return tweetResponse.getQuotedStatus().getUser().getScreenName();
             }
-        }else if(tweetResponse.getType() == TweetType.REPLY){
+        } else if (tweetResponse.getType() == TweetType.REPLY) {
             return tweetResponse.getInReplyToScreenName();
         }
 

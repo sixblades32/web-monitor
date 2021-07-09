@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Staff {
-    private StaffType type;
-    private String text;
-    private DiscordUser discordUser;
+public class BriefTweet {
+    private TwitterUser user;
+    private String tweetUrl;
 }
