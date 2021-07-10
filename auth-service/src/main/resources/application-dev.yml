@@ -50,8 +50,8 @@ security:
     expiration: 86400
     secret: jwt-secret
   url:
-    login: http://localhost:8010/api/auth
-    logout: http://localhost:8010/api/auth
+    login: http://localhost:3000
+    logout: http://localhost:3000/authorization
 
 discord:
   bot:
