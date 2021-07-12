@@ -78,14 +78,11 @@ public class KafkaConfig {
     @Bean
     public ConsumerFactory<String, Alert> alertConsumerFactory (){
 
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, discordBroadcastAlertGroupId);
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        Map<String, Object> props = generateProps(discordBroadcastAlertGroupId);
 
         return new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(),
-                new JsonDeserializer<>(Alert.class));
+                new JsonDeserializer<>(Alert.class, false));
     }
 
     @Bean

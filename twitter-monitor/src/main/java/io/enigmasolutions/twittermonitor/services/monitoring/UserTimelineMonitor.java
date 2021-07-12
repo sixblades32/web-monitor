@@ -6,6 +6,7 @@ import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
+import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -50,20 +51,14 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
 
     @Override
     protected void executeTwitterMonitoring() {
+
+        TwitterCustomClient currentClient = refreshClient();
+
         try {
-            TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH);
+            TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH, currentClient);
             processTweetResponse(tweetResponse);
         } catch (HttpClientErrorException exception) {
-
-            if (exception.getStatusCode().value() >= 400 &&
-                    exception.getStatusCode().value() < 500 &&
-                    exception.getStatusCode().value() != 404) {
-                if (failedCustomClients.size() < 15) {
-                    stop();
-                }
-            }
-
-            log.error(exception.toString());
+            processErrorResponse(exception, currentClient);
         }
     }
 

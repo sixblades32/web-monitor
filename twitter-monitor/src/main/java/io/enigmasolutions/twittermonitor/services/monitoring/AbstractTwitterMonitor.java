@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import io.enigmasolutions.broadcastmodels.Alert;
 import io.enigmasolutions.broadcastmodels.Recognition;
 import io.enigmasolutions.broadcastmodels.Tweet;
 import io.enigmasolutions.broadcastmodels.TweetType;
@@ -15,11 +16,10 @@ import io.enigmasolutions.twittermonitor.services.recognition.RecognitionProcess
 import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.annotation.PostConstruct;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -35,11 +35,12 @@ public abstract class AbstractTwitterMonitor {
     private final TwitterHelperService twitterHelperService;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
     private final List<ImageRecognitionProcessor> imageRecognitionProcessors;
-    protected List<TwitterCustomClient> failedCustomClients = new LinkedList<>();
+    protected List<TwitterCustomClient> failedCustomClients = Collections.synchronizedList(new LinkedList<>());
     private List<TwitterCustomClient> twitterCustomClients;
 
     private Status status = Status.STOPPED;
     private MultiValueMap<String, String> params;
+    private Integer delay = null;
 
     public AbstractTwitterMonitor(
             int timelineDelay,
@@ -74,6 +75,7 @@ public abstract class AbstractTwitterMonitor {
 
     public void stop() {
         status = Status.STOPPED;
+        failedCustomClients.clear();
     }
 
     public Status getStatus() {
@@ -83,11 +85,10 @@ public abstract class AbstractTwitterMonitor {
     protected abstract void executeTwitterMonitoring();
     protected abstract MultiValueMap<String, String> generateParams();
 
-    protected TweetResponse getTweetResponse(MultiValueMap<String, String> params, String timelinePath) {
+    protected TweetResponse getTweetResponse(MultiValueMap<String, String> params, String timelinePath, TwitterCustomClient twitterCustomClient) {
         TweetResponse tweetResponse = null;
 
-        TwitterCustomClient currentClient = refreshClient();
-        TweetResponse[] tweetResponseArray = currentClient
+        TweetResponse[] tweetResponseArray = twitterCustomClient
                 .getBaseApiTimelineTweets(params, timelinePath)
                 .getBody();
 
@@ -111,15 +112,79 @@ public abstract class AbstractTwitterMonitor {
         }
     }
 
+    protected void processErrorResponse(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient){
+
+        log.error(exception.toString());
+
+        if (exception.getStatusCode().value() >= 400 &&
+                exception.getStatusCode().value() < 500 &&
+                exception.getStatusCode().value() != 404) {
+
+            reshuffleClients(twitterCustomClient);
+            processRateLimitError(exception, twitterCustomClient);
+            calculateDelay();
+
+            CompletableFuture.runAsync(() -> processAlertTarget(exception, twitterCustomClient));
+
+            if (failedCustomClients.size() > 15) {
+                stop();
+            }
+        }
+    }
+
+    private void reshuffleClients(TwitterCustomClient twitterCustomClient){
+
+        twitterCustomClients.remove(twitterCustomClient);
+        failedCustomClients.add(twitterCustomClient);
+    }
+
+    private void processRateLimitError(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient){
+
+        if (exception.getStatusCode().value() == 429){
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() { restoreFailedClient(twitterCustomClient);
+                }
+            };
+
+            timer.schedule(timerTask, 60000);
+        }
+    }
+
+    private void calculateDelay(){
+        delay = timelineDelay / twitterCustomClients.size();
+    }
+
+    private void restoreFailedClient(TwitterCustomClient twitterCustomClient){
+        if(!failedCustomClients.contains(twitterCustomClient)) return;
+
+        failedCustomClients.remove(twitterCustomClient);
+        twitterCustomClients.add(twitterCustomClient);
+        log.info("Scraper " + twitterCustomClient.getTwitterScraper().getId() + " successfully restored!");
+    }
+
+    private void processAlertTarget(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient){
+
+        Alert alert = Alert.builder()
+                .failedMonitorId(twitterCustomClient.getTwitterScraper().getTwitterUser().getTwitterId())
+                .failedMonitorsCount(failedCustomClients.size())
+                .validMonitorsCount(twitterCustomClients.size())
+                .reason(exception.getMessage())
+                .build();
+
+        kafkaProducer.sentAlertBroadcast(alert);
+    }
+
     private void runMonitor() {
         if (twitterCustomClients.isEmpty()) return;
 
-        int delay = timelineDelay / twitterCustomClients.size();
+        calculateDelay();
 
         while (status == Status.RUNNING) {
             try {
                 Thread.sleep(delay);
-                executeTwitterMonitoring();
+                CompletableFuture.runAsync(this::executeTwitterMonitoring);
             } catch (Exception exception) {
                 log.error("Unknown exception", exception);
             }
@@ -133,6 +198,8 @@ public abstract class AbstractTwitterMonitor {
         this.twitterCustomClients = scrapers.stream()
                 .map(TwitterCustomClient::new)
                 .collect(Collectors.toList());
+
+        twitterCustomClients = Collections.synchronizedList(twitterCustomClients);
     }
 
     private Boolean isTweetRelevant(TweetResponse tweetResponse) {
