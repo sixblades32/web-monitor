@@ -63,7 +63,7 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
     }
 
     @Override
-    protected MultiValueMap<String, String> generateParams(){
+    protected MultiValueMap<String, String> generateParams() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("user_id", user.getId());
         params.add("tweet_mode", "extended");

@@ -19,25 +19,33 @@ public enum RecognitionType {
     OCR,
     QR;
 
-    public String getTitle(){
+    public String getTitle() {
         return this + " Recognition Result: ";
-    };
+    }
 
-    public Footer generateTweetRecognitionFooter(BroadcastRecognition recognition){
+    ;
+
+    public Footer generateTweetRecognitionFooter(BroadcastRecognition recognition) {
         return Footer.builder()
                 .text(this + " Recognition Result from TWEET  —  @" + recognition.getUserName())
                 .build();
-    };
+    }
 
-    public Footer generateRetweetRecognitionFooter(BroadcastRecognition recognition){
+    ;
+
+    public Footer generateRetweetRecognitionFooter(BroadcastRecognition recognition) {
         return Footer.builder()
                 .text(this + " Recognition from RETWEET  —  @" + recognition.getUserName() + " --> " + recognition.getNestedUserName())
                 .build();
-    };
+    }
 
-    public Footer generateReplyRecognitionFooter(BroadcastRecognition recognition){
+    ;
+
+    public Footer generateReplyRecognitionFooter(BroadcastRecognition recognition) {
         return Footer.builder()
                 .text(this + " Recognition from REPLY  —  @" + recognition.getUserName() + " --> " + recognition.getNestedUserName())
                 .build();
-    };
+    }
+
+    ;
 }

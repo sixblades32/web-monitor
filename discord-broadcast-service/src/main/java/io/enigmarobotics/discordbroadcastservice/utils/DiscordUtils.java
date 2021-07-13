@@ -17,7 +17,15 @@ public class DiscordUtils {
     }
 
     public static List<Embed> generateTweetEmbed(BroadcastTweet tweet, int embedColor) {
-        String description = "> " + tweet.getText().replaceAll("\\R", "\n> ");
+        String description;
+
+        if (!tweet.getText().equals("")) {
+            description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+                    tweet.getText().replaceAll("\\R", "\n> ");
+        } else {
+            description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n";
+        }
+
         List<Field> fields = new ArrayList<>();
         List<Embed> embeds = new LinkedList<>();
         Image image = null;
@@ -31,7 +39,7 @@ public class DiscordUtils {
         Footer footer = Footer.builder()
                 .text("TWEET — " + tweet.getUserName())
                 .build();
-        if (tweet.getImages().size() > 0){
+        if (tweet.getImages().size() > 0) {
             image = Image.builder()
                     .url(tweet.getImages().get(0))
                     .build();
@@ -84,12 +92,13 @@ public class DiscordUtils {
     }
 
     public static Embed generateRetweetEmbed(BroadcastTweet tweet, int embedColor) {
-        String description = "";
+        String description;
         Image image = null;
-        if(tweet.getText() != ""){
+
+        if (!tweet.getText().equals("")) {
             description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
                     tweet.getText().replaceAll("\\R", "\n> ");
-        }else {
+        } else {
             description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n";
         }
 
@@ -107,7 +116,7 @@ public class DiscordUtils {
                 .text("RETWEET  —  @" + tweet.getUserName() + " --> " + "@" + retweeted.getUserName())
                 .build();
 
-        if (tweet.getImages().size() > 0){
+        if (tweet.getImages().size() > 0) {
             image = Image.builder()
                     .url(tweet.getImages().get(0))
                     .build();
@@ -156,7 +165,7 @@ public class DiscordUtils {
                 .text("REPLY  —  @" + tweet.getUserName() + " --> " + "@" + tweet.getReplied().getUserName())
                 .build();
 
-        if (tweet.getImages().size() > 0){
+        if (tweet.getImages().size() > 0) {
             image = Image.builder()
                     .url(tweet.getImages().get(0))
                     .build();
@@ -193,12 +202,12 @@ public class DiscordUtils {
         List<Field> fields = new ArrayList<>();
         List<Embed> embeds = new LinkedList<>();
 
-        String description = "";
+        String description;
 
-        if(tweet.getText() != ""){
+        if (!tweet.getText().equals("")) {
             description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
                     tweet.getText().replaceAll("\\R", "\n> ");
-        }else {
+        } else {
             description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n";
         }
 
@@ -214,7 +223,7 @@ public class DiscordUtils {
                 .text("RETWEET  —  @" + retweetedBy + " --> " + "@" + tweet.getUserName())
                 .build();
 
-        if (tweet.getImages().size() > 0){
+        if (tweet.getImages().size() > 0) {
             image = Image.builder()
                     .url(tweet.getImages().get(0))
                     .build();
@@ -275,7 +284,7 @@ public class DiscordUtils {
                 .url(tweetImage.getImage())
                 .build();
 
-       return Embed.builder()
+        return Embed.builder()
                 .footer(footer)
                 .image(image)
                 .color(embedColor)

@@ -52,7 +52,7 @@ public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
     }
 
     @Override
-    protected MultiValueMap<String, String> generateParams(){
+    protected MultiValueMap<String, String> generateParams() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("tweet_mode", "extended");
         params.add("count", "1");
@@ -61,8 +61,6 @@ public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
 
         return params;
     }
-
-
 
 
 }

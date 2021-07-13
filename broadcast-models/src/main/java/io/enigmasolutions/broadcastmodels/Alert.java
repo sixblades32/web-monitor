@@ -1,12 +1,12 @@
 package io.enigmasolutions.broadcastmodels;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
 
 @Data
 @Builder
-@Jacksonized
+@AllArgsConstructor
 public class Alert {
     private Integer validMonitorsCount;
     private Integer failedMonitorsCount;

@@ -83,6 +83,7 @@ public abstract class AbstractTwitterMonitor {
     }
 
     protected abstract void executeTwitterMonitoring();
+
     protected abstract MultiValueMap<String, String> generateParams();
 
     protected TweetResponse getTweetResponse(MultiValueMap<String, String> params, String timelinePath, TwitterCustomClient twitterCustomClient) {
@@ -112,7 +113,7 @@ public abstract class AbstractTwitterMonitor {
         }
     }
 
-    protected void processErrorResponse(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient){
+    protected void processErrorResponse(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
 
         log.error(exception.toString());
 
@@ -132,19 +133,20 @@ public abstract class AbstractTwitterMonitor {
         }
     }
 
-    private void reshuffleClients(TwitterCustomClient twitterCustomClient){
+    private void reshuffleClients(TwitterCustomClient twitterCustomClient) {
 
         twitterCustomClients.remove(twitterCustomClient);
         failedCustomClients.add(twitterCustomClient);
     }
 
-    private void processRateLimitError(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient){
+    private void processRateLimitError(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
 
-        if (exception.getStatusCode().value() == 429){
+        if (exception.getStatusCode().value() == 429) {
             Timer timer = new Timer();
             TimerTask timerTask = new TimerTask() {
                 @Override
-                public void run() { restoreFailedClient(twitterCustomClient);
+                public void run() {
+                    restoreFailedClient(twitterCustomClient);
                 }
             };
 
@@ -152,19 +154,19 @@ public abstract class AbstractTwitterMonitor {
         }
     }
 
-    private void calculateDelay(){
+    private void calculateDelay() {
         delay = timelineDelay / twitterCustomClients.size();
     }
 
-    private void restoreFailedClient(TwitterCustomClient twitterCustomClient){
-        if(!failedCustomClients.contains(twitterCustomClient)) return;
+    private void restoreFailedClient(TwitterCustomClient twitterCustomClient) {
+        if (!failedCustomClients.contains(twitterCustomClient)) return;
 
         failedCustomClients.remove(twitterCustomClient);
         twitterCustomClients.add(twitterCustomClient);
         log.info("Scraper " + twitterCustomClient.getTwitterScraper().getId() + " successfully restored!");
     }
 
-    private void processAlertTarget(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient){
+    private void processAlertTarget(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
 
         Alert alert = Alert.builder()
                 .failedMonitorId(twitterCustomClient.getTwitterScraper().getTwitterUser().getTwitterId())
@@ -226,13 +228,13 @@ public abstract class AbstractTwitterMonitor {
                         .map(Url::getExpandedUrl).collect(Collectors.toList()))
         );
 
-        if (tweetResponse.getRetweetedStatus() != null){
+        if (tweetResponse.getRetweetedStatus() != null) {
             CompletableFuture.runAsync(() ->
                     processPlainTextRecognition(tweetResponse, tweetResponse.getRetweetedStatus().getEntities()
                             .getUrls().stream()
                             .map(Url::getExpandedUrl).collect(Collectors.toList()))
             );
-        }else if(tweetResponse.getQuotedStatus() != null){
+        } else if (tweetResponse.getQuotedStatus() != null) {
             CompletableFuture.runAsync(() ->
                     processPlainTextRecognition(tweetResponse, tweetResponse.getQuotedStatus().getEntities()
                             .getUrls().stream()
@@ -318,14 +320,14 @@ public abstract class AbstractTwitterMonitor {
         return twitterHelperService.checkLiveReleasePass(targetId);
     }
 
-    private String getRecognitionNestedUserName(TweetResponse tweetResponse){
-        if(tweetResponse.getType() == TweetType.RETWEET){
-            if(tweetResponse.getRetweetedStatus() != null){
+    private String getRecognitionNestedUserName(TweetResponse tweetResponse) {
+        if (tweetResponse.getType() == TweetType.RETWEET) {
+            if (tweetResponse.getRetweetedStatus() != null) {
                 return tweetResponse.getRetweetedStatus().getUser().getScreenName();
-            }else if (tweetResponse.getQuotedStatus() != null){
+            } else if (tweetResponse.getQuotedStatus() != null) {
                 return tweetResponse.getQuotedStatus().getUser().getScreenName();
             }
-        }else if(tweetResponse.getType() == TweetType.REPLY){
+        } else if (tweetResponse.getType() == TweetType.REPLY) {
             return tweetResponse.getInReplyToScreenName();
         }
 

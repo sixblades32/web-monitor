@@ -23,20 +23,20 @@ public class TwitterCustomClient {
         this.twitterScraper = twitterScraper;
     }
 
-    public ResponseEntity<TweetResponse[]> getBaseApiTimelineTweets(MultiValueMap<String, String> params, String timelinePath){
-        MultiValueMap<String,String> tweetDeckAuth = generateAuthData();
+    public ResponseEntity<TweetResponse[]> getBaseApiTimelineTweets(MultiValueMap<String, String> params, String timelinePath) {
+        MultiValueMap<String, String> tweetDeckAuth = generateAuthData();
 
         return getResponseEntity(params, tweetDeckAuth, timelinePath);
     }
 
-    public ResponseEntity<Data> getGraphQLApiTimelineTweets(MultiValueMap<String, String> params){
-        MultiValueMap<String,String> tweetDeckAuth = generateAuthData();
+    public ResponseEntity<Data> getGraphQLApiTimelineTweets(MultiValueMap<String, String> params) {
+        MultiValueMap<String, String> tweetDeckAuth = generateAuthData();
 
         return getResponseEntity(params, tweetDeckAuth);
     }
 
-    private MultiValueMap<String, String> generateAuthData(){
-        MultiValueMap<String,String> authData = new LinkedMultiValueMap<>();
+    private MultiValueMap<String, String> generateAuthData() {
+        MultiValueMap<String, String> authData = new LinkedMultiValueMap<>();
         authData.add("x-csrf-token", twitterScraper.getTweetDeckAuth().getCsrfToken());
         authData.add("x-act-as-user-id", twitterScraper.getTwitterUser().getTwitterId());
         authData.add("Authorization", twitterScraper.getTweetDeckAuth().getBearer());

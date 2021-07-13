@@ -34,7 +34,7 @@ public class KafkaConfig {
     private String discordBroadcastAlertGroupId;
 
     @Bean
-    public ConsumerFactory<String, BroadcastTweet> tweetConsumerFactory (){
+    public ConsumerFactory<String, BroadcastTweet> tweetConsumerFactory() {
 
         Map<String, Object> props = generateProps(discordBroadcastTweetGroupId);
 
@@ -45,7 +45,7 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, BroadcastTweet>
-    tweetKafkaListenerContainerFactory(){
+    tweetKafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<String, BroadcastTweet> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
@@ -55,7 +55,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, BroadcastRecognition> recognitionConsumerFactory (){
+    public ConsumerFactory<String, BroadcastRecognition> recognitionConsumerFactory() {
 
         Map<String, Object> props = generateProps(discordBroadcastRecognitionGroupId);
 
@@ -66,7 +66,7 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, BroadcastRecognition>
-    recognitionKafkaListenerContainerFactory(){
+    recognitionKafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<String, BroadcastRecognition> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
@@ -76,7 +76,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, Alert> alertConsumerFactory (){
+    public ConsumerFactory<String, Alert> alertConsumerFactory() {
 
         Map<String, Object> props = generateProps(discordBroadcastAlertGroupId);
 
@@ -87,7 +87,7 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Alert>
-    alertKafkaListenerContainerFactory(){
+    alertKafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<String, Alert> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
