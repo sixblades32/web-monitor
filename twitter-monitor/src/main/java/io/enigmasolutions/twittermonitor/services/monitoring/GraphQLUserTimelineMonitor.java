@@ -57,30 +57,19 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
 
     @Override
     protected void executeTwitterMonitoring() {
-        try {
-            TweetResponse tweetResponse = getTweetResponse();
+        TwitterCustomClient currentClient = refreshClient();
 
+        try {
+            TweetResponse tweetResponse = getTweetResponse(currentClient);
             processTweetResponse(tweetResponse);
         } catch (HttpClientErrorException exception) {
-
-//            if (exception.getStatusCode().value() >= 400 &&
-//                    exception.getStatusCode().value() < 500 &&
-//                    exception.getStatusCode().value() != 404) {
-//                if (failedCustomClients.size() > 15) {
-//                    stop();
-//                }
-//            }
-
-            log.error(exception.toString());
+            processErrorResponse(exception, currentClient);
         }
     }
 
-    private TweetResponse getTweetResponse() {
+    private TweetResponse getTweetResponse(TwitterCustomClient currentClient) {
         TweetResponse tweetResponse = null;
 
-        // TODO: закомментировал, т.к. ломает билд, убрать при исправлении
-
-        TwitterCustomClient currentClient = refreshClient();
         GraphQLResponse graphQlDataResponse = currentClient
                 .getGraphQLApiTimelineTweets(getParams())
                 .getBody();
@@ -92,7 +81,7 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                     .getTimeline()
                     .getNestedTimeline()
                     .getInstructions().get(0)
-                    .getEntries().get(0)
+                    .getEntries().get(1)
                     .getContent()
                     .getItemContent()
                     .getTweet());
@@ -109,7 +98,7 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
 
         QueryStringData data = QueryStringData.builder()
                 .userId(user.getId())
-                .count(1)
+                .count(2)
                 .withHighlightedLabel(true)
                 .withTweetQuoteCount(true)
                 .includePromotedContent(true)

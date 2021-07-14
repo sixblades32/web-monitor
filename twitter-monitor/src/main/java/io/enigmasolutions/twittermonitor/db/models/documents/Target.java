@@ -1,14 +1,16 @@
 package io.enigmasolutions.twittermonitor.db.models.documents;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Builder
-@Jacksonized
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "targets")
 public class Target {
     @Id

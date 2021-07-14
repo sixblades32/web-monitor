@@ -1,7 +1,7 @@
 package io.enigmarobotics.discordbroadcastservice.db.repositories;
 
 
-import io.enigmarobotics.discordbroadcastservice.db.models.Customer;
+import io.enigmarobotics.discordbroadcastservice.db.models.documents.Customer;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

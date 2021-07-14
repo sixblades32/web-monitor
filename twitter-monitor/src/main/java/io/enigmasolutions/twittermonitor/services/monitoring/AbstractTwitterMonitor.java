@@ -6,6 +6,7 @@ import io.enigmasolutions.broadcastmodels.Recognition;
 import io.enigmasolutions.broadcastmodels.Tweet;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
+import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.monitor.Status;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.Url;
@@ -82,8 +83,10 @@ public abstract class AbstractTwitterMonitor {
         log.info("Monitor has been stopped");
     }
 
-    public Status getStatus() {
-        return status;
+    public MonitorStatus getStatus() {
+        return MonitorStatus.builder()
+                .status(status)
+                .build();
     }
 
     protected abstract void executeTwitterMonitoring();
@@ -322,8 +325,7 @@ public abstract class AbstractTwitterMonitor {
 
             CompletableFuture.runAsync(() -> processCommonTargetRecognition(tweetResponse, recognition));
             CompletableFuture.runAsync(() -> processLiveReleaseTargetRecognition(tweetResponse, recognition));
-        } catch (Exception e) {
-            log.error("Exception received", e);
+        } catch (Exception ignored) {
         }
     }
 

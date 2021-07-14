@@ -1,6 +1,6 @@
 package io.enigmarobotics.discordbroadcastservice.concurent;
 
-import io.enigmarobotics.discordbroadcastservice.db.models.Customer;
+import io.enigmarobotics.discordbroadcastservice.db.models.documents.Customer;
 import lombok.Data;
 
 @Data
