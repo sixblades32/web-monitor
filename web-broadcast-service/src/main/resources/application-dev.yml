@@ -26,7 +26,7 @@ kafka:
     topic: twitter-tweet-broadcast-base
   recognition-consumer:
     group-id: web-broadcast-recognition-group
-    topic: twitter-tweet-recognition-broadcast
+    topic: twitter-tweet-recognition-broadcast-base
   staff-consumer:
     group-id: web-broadcast-staff-group
     topic: twitter-staff-broadcast

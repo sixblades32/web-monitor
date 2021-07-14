@@ -6,15 +6,17 @@ import io.enigmasolutions.twittermonitor.models.twitter.base.Entity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.ExtendedEntity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.QuotedStatusPermalink;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import lombok.NoArgsConstructor;
 
 import static io.enigmasolutions.broadcastmodels.TweetType.*;
 
 @Data
 @Builder
-@Jacksonized
+@AllArgsConstructor
+@NoArgsConstructor
 public class Legacy {
     private final String TWITTER_URL = "https://twitter.com/";
 

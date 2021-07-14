@@ -1,6 +1,8 @@
 package io.enigmasolutions.twittermonitor.utils;
 
+import io.enigmasolutions.broadcastmodels.BriefTweet;
 import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.TwitterUser;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 
 import java.util.LinkedList;
@@ -13,7 +15,6 @@ public class TweetGenerator {
     }
 
     public static Tweet generate(TweetResponse tweetResponse) {
-
         List<String> images = new LinkedList<>();
         String videoUrl = null;
 
@@ -24,20 +25,14 @@ public class TweetGenerator {
 
         replaceUrls(tweetResponse);
 
-        Tweet.TweetBuilder tweetBuilder = tuneTweetBuilder(tweetResponse, images, videoUrl);
-
-        return tweetBuilder.build();
-
+        return buildTweet(tweetResponse, images, videoUrl);
     }
 
-    public static Tweet.TweetBuilder tuneTweetBuilder(TweetResponse tweetResponse, List<String> images, String videoUrl) {
+    private static Tweet buildTweet(TweetResponse tweetResponse, List<String> images, String videoUrl) {
         Tweet.TweetBuilder tweetBuilder = Tweet.builder()
                 .type(tweetResponse.getType())
                 .text(tweetResponse.getText())
-                .userName(tweetResponse.getUser().getScreenName())
-                .userIcon(tweetResponse.getUser().getUserImage())
-                .userUrl(tweetResponse.getUser().getUserUrl())
-                .userId(tweetResponse.getUser().getId())
+                .user(buildTweetUser(tweetResponse))
                 .tweetUrl(tweetResponse.getTweetUrl())
                 .images(images)
                 .media(videoUrl)
@@ -50,14 +45,20 @@ public class TweetGenerator {
         } else if (tweetResponse.getQuotedStatus() != null) {
             tweetBuilder.retweeted(generate(tweetResponse.getQuotedStatus()));
         } else if (tweetResponse.getInReplyToStatusId() != null) {
-            tweetBuilder.replied(generate(tweetResponse.getRepliedStatus()));
+            tweetBuilder.replied(buildBriefTweet(tweetResponse.getRepliedStatus()));
         }
 
-        return tweetBuilder;
+        return tweetBuilder.build();
     }
 
-    public static String retrieveVideo(TweetResponse tweetResponse) {
+    public static BriefTweet buildBriefTweet(TweetResponse tweetResponse) {
+        return BriefTweet.builder()
+                .user(buildTweetUser(tweetResponse))
+                .tweetUrl(tweetResponse.getTweetUrl())
+                .build();
+    }
 
+    private static String retrieveVideo(TweetResponse tweetResponse) {
         return tweetResponse.getExtendedEntities()
                 .getMedia()
                 .get(0)
@@ -92,5 +93,15 @@ public class TweetGenerator {
                         tweetResponse.setText(text.replace(url.getUrl(), url.getExpandedUrl()));
                     });
         }
+    }
+
+    private static TwitterUser buildTweetUser(TweetResponse tweetResponse) {
+        return TwitterUser.builder()
+                .name(tweetResponse.getUser().getName())
+                .icon(tweetResponse.getUser().getUserImage())
+                .login(tweetResponse.getUser().getScreenName())
+                .url(tweetResponse.getUser().getUserUrl())
+                .id(tweetResponse.getUser().getId())
+                .build();
     }
 }

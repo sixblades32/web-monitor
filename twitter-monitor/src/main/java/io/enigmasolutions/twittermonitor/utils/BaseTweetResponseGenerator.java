@@ -9,7 +9,6 @@ public class BaseTweetResponseGenerator {
 
     }
 
-    // TODO: здесь по-моему может быть рекурсия?
     public static TweetResponse generate(GraphQLTweet graphQLTweet) {
         return TweetResponse.builder()
                 .createdAt(graphQLTweet.getLegacy().getCreatedAt())
@@ -20,10 +19,10 @@ public class BaseTweetResponseGenerator {
                 .extendedEntities(graphQLTweet.getLegacy().getExtendedEntities())
                 .user(graphQLTweet.getCore().getUser())
                 // TODO: split to different method
-//                .retweetedStatus(graphQLTweet.getLegacy().getRetweetedStatus() != null ?
-//                        generate(graphQLTweet.getLegacy().getRetweetedStatus()) : null)
-//                .quotedStatus(graphQLTweet.getLegacy().getQuotedStatus() != null ?
-//                        generate(graphQLTweet.getLegacy().getQuotedStatus()) : null)
+                .retweetedStatus(graphQLTweet.getLegacy().getRetweetedStatus() != null ?
+                        generate(graphQLTweet.getLegacy().getRetweetedStatus()) : null)
+                .quotedStatus(graphQLTweet.getLegacy().getQuotedStatus() != null ?
+                        generate(graphQLTweet.getLegacy().getQuotedStatus()) : null)
 //                .repliedStatus(graphQLTweet.getLegacy().getRepliedStatus() != null ?
 //                        generate(graphQLTweet.getLegacy().getRepliedStatus()) : null)
                 .inReplyToScreenName(graphQLTweet.getLegacy().getInReplyToScreenName())
