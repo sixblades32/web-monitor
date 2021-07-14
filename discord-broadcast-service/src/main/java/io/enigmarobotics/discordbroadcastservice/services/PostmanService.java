@@ -53,6 +53,8 @@ public class PostmanService {
 
     public void sendAlertEmbed(Message message) {
         discordClient.sendEmbed(alertDiscordUrl, message);
+
+        log.info("Alert embed sent to alert webhook.");
     }
 
 

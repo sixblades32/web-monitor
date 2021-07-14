@@ -19,11 +19,9 @@ public class TwitterCustomClient {
     private static final String BASE_API_PATH = "https://api.twitter.com/1.1/";
     private static final String GRAPHQL_API_PATH = "https://twitter.com/i/api/graphql/omtTuEwTr6DFLIREto-MMg/UserTweets";
     private final RestTemplate restTemplate = new RestTemplate();
-    private final RestTemplate twitterRestTemplate;
     private final TwitterScraper twitterScraper;
 
     public TwitterCustomClient(TwitterScraper twitterScraper) {
-        this.twitterRestTemplate = new TwitterRestTemplate(twitterScraper.getCredentials()).getRestTemplate();
         this.twitterScraper = twitterScraper;
     }
 
@@ -91,5 +89,9 @@ public class TwitterCustomClient {
                 .build();
 
         return restTemplate.exchange(requestEntity, GraphQLResponse.class);
+    }
+
+    public TwitterScraper getTwitterScraper() {
+        return twitterScraper;
     }
 }
