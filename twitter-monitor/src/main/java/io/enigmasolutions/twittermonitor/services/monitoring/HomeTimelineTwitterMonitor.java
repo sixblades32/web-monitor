@@ -35,8 +35,8 @@ public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
                 twitterHelperService,
                 kafkaProducer,
                 plainTextRecognitionProcessors,
-                imageRecognitionProcessors
-        );
+                imageRecognitionProcessors,
+                log);
     }
 
     @Override

@@ -1,9 +1,10 @@
 package io.enigmarobotics.discordbroadcastservice.utils;
 
-import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.*;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.*;
-import io.enigmasolutions.broadcastmodels.Recognition;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Recognition;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Tweet;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.TweetImage;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -16,14 +17,14 @@ public class DiscordUtils {
 
     }
 
-    public static List<Embed> generateTweetEmbed(BroadcastTweet tweet, int embedColor) {
+    public static List<Embed> generateTweetEmbed(Tweet tweet, int embedColor) {
         String description;
 
         if (!tweet.getText().equals("")) {
-            description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
                     tweet.getText().replaceAll("\\R", "\n> ");
         } else {
-            description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n";
+            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n";
         }
 
         List<Field> fields = new ArrayList<>();
@@ -31,13 +32,13 @@ public class DiscordUtils {
         Image image = null;
 
         Author author = Author.builder()
-                .name(tweet.getUserName())
+                .name(tweet.getUser().getLogin())
                 .url(tweet.getTweetUrl())
-                .iconUrl(tweet.getUserIcon())
+                .iconUrl(tweet.getUser().getIcon())
                 .build();
 
         Footer footer = Footer.builder()
-                .text("TWEET — " + tweet.getUserName())
+                .text("TWEET — " + tweet.getUser().getLogin())
                 .build();
         if (tweet.getImages().size() > 0) {
             image = Image.builder()
@@ -69,12 +70,12 @@ public class DiscordUtils {
             List<TweetImage> tweetImages = images.subList(1, images.size()).stream().map(url -> {
                 TweetImage.TweetImageBuilder builder = TweetImage.builder()
                         .image(url)
-                        .userName(tweet.getUserName())
-                        .userId(tweet.getUserId())
+                        .userName(tweet.getUser().getLogin())
+                        .userId(tweet.getUser().getId())
                         .tweetType(tweet.getType());
 
                 if (tweet.getRetweeted() != null) {
-                    builder.retweetedFrom(tweet.getRetweeted().getUserName());
+                    builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
                 }
 
                 return builder.build();
@@ -91,29 +92,29 @@ public class DiscordUtils {
 
     }
 
-    public static Embed generateRetweetEmbed(BroadcastTweet tweet, int embedColor) {
+    public static Embed generateRetweetEmbed(Tweet tweet, int embedColor) {
         String description;
         Image image = null;
 
         if (!tweet.getText().equals("")) {
-            description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
                     tweet.getText().replaceAll("\\R", "\n> ");
         } else {
-            description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n";
+            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n";
         }
 
         List<Field> fields = new ArrayList<>();
 
         Author author = Author.builder()
-                .name(tweet.getUserName())
+                .name(tweet.getUser().getLogin())
                 .url(tweet.getTweetUrl())
-                .iconUrl(tweet.getUserIcon())
+                .iconUrl(tweet.getUser().getIcon())
                 .build();
 
-        BroadcastTweet retweeted = tweet.getRetweeted();
+        Tweet retweeted = tweet.getRetweeted();
 
         Footer footer = Footer.builder()
-                .text("RETWEET  —  @" + tweet.getUserName() + " --> " + "@" + retweeted.getUserName())
+                .text("RETWEET  —  @" + tweet.getUser().getLogin() + " --> " + "@" + retweeted.getUser().getLogin())
                 .build();
 
         if (tweet.getImages().size() > 0) {
@@ -132,7 +133,7 @@ public class DiscordUtils {
         Field tweetField = Field.builder()
                 .inline(false)
                 .name("TWEET")
-                .value("**[©" + retweeted.getUserName() + "](" + retweeted.getTweetUrl() + ")**")
+                .value("**[©" + retweeted.getUser().getLogin() + "](" + retweeted.getTweetUrl() + ")**")
                 .build();
 
         fields.add(tweetField);
@@ -149,20 +150,21 @@ public class DiscordUtils {
                 .build();
     }
 
-    public static Embed generateReplyEmbed(BroadcastTweet tweet, int embedColor) {
-        String description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+    public static Embed generateReplyEmbed(Tweet tweet, int embedColor) {
+        String description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
                 tweet.getText().replaceAll("\\R", "\n> ");
         List<Field> fields = new ArrayList<>();
         Image image = null;
 
         Author author = Author.builder()
-                .name(tweet.getUserName())
+                .name(tweet.getUser().getLogin())
                 .url(tweet.getTweetUrl())
-                .iconUrl(tweet.getUserIcon())
+                .iconUrl(tweet.getUser().getIcon())
                 .build();
 
         Footer footer = Footer.builder()
-                .text("REPLY  —  @" + tweet.getUserName() + " --> " + "@" + tweet.getReplied().getUserName())
+                .text("REPLY  —  @" + tweet.getUser().getLogin() + " --> " + "@" +
+                        tweet.getReplied().getUser().getLogin())
                 .build();
 
         if (tweet.getImages().size() > 0) {
@@ -181,7 +183,7 @@ public class DiscordUtils {
         Field tweetField = Field.builder()
                 .inline(false)
                 .name("TWEET")
-                .value("**[©" + tweet.getReplied().getUserName() + "](" + tweet.getReplied().getTweetUrl() + ")**")
+                .value("**[©" + tweet.getReplied().getUser().getLogin() + "](" + tweet.getReplied().getTweetUrl() + ")**")
                 .build();
 
         fields.add(tweetField);
@@ -198,29 +200,29 @@ public class DiscordUtils {
                 .build();
     }
 
-    public static List<Embed> generateTweetFromRetweetEmbed(BroadcastTweet tweet, String retweetedBy, int embedColor) {
+    public static List<Embed> generateTweetFromRetweetEmbed(Tweet tweet, String retweetedBy, int embedColor) {
         List<Field> fields = new ArrayList<>();
         List<Embed> embeds = new LinkedList<>();
 
         String description;
 
         if (!tweet.getText().equals("")) {
-            description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
                     tweet.getText().replaceAll("\\R", "\n> ");
         } else {
-            description = "**[©" + tweet.getUserName() + "](" + tweet.getTweetUrl() + ")**\n";
+            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n";
         }
 
         Image image = null;
 
         Author author = Author.builder()
-                .name(tweet.getUserName())
+                .name(tweet.getUser().getLogin())
                 .url(tweet.getTweetUrl())
-                .iconUrl(tweet.getUserIcon())
+                .iconUrl(tweet.getUser().getIcon())
                 .build();
 
         Footer footer = Footer.builder()
-                .text("RETWEET  —  @" + retweetedBy + " --> " + "@" + tweet.getUserName())
+                .text("RETWEET  —  @" + retweetedBy + " --> " + "@" + tweet.getUser().getLogin())
                 .build();
 
         if (tweet.getImages().size() > 0) {
@@ -253,12 +255,12 @@ public class DiscordUtils {
             List<TweetImage> tweetImages = images.subList(1, images.size()).stream().map(url -> {
                 TweetImage.TweetImageBuilder builder = TweetImage.builder()
                         .image(url)
-                        .userName(tweet.getUserName())
-                        .userId(tweet.getUserId())
+                        .userName(tweet.getUser().getLogin())
+                        .userId(tweet.getUser().getId())
                         .tweetType(tweet.getType());
 
                 if (tweet.getRetweeted() != null) {
-                    builder.retweetedFrom(tweet.getRetweeted().getUserName());
+                    builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
                 }
 
                 return builder.build();
@@ -292,7 +294,6 @@ public class DiscordUtils {
     }
 
     public static Embed generateRetweetImageEmbed(TweetImage tweetImage, int embedColor) {
-
         Footer footer = Footer.builder()
                 .text("image from RETWEET  —  @" + tweetImage.getUserName() + " --> " + "@"
                         + tweetImage.getRetweetedFrom())
@@ -355,23 +356,9 @@ public class DiscordUtils {
                 .build();
     }
 
-    public static Embed generateTweetRecognitionEmbed(BroadcastRecognition recognition, int embedColor) {
-
-        Footer footer = recognition.getRecognitionType().generateTweetRecognitionFooter(recognition);
-        String title = recognition.getRecognitionType().getTitle();
-
-        return Embed.builder()
-                .title(title)
-                .footer(footer)
-                .description(recognition.getResult())
-                .color(embedColor)
-                .build();
-    }
-
-    public static Embed generateRetweetRecognitionEmbed(BroadcastRecognition recognition, int embedColor) {
-
-        Footer footer = recognition.getRecognitionType().generateRetweetRecognitionFooter(recognition);
-        String title = recognition.getRecognitionType().getTitle();
+    public static Embed generateTweetRecognitionEmbed(Recognition recognition, int embedColor) {
+        Footer footer = recognition.getType().generateTweetRecognitionFooter(recognition);
+        String title = recognition.getType().getTitle();
 
         return Embed.builder()
                 .title(title)
@@ -381,10 +368,21 @@ public class DiscordUtils {
                 .build();
     }
 
-    public static Embed generateReplyRecognitionEmbed(BroadcastRecognition recognition, int embedColor) {
+    public static Embed generateRetweetRecognitionEmbed(Recognition recognition, int embedColor) {
+        Footer footer = recognition.getType().generateRetweetRecognitionFooter(recognition);
+        String title = recognition.getType().getTitle();
 
-        Footer footer = recognition.getRecognitionType().generateReplyRecognitionFooter(recognition);
-        String title = recognition.getRecognitionType().getTitle();
+        return Embed.builder()
+                .title(title)
+                .footer(footer)
+                .description(recognition.getResult())
+                .color(embedColor)
+                .build();
+    }
+
+    public static Embed generateReplyRecognitionEmbed(Recognition recognition, int embedColor) {
+        Footer footer = recognition.getType().generateReplyRecognitionFooter(recognition);
+        String title = recognition.getType().getTitle();
 
         return Embed.builder()
                 .title(title)

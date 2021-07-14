@@ -14,21 +14,17 @@ import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionPr
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.RecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.*;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static io.enigmasolutions.twittermonitor.utils.TweetGenerator.buildBriefTweet;
 import static io.enigmasolutions.twittermonitor.utils.TweetGenerator.generate;
 
-@Slf4j
 public abstract class AbstractTwitterMonitor {
 
     private final KafkaProducer kafkaProducer;
@@ -36,14 +32,15 @@ public abstract class AbstractTwitterMonitor {
     private final int timelineDelay;
     private final TwitterScraperRepository twitterScraperRepository;
     private final TwitterHelperService twitterHelperService;
+    private final Logger log;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
     private final List<ImageRecognitionProcessor> imageRecognitionProcessors;
     protected List<TwitterCustomClient> failedCustomClients = Collections.synchronizedList(new LinkedList<>());
-    private List<TwitterCustomClient> twitterCustomClients;
 
     private Status status = Status.STOPPED;
-    private MultiValueMap<String, String> params;
     private Integer delay = null;
+    private MultiValueMap<String, String> params;
+    private List<TwitterCustomClient> twitterCustomClients;
 
     public AbstractTwitterMonitor(
             int timelineDelay,
@@ -51,7 +48,8 @@ public abstract class AbstractTwitterMonitor {
             TwitterHelperService twitterHelperService,
             KafkaProducer kafkaProducer,
             List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
-            List<ImageRecognitionProcessor> imageRecognitionProcessors
+            List<ImageRecognitionProcessor> imageRecognitionProcessors,
+            Logger log
     ) {
         this.timelineDelay = timelineDelay;
         this.twitterScraperRepository = twitterScraperRepository;
@@ -59,6 +57,7 @@ public abstract class AbstractTwitterMonitor {
         this.kafkaProducer = kafkaProducer;
         this.plainTextRecognitionProcessors = plainTextRecognitionProcessors;
         this.imageRecognitionProcessors = imageRecognitionProcessors;
+        this.log = log;
     }
 
     public MultiValueMap<String, String> getParams() {
@@ -79,6 +78,8 @@ public abstract class AbstractTwitterMonitor {
     public void stop() {
         status = Status.STOPPED;
         failedCustomClients.clear();
+
+        log.info("Monitor has been stopped");
     }
 
     public Status getStatus() {
@@ -89,7 +90,11 @@ public abstract class AbstractTwitterMonitor {
 
     protected abstract MultiValueMap<String, String> generateParams();
 
-    protected TweetResponse getTweetResponse(MultiValueMap<String, String> params, String timelinePath, TwitterCustomClient twitterCustomClient) {
+    protected TweetResponse getTweetResponse(
+            MultiValueMap<String, String> params,
+            String timelinePath,
+            TwitterCustomClient twitterCustomClient
+    ) {
         TweetResponse tweetResponse = null;
 
         TweetResponse[] tweetResponseArray = twitterCustomClient
@@ -185,6 +190,8 @@ public abstract class AbstractTwitterMonitor {
         if (twitterCustomClients.isEmpty()) return;
 
         calculateDelay();
+
+        log.info("Monitor has been started");
 
         while (status == Status.RUNNING) {
             try {

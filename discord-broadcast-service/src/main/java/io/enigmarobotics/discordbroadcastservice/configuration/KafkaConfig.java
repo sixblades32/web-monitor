@@ -1,8 +1,8 @@
 package io.enigmarobotics.discordbroadcastservice.configuration;
 
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.BroadcastRecognition;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.BroadcastTweet;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Recognition;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Tweet;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,20 +34,20 @@ public class KafkaConfig {
     private String discordBroadcastAlertGroupId;
 
     @Bean
-    public ConsumerFactory<String, BroadcastTweet> tweetConsumerFactory() {
+    public ConsumerFactory<String, Tweet> tweetConsumerFactory() {
 
         Map<String, Object> props = generateProps(discordBroadcastTweetGroupId);
 
         return new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(),
-                new JsonDeserializer<>(BroadcastTweet.class, false));
+                new JsonDeserializer<>(Tweet.class, false));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, BroadcastTweet>
+    public ConcurrentKafkaListenerContainerFactory<String, Tweet>
     tweetKafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, BroadcastTweet> factory =
+        ConcurrentKafkaListenerContainerFactory<String, Tweet> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(tweetConsumerFactory());
 
@@ -55,20 +55,20 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, BroadcastRecognition> recognitionConsumerFactory() {
+    public ConsumerFactory<String, Recognition> recognitionConsumerFactory() {
 
         Map<String, Object> props = generateProps(discordBroadcastRecognitionGroupId);
 
         return new DefaultKafkaConsumerFactory<>(props,
                 new StringDeserializer(),
-                new JsonDeserializer<>(BroadcastRecognition.class, false));
+                new JsonDeserializer<>(Recognition.class, false));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, BroadcastRecognition>
+    public ConcurrentKafkaListenerContainerFactory<String, Recognition>
     recognitionKafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, BroadcastRecognition> factory =
+        ConcurrentKafkaListenerContainerFactory<String, Recognition> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(recognitionConsumerFactory());
 

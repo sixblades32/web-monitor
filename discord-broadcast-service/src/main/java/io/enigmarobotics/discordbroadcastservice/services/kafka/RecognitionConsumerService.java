@@ -3,7 +3,7 @@ package io.enigmarobotics.discordbroadcastservice.services.kafka;
 import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.BroadcastRecognition;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Recognition;
 import io.enigmarobotics.discordbroadcastservice.services.PostmanService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,29 +28,24 @@ public class RecognitionConsumerService {
     @KafkaListener(topics = "${kafka.recognition-consumer-base.topic}",
             groupId = "${kafka.recognition-consumer-base.group-id}",
             containerFactory = "recognitionKafkaListenerContainerFactory")
-    public void consumeBaseTopic(BroadcastRecognition recognition) {
-
-        log.info("Received Base Recognition Message from: " + recognition.getUserName());
+    public void consumeBaseTopic(Recognition recognition) {
+        log.info("Received base recognition message {}", recognition);
 
         Message message = generateRecognitionMessage(recognition);
-
         postmanService.processCommon(message);
     }
 
     @KafkaListener(topics = "${kafka.recognition-consumer-live-release.topic}",
             groupId = "${kafka.recognition-consumer-live-release.group-id}",
             containerFactory = "recognitionKafkaListenerContainerFactory")
-    public void consumeLiveReleaseTopic(BroadcastRecognition recognition) {
-
-        log.info("Received Live Release Recognition Message from: " + recognition.getUserName());
+    public void consumeLiveReleaseTopic(Recognition recognition) {
+        log.info("Received live release recognition message {}", recognition);
 
         Message message = generateRecognitionMessage(recognition);
-
         postmanService.processAdvanced(message);
     }
 
-    private Message generateRecognitionMessage(BroadcastRecognition recognition) {
-
+    private Message generateRecognitionMessage(Recognition recognition) {
         List<Embed> embeds = recognition.getTweetType().generateRecognitionEmbed(recognition, discordEmbedColorConfig);
 
         return Message.builder()

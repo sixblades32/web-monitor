@@ -4,7 +4,7 @@ import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColor
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.BroadcastTweet;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Tweet;
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.TweetImage;
 import io.enigmarobotics.discordbroadcastservice.services.DiscordClient;
 import io.enigmarobotics.discordbroadcastservice.services.PostmanService;
@@ -38,7 +38,7 @@ public class BroadcastController {
     }
 
     @PostMapping("/tweet")
-    public void sendEmbed(@RequestBody BroadcastTweet tweet) {
+    public void sendEmbed(@RequestBody Tweet tweet) {
 
         List<Embed> embeds = tweet.getType().generateTweetEmbed(tweet, discordEmbedColorConfig);
 

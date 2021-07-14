@@ -21,8 +21,8 @@ import java.util.List;
 
 import static io.enigmasolutions.twittermonitor.utils.BaseTweetResponseGenerator.generate;
 
-@Component
 @Slf4j
+@Component
 public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
 
     private final TwitterHelperService twitterHelperService;
@@ -42,13 +42,15 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                 twitterHelperService,
                 kafkaProducer,
                 plainTextRecognitionProcessors,
-                imageRecognitionProcessors
-        );
+                imageRecognitionProcessors,
+                log);
         this.twitterHelperService = twitterHelperService;
     }
 
     public void start(String screenName) {
         user = twitterHelperService.retrieveUser(screenName);
+
+        log.info("Current monitor user is: {}", user);
 
         super.start();
     }

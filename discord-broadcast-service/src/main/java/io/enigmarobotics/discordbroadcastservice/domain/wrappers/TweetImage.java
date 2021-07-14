@@ -1,12 +1,14 @@
 package io.enigmarobotics.discordbroadcastservice.domain.wrappers;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@Jacksonized
+@AllArgsConstructor
+@NoArgsConstructor
 public class TweetImage {
     private String userId;
     private String image;

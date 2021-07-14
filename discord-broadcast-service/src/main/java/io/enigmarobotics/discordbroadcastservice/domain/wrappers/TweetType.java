@@ -19,13 +19,19 @@ public enum TweetType {
         }
 
         @Override
-        public List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        public List<Embed> generateTweetEmbed(Tweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
             return DiscordUtils.generateTweetEmbed(tweet, discordEmbedColorConfig.getTweet());
         }
 
         @Override
-        public List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            Embed recognitionEmbed = DiscordUtils.generateTweetRecognitionEmbed(recognition, discordEmbedColorConfig.getTweet());
+        public List<Embed> generateRecognitionEmbed(
+                Recognition recognition,
+                DiscordEmbedColorConfig discordEmbedColorConfig
+        ) {
+            Embed recognitionEmbed = DiscordUtils.generateTweetRecognitionEmbed(
+                    recognition,
+                    discordEmbedColorConfig.getTweet()
+            );
 
             return Collections.singletonList(recognitionEmbed);
         }
@@ -34,10 +40,14 @@ public enum TweetType {
     },
     RETWEET {
         @Override
-        public List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        public List<Embed> generateTweetEmbed(Tweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
             List<Embed> embeds = new ArrayList<>();
             Embed mainTweet = DiscordUtils.generateRetweetEmbed(tweet, discordEmbedColorConfig.getRetweet());
-            List<Embed> retweetedTweet = DiscordUtils.generateTweetFromRetweetEmbed(tweet.getRetweeted(), tweet.getUserName(), discordEmbedColorConfig.getRetweet());
+            List<Embed> retweetedTweet = DiscordUtils.generateTweetFromRetweetEmbed(
+                    tweet.getRetweeted(),
+                    tweet.getUser().getLogin(),
+                    discordEmbedColorConfig.getRetweet()
+            );
 
             embeds.add(mainTweet);
             embeds.addAll(retweetedTweet);
@@ -53,15 +63,19 @@ public enum TweetType {
         }
 
         @Override
-        public List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            Embed recognitionEmbed = DiscordUtils.generateRetweetRecognitionEmbed(recognition, discordEmbedColorConfig.getRetweet());
+        public List<Embed> generateRecognitionEmbed(
+                Recognition recognition,
+                DiscordEmbedColorConfig discordEmbedColorConfig
+        ) {
+            Embed recognitionEmbed = DiscordUtils
+                    .generateRetweetRecognitionEmbed(recognition, discordEmbedColorConfig.getRetweet());
 
             return Collections.singletonList(recognitionEmbed);
         }
     },
     REPLY {
         @Override
-        public List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        public List<Embed> generateTweetEmbed(Tweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
             Embed replyEmbed = DiscordUtils.generateReplyEmbed(tweet, discordEmbedColorConfig.getReply());
 
             return Collections.singletonList(replyEmbed);
@@ -73,14 +87,29 @@ public enum TweetType {
         }
 
         @Override
-        public List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig) {
-            Embed recognitionEmbed = DiscordUtils.generateReplyRecognitionEmbed(recognition, discordEmbedColorConfig.getReply());
+        public List<Embed> generateRecognitionEmbed(
+                Recognition recognition,
+                DiscordEmbedColorConfig discordEmbedColorConfig
+        ) {
+            Embed recognitionEmbed = DiscordUtils
+                    .generateReplyRecognitionEmbed(recognition, discordEmbedColorConfig.getReply());
 
             return Collections.singletonList(recognitionEmbed);
         }
     };
 
-    public abstract List<Embed> generateTweetEmbed(BroadcastTweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig);
-    public abstract List<Embed> generateImageEmbed(TweetImage tweetImage, DiscordEmbedColorConfig discordEmbedColorConfig);
-    public abstract List<Embed> generateRecognitionEmbed(BroadcastRecognition recognition, DiscordEmbedColorConfig discordEmbedColorConfig);
+    public abstract List<Embed> generateTweetEmbed(
+            Tweet tweet,
+            DiscordEmbedColorConfig discordEmbedColorConfig
+    );
+
+    public abstract List<Embed> generateImageEmbed(
+            TweetImage tweetImage,
+            DiscordEmbedColorConfig discordEmbedColorConfig
+    );
+
+    public abstract List<Embed> generateRecognitionEmbed(
+            Recognition recognition,
+            DiscordEmbedColorConfig discordEmbedColorConfig
+    );
 }

@@ -1,6 +1,5 @@
 package io.enigmarobotics.discordbroadcastservice.domain.wrappers;
 
-import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Footer;
 
 public enum RecognitionType {
@@ -23,29 +22,24 @@ public enum RecognitionType {
         return this + " Recognition Result: ";
     }
 
-    ;
-
-    public Footer generateTweetRecognitionFooter(BroadcastRecognition recognition) {
+    public Footer generateTweetRecognitionFooter(Recognition recognition) {
         return Footer.builder()
-                .text(this + " Recognition Result from TWEET  —  @" + recognition.getUserName())
+                .text(this + " Recognition Result from TWEET  —  @" + recognition.getBriefTweet().getUser().getLogin())
                 .build();
     }
 
-    ;
-
-    public Footer generateRetweetRecognitionFooter(BroadcastRecognition recognition) {
+    public Footer generateRetweetRecognitionFooter(Recognition recognition) {
         return Footer.builder()
-                .text(this + " Recognition from RETWEET  —  @" + recognition.getUserName() + " --> " + recognition.getNestedUserName())
+                .text(this + " Recognition from RETWEET  —  @" + recognition.getBriefTweet().getUser().getLogin() +
+                        " --> " + recognition.getNestedBriefTweet().getUser().getLogin())
                 .build();
     }
 
-    ;
-
-    public Footer generateReplyRecognitionFooter(BroadcastRecognition recognition) {
+    public Footer generateReplyRecognitionFooter(Recognition recognition) {
         return Footer.builder()
-                .text(this + " Recognition from REPLY  —  @" + recognition.getUserName() + " --> " + recognition.getNestedUserName())
+                .text(this + " Recognition from REPLY  —  @" + recognition.getBriefTweet().getUser().getLogin() +
+                        " --> " + recognition.getNestedBriefTweet().getUser().getLogin())
                 .build();
     }
 
-    ;
 }
