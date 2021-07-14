@@ -38,14 +38,14 @@ public class PastebinRecognitionProcessor extends PlainTextRecognitionProcessor 
                 .build();
     }
 
-    private String retrievePasteId(String sourceUrl){
+    private String retrievePasteId(String sourceUrl) {
 
         String regex = "[\\w]{8,}$";
 
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(sourceUrl);
 
-        if(matcher.find()){
+        if (matcher.find()) {
             return matcher.group(0);
         }
 

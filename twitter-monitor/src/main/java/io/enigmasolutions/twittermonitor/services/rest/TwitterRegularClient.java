@@ -33,20 +33,20 @@ public class TwitterRegularClient {
     }
 
     @NotNull
-    public ResponseEntity<FollowsList> getFollows(MultiValueMap<String, String> params){
+    public ResponseEntity<FollowsList> getFollows(MultiValueMap<String, String> params) {
 
         RequestEntity<Void> requestEntity = buildRequestEntity(FOLLOWS_PATH, params);
 
         return twitterRestTemplate.exchange(requestEntity, FollowsList.class);
     }
 
-    public RequestEntity<Void> buildRequestEntity(String path, MultiValueMap<String, String> params){
+    public RequestEntity<Void> buildRequestEntity(String path, MultiValueMap<String, String> params) {
         String url = BASE_PATH + path;
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParams(params);
 
-       return RequestEntity
+        return RequestEntity
                 .get(builder.toUriString())
                 .build();
     }

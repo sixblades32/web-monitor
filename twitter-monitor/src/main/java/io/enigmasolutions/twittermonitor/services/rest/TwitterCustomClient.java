@@ -17,28 +17,26 @@ public class TwitterCustomClient {
     private static final String BASE_API_PATH = "https://api.twitter.com/1.1/";
     private static final String GRAPHQL_API_PATH = "https://twitter.com/i/api/graphql/VFKEUw-6LUwwZtrnSuX_PA/UserTweets";
     private final RestTemplate restTemplate = new RestTemplate();
-    private final RestTemplate twitterRestTemplate;
     private final TwitterScraper twitterScraper;
 
     public TwitterCustomClient(TwitterScraper twitterScraper) {
-        this.twitterRestTemplate = new TwitterRestTemplate(twitterScraper.getCredentials()).getRestTemplate();
         this.twitterScraper = twitterScraper;
     }
 
-    public ResponseEntity<TweetResponse[]> getBaseApiTimelineTweets(MultiValueMap<String, String> params, String timelinePath){
-        MultiValueMap<String,String> tweetDeckAuth = generateAuthData();
+    public ResponseEntity<TweetResponse[]> getBaseApiTimelineTweets(MultiValueMap<String, String> params, String timelinePath) {
+        MultiValueMap<String, String> tweetDeckAuth = generateAuthData();
 
         return getResponseEntity(params, tweetDeckAuth, timelinePath);
     }
 
-    public ResponseEntity<Data> getGraphQLApiTimelineTweets(MultiValueMap<String, String> params){
-        MultiValueMap<String,String> tweetDeckAuth = generateAuthData();
+    public ResponseEntity<Data> getGraphQLApiTimelineTweets(MultiValueMap<String, String> params) {
+        MultiValueMap<String, String> tweetDeckAuth = generateAuthData();
 
         return getResponseEntity(params, tweetDeckAuth);
     }
 
-    private MultiValueMap<String, String> generateAuthData(){
-        MultiValueMap<String,String> authData = new LinkedMultiValueMap<>();
+    private MultiValueMap<String, String> generateAuthData() {
+        MultiValueMap<String, String> authData = new LinkedMultiValueMap<>();
         authData.add("x-csrf-token", twitterScraper.getTweetDeckAuth().getCsrfToken());
         authData.add("x-act-as-user-id", twitterScraper.getTwitterUser().getTwitterId());
         authData.add("Authorization", twitterScraper.getTweetDeckAuth().getBearer());
@@ -89,5 +87,9 @@ public class TwitterCustomClient {
                 .build();
 
         return restTemplate.exchange(requestEntity, Data.class);
+    }
+
+    public TwitterScraper getTwitterScraper() {
+        return twitterScraper;
     }
 }

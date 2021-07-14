@@ -35,7 +35,7 @@ public class TwitterHelperService {
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         initTargets();
         initTwitterClients();
     }
@@ -72,7 +72,7 @@ public class TwitterHelperService {
 
         User[] userResponseArray = currentClient.getUser(params).getBody();
 
-        if (userResponseArray != null && userResponseArray.length > 0){
+        if (userResponseArray != null && userResponseArray.length > 0) {
             user = userResponseArray[0];
         }
 
