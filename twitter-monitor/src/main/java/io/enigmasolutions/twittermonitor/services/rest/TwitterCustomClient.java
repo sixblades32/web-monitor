@@ -2,7 +2,7 @@ package io.enigmasolutions.twittermonitor.services.rest;
 
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import io.enigmasolutions.twittermonitor.models.twitter.graphql.Data;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
@@ -12,10 +12,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
+
 public class TwitterCustomClient {
 
     private static final String BASE_API_PATH = "https://api.twitter.com/1.1/";
-    private static final String GRAPHQL_API_PATH = "https://twitter.com/i/api/graphql/VFKEUw-6LUwwZtrnSuX_PA/UserTweets";
+    private static final String GRAPHQL_API_PATH = "https://twitter.com/i/api/graphql/omtTuEwTr6DFLIREto-MMg/UserTweets";
     private final RestTemplate restTemplate = new RestTemplate();
     private final TwitterScraper twitterScraper;
 
@@ -29,7 +31,7 @@ public class TwitterCustomClient {
         return getResponseEntity(params, tweetDeckAuth, timelinePath);
     }
 
-    public ResponseEntity<Data> getGraphQLApiTimelineTweets(MultiValueMap<String, String> params) {
+    public ResponseEntity<GraphQLResponse> getGraphQLApiTimelineTweets(MultiValueMap<String, String> params) {
         MultiValueMap<String, String> tweetDeckAuth = generateAuthData();
 
         return getResponseEntity(params, tweetDeckAuth);
@@ -69,24 +71,24 @@ public class TwitterCustomClient {
     }
 
     @NotNull
-    private ResponseEntity<Data> getResponseEntity(
+    private ResponseEntity<GraphQLResponse> getResponseEntity(
             MultiValueMap<String, String> params,
             MultiValueMap<String, String> tweetDeckAuth
     ) {
-        String url = UriComponentsBuilder.fromHttpUrl(GRAPHQL_API_PATH)
+        URI uri = UriComponentsBuilder.fromHttpUrl(GRAPHQL_API_PATH)
                 .queryParams(params)
-                .build(true)
-                .toUriString();
+                .build()
+                .toUri();
 
         HttpHeaders headers = new HttpHeaders();
         headers.addAll(tweetDeckAuth);
 
         RequestEntity<Void> requestEntity = RequestEntity
-                .get(url)
+                .get(uri)
                 .headers(headers)
                 .build();
 
-        return restTemplate.exchange(requestEntity, Data.class);
+        return restTemplate.exchange(requestEntity, GraphQLResponse.class);
     }
 
     public TwitterScraper getTwitterScraper() {

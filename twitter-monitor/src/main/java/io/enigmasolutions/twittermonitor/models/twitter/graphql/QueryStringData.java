@@ -1,12 +1,14 @@
 package io.enigmasolutions.twittermonitor.models.twitter.graphql;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@Jacksonized
+@AllArgsConstructor
+@NoArgsConstructor
 public class QueryStringData {
     private String userId;
     private int count;
@@ -14,8 +16,9 @@ public class QueryStringData {
     private Boolean withTweetQuoteCount;
     private Boolean includePromotedContent;
     private Boolean withTweetResult;
+    private Boolean withReactions;
+    private Boolean withSuperFollowsTweetFields;
     private Boolean withUserResults;
     private Boolean withVoice;
-    private Boolean withNonLegacyCard;
     private Boolean withBirdwatchPivots;
 }

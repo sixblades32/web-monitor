@@ -1,5 +1,6 @@
-package io.enigmarobotics.discordbroadcastservice.db.models;
+package io.enigmarobotics.discordbroadcastservice.db.models.documents;
 
+import io.enigmarobotics.discordbroadcastservice.db.models.references.DiscordBroadcast;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

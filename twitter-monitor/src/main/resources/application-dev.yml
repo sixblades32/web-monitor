@@ -18,8 +18,8 @@ kafka:
   producer:
     tweet-base-topic: twitter-tweet-broadcast-base
     tweet-live-release-topic: twitter-tweet-broadcast-live-release
-    tweet-recognition-base-topic: twitter-recognition-broadcast-base
-    tweet-recognition-live-release-topic: twitter-recognition-broadcast-live-release
+    tweet-recognition-base-topic: twitter-tweet-recognition-broadcast-base
+    tweet-recognition-live-release-topic: twitter-tweet-recognition-broadcast-live-release
     twitter-monitor-alert-topic: twitter-monitor-alert-broadcast
 
 monitor:

@@ -2,8 +2,8 @@ spring:
   application:
     name: auth-service
   redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
+    host: localhost
+    port: 6379
   session:
     store-type: redis
   security:
@@ -11,8 +11,8 @@ spring:
       client:
         registration:
           discord:
-            client-id: ${DISCORD_CLIENT_ID:767419431357382656}
-            client-secret: ${DISCORD_CLIENT_SECRET:ENj1A0vJYcDHrRqiLO8N4mb4UiRuplHz}
+            client-id: 767419431357382656
+            client-secret: ENj1A0vJYcDHrRqiLO8N4mb4UiRuplHz
             client-authentication-method: post
             authorization-grant-type: authorization_code
             scope:
@@ -30,8 +30,8 @@ spring:
 
 server:
   error:
-    include-stacktrace: never
-  port: ${SERVER_PORT:8010}
+    include-stacktrace: always
+  port: 8010
   servlet:
     session:
       cookie:
@@ -40,7 +40,7 @@ server:
 
 management:
   server:
-    port: ${MANAGE_PORT:9010}
+    port: 9010
     base-path: /manage
 
 security:
@@ -48,12 +48,12 @@ security:
     header: Authorization
     prefix: Bearer
     expiration: 86400
-    secret: ${JWT_SECRET_KEY:jwt-secret}
+    secret: jwt-secret
   url:
-    login: ${DEFAULT_LOGIN_URL:http://localhost:8010/api/auth}
-    logout: ${DEFAULT_LOGOUT_URL:http://localhost:8010/api/auth}
+    login: http://localhost:3000
+    logout: http://localhost:3000/authorization
 
 discord:
   bot:
-    token: ${DISCORD_BOT_TOKEN:Bot NzY3NDE5NDMxMzU3MzgyNjU2.X4xpCg.TTHtJEwsTv8ZlKQjJUVRFt1zBHI}
+    token: Bot NzY3NDE5NDMxMzU3MzgyNjU2.X4xpCg.TTHtJEwsTv8ZlKQjJUVRFt1zBHI
   trusted-guild: 688764592901324862

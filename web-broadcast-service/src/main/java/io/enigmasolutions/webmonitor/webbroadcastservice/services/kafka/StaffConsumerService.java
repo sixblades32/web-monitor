@@ -5,13 +5,11 @@ import io.enigmasolutions.broadcastmodels.Staff;
 import io.enigmasolutions.webmonitor.webbroadcastservice.models.Timeline;
 import io.enigmasolutions.webmonitor.webbroadcastservice.services.BroadcastService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import static io.enigmasolutions.webmonitor.webbroadcastservice.models.Timeline.STAFF;
-import static org.springframework.kafka.support.KafkaHeaders.TIMESTAMP;
 
 @Slf4j
 @Service
@@ -25,12 +23,8 @@ public class StaffConsumerService extends AbstractConsumerService<Staff> {
 
     @Override
     @KafkaListener(topics = "${kafka.staff-consumer.topic}",
-            groupId = "${kafka.staff-consumer.group-id}",
-            containerFactory = "kafkaListenerContainerFactory")
-    public void consume(
-            @Payload String data,
-            @Header(value = TIMESTAMP) String timestamp
-    ) throws JsonProcessingException {
-        super.consume(data, timestamp);
+            groupId = "${kafka.staff-consumer.group-id}")
+    public void consume(ConsumerRecord<String, String> record) throws JsonProcessingException {
+        super.consume(record);
     }
 }

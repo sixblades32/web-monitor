@@ -1,11 +1,15 @@
 package io.enigmasolutions.twittermonitor.models.twitter.graphql;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class GraphQLTweet {
     private final String TWITTER_URL = "https://twitter.com/";
 

@@ -15,8 +15,8 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
-@Component
 @Slf4j
+@Component
 public class UserTimelineMonitor extends AbstractTwitterMonitor {
 
     private static final String TIMELINE_PATH = "statuses/user_timeline.json";
@@ -38,13 +38,15 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
                 twitterHelperService,
                 kafkaProducer,
                 plainTextRecognitionProcessors,
-                imageRecognitionProcessors
-        );
+                imageRecognitionProcessors,
+                log);
         this.twitterHelperService = twitterHelperService;
     }
 
     public void start(String screenName) {
         user = twitterHelperService.retrieveUser(screenName);
+
+        log.info("Current monitor user is: {}", user);
 
         super.start();
     }

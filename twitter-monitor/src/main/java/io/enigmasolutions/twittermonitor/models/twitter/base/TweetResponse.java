@@ -2,15 +2,17 @@ package io.enigmasolutions.twittermonitor.models.twitter.base;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.enigmasolutions.broadcastmodels.TweetType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import lombok.NoArgsConstructor;
 
 import static io.enigmasolutions.broadcastmodels.TweetType.*;
 
 @Data
 @Builder
-@Jacksonized
+@AllArgsConstructor
+@NoArgsConstructor
 public class TweetResponse {
 
     private final String TWITTER_URL = "https://twitter.com/";

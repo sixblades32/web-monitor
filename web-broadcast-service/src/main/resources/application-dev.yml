@@ -5,11 +5,11 @@ spring:
 server:
   error:
     include-stacktrace: always
-  port: ${SERVER_PORT:8020}
+  port: 8020
 
 management:
   server:
-    port: ${MANAGE_PORT:9020}
+    port: 9020
     base-path: /manage
 
 security:
@@ -17,7 +17,7 @@ security:
     header: Authorization
     prefix: Bearer
     expiration: 86400
-    secret: ${JWT_SECRET_KEY:jwt-secret}
+    secret: jwt-secret
 
 kafka:
   bootstrap-servers: localhost:9092
@@ -26,10 +26,10 @@ kafka:
     topic: twitter-tweet-broadcast-base
   recognition-consumer:
     group-id: web-broadcast-recognition-group
-    topic: twitter-tweet-recognition-broadcast
+    topic: twitter-tweet-recognition-broadcast-base
   staff-consumer:
     group-id: web-broadcast-staff-group
-    topic: staff-broadcast
+    topic: twitter-staff-broadcast
 
 broadcast:
   history-limit: 25

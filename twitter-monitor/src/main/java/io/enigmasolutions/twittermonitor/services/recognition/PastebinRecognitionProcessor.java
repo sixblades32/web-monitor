@@ -32,7 +32,7 @@ public class PastebinRecognitionProcessor extends PlainTextRecognitionProcessor 
                 .getBody();
 
         return Recognition.builder()
-                .recognitionType(RecognitionType.PASTEBIN)
+                .type(RecognitionType.PASTEBIN)
                 .source(url)
                 .result(result)
                 .build();

@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Staff {
-    private StaffType type;
-    private String text;
-    private DiscordUser discordUser;
+public class DiscordUser {
+    private String name;
+    private String tag;
+    private String icon;
 }

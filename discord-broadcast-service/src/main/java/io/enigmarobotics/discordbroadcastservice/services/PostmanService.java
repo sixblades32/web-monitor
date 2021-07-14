@@ -1,10 +1,8 @@
 package io.enigmarobotics.discordbroadcastservice.services;
 
 import io.enigmarobotics.discordbroadcastservice.concurent.ConcurrentCustomer;
-import io.enigmarobotics.discordbroadcastservice.db.models.Customer;
-import io.enigmarobotics.discordbroadcastservice.db.models.Target;
+import io.enigmarobotics.discordbroadcastservice.db.models.documents.Customer;
 import io.enigmarobotics.discordbroadcastservice.db.repositories.CustomerRepository;
-import io.enigmarobotics.discordbroadcastservice.db.repositories.TargetRepository;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,8 +28,7 @@ public class PostmanService {
     @Autowired
     public PostmanService(
             DiscordClient discordClient,
-            CustomerRepository CustomerRepository,
-            TargetRepository TargetRepository
+            CustomerRepository CustomerRepository
     ) {
         this.discordClient = discordClient;
         this.CustomerRepository = CustomerRepository;

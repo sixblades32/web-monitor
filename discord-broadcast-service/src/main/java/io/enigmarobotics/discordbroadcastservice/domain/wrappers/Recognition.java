@@ -1,15 +1,11 @@
-package io.enigmasolutions.broadcastmodels;
+package io.enigmarobotics.discordbroadcastservice.domain.wrappers;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import io.enigmasolutions.broadcastmodels.BriefTweet;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class Recognition {
+
     private RecognitionType type;
     private TweetType tweetType;
     private String source;

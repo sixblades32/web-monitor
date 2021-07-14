@@ -20,7 +20,7 @@ public class QrRecognitionProcessor extends ImageRecognitionProcessor {
         Result result = new MultiFormatReader().decode(bitmap);
 
         return Recognition.builder()
-                .recognitionType(RecognitionType.OR)
+                .type(RecognitionType.OR)
                 .source(url)
                 .result(result.getText())
                 .build();

@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
+import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.services.monitoring.UserTimelineMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class UserTimelineMonitorController {
     }
 
     @GetMapping("/status")
-    public void status(){
-
+    public MonitorStatus status() {
+        return userTimelineMonitor.getStatus();
     }
 }
