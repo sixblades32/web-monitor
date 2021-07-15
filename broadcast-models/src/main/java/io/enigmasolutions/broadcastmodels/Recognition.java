@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -16,4 +18,5 @@ public class Recognition {
     private String result;
     private BriefTweet briefTweet;
     private BriefTweet nestedBriefTweet;
+    private List<String> detectedUrls;
 }

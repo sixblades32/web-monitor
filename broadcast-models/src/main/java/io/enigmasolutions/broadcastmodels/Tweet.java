@@ -23,4 +23,5 @@ public class Tweet {
     private String followsUrl;
     private String media;
     private List<String> images;
+    private List<String> detectedUrls;
 }

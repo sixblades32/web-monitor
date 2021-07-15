@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -13,4 +15,5 @@ public class Staff {
     private StaffType type;
     private String text;
     private DiscordUser discordUser;
+    private List<String> detectedUrls;
 }
