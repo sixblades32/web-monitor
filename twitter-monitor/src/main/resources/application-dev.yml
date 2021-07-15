@@ -22,15 +22,6 @@ kafka:
     tweet-recognition-live-release-topic: twitter-tweet-recognition-broadcast-live-release
     twitter-monitor-alert-topic: twitter-monitor-alert-broadcast
 
-monitor:
-  home-timeline:
-    delay: 4025
-    count: 1
-  user-timeline:
-    delay: 700
-    count: 1
-
-
 aws:
   rekognition:
     access-key: AKIAZCHZYD2SJULQYADP
