@@ -77,6 +77,8 @@ public abstract class AbstractTwitterMonitor {
     }
 
     public void stop() {
+        if (status == Status.STOPPED) return;
+
         status = Status.STOPPED;
         failedCustomClients.clear();
 

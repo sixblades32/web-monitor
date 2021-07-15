@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.models.twitter.base;
+package io.enigmasolutions.twittermonitor.models.twitter.graphql;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Url {
-    private String url;
-    @JsonProperty("expanded_url")
-    private String expandedUrl;
+public class GraphQLUser {
+
+    @JsonProperty("rest_id")
+    private String restId;
+    private UserLegacy legacy;
 }

@@ -6,11 +6,11 @@ import lombok.Data;
 @Data
 public class Media {
     private String type;
-    @JsonProperty("media_url")
+    @JsonProperty("media_url_https")
     private String mediaUrl;
     private String url;
     @JsonProperty("video_info")
     private VideoInfo videoInfo;
-    @JsonProperty("source_user_id_str")
+    @JsonProperty("id_str")
     private String sourceUserId;
 }

@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.models.twitter.base;
+package io.enigmasolutions.twittermonitor.models.twitter.graphql;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class UserLegacy {
 
-    @JsonProperty("id_str")
-    private String id;
     @JsonProperty("screen_name")
     private String screenName;
     private String name;

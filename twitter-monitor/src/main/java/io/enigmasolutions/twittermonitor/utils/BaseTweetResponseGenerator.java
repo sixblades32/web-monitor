@@ -1,7 +1,9 @@
 package io.enigmasolutions.twittermonitor.utils;
 
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
+import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLTweet;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLUser;
 
 public class BaseTweetResponseGenerator {
 
@@ -17,7 +19,7 @@ public class BaseTweetResponseGenerator {
                 .text(graphQLTweet.getLegacy().getText())
                 .entities(graphQLTweet.getLegacy().getEntities())
                 .extendedEntities(graphQLTweet.getLegacy().getExtendedEntities())
-                .user(graphQLTweet.getCore().getUser())
+                .user(transformGraphQLUserToBase(graphQLTweet.getCore().getUser()))
                 // TODO: split to different method
                 .retweetedStatus(graphQLTweet.getLegacy().getRetweetedStatus() != null ?
                         generate(graphQLTweet.getLegacy().getRetweetedStatus()) : null)
@@ -32,6 +34,17 @@ public class BaseTweetResponseGenerator {
                 .retweetsUrl(graphQLTweet.getRetweetsUrl())
                 .likesUrl(graphQLTweet.getLikesUrl())
                 .followsUrl(graphQLTweet.getLikesUrl())
+                .build();
+    }
+
+    private static User transformGraphQLUserToBase(GraphQLUser user) {
+        return User.builder()
+                .id(user.getRestId())
+                .screenName(user.getLegacy().getScreenName())
+                .name(user.getLegacy().getName())
+                .userImage(user.getLegacy().getUserImage())
+                .userUrl(user.getLegacy().getUserUrl())
+                .isProtected(user.getLegacy().getIsProtected())
                 .build();
     }
 }

@@ -75,7 +75,7 @@ public class TweetGenerator {
         tweetResponse.getExtendedEntities()
                 .getMedia()
                 .forEach(media -> {
-                    if (media.getSourceUserId() == null) {
+                    if (media.getSourceUserId() != null) {
                         images.add(media.getMediaUrl());
                         String text = tweetResponse.getText();
                         tweetResponse.setText(text.replace(media.getUrl(), ""));
