@@ -63,7 +63,7 @@ public class TweetGenerator {
         return extendedEntities.getMedia().stream()
                 .map(media -> {
                     String tweetResponseText = tweetResponse.getText();
-                    tweetResponse.setText(tweetResponseText.replace(media.getUrl(), media.getMediaUrl()));
+                    tweetResponse.setText(tweetResponseText.replace(media.getUrl(), ""));
 
                     Media.MediaBuilder mediaBuilder = Media.builder()
                             .type(MediaType.valueOf(media.getType().toUpperCase()))
