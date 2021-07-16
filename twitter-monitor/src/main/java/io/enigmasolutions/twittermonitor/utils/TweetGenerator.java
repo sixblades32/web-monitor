@@ -2,8 +2,8 @@ package io.enigmasolutions.twittermonitor.utils;
 
 import io.enigmasolutions.broadcastmodels.*;
 import io.enigmasolutions.twittermonitor.models.twitter.base.Entity;
+import io.enigmasolutions.twittermonitor.models.twitter.base.ExtendedEntity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import io.enigmasolutions.twittermonitor.models.twitter.base.Url;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,8 +57,10 @@ public class TweetGenerator {
     }
 
     private static List<Media> retrieveMedia(TweetResponse tweetResponse) {
-        return tweetResponse.getExtendedEntities()
-                .getMedia().stream()
+        ExtendedEntity extendedEntities = tweetResponse.getExtendedEntities();
+        if (extendedEntities == null) return Collections.emptyList();
+
+        return extendedEntities.getMedia().stream()
                 .map(media -> {
                     String tweetResponseText = tweetResponse.getText();
                     tweetResponse.setText(tweetResponseText.replace(media.getUrl(), media.getMediaUrl()));
@@ -84,10 +86,7 @@ public class TweetGenerator {
         Entity entity = tweetResponse.getEntities();
         if (entity == null) return Collections.emptyList();
 
-        List<Url> urls = entity.getUrls();
-        if (urls.isEmpty()) return Collections.emptyList();
-
-        return urls.stream()
+        return entity.getUrls().stream()
                 .map(url -> {
                     String tweetResponseText = tweetResponse.getText();
                     tweetResponse.setText(tweetResponseText.replace(url.getUrl(), url.getExpandedUrl()));
