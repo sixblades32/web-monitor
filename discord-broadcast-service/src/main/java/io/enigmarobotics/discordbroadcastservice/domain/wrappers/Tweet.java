@@ -14,10 +14,10 @@ public class Tweet {
     private TwitterUser user;
     private Tweet retweeted;
     private BriefTweet replied;
+    private List<Media> media;
+    private List<String> detectedUrls;
     private String tweetUrl;
     private String retweetsUrl;
     private String likesUrl;
     private String followsUrl;
-    private String media;
-    private List<String> images;
 }

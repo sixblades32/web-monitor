@@ -1,15 +1,11 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
-import io.enigmasolutions.broadcastmodels.Alert;
-import io.enigmasolutions.broadcastmodels.BriefTweet;
-import io.enigmasolutions.broadcastmodels.Recognition;
-import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.*;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.monitor.Status;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import io.enigmasolutions.twittermonitor.models.twitter.base.Url;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
@@ -121,13 +117,12 @@ public abstract class AbstractTwitterMonitor {
 
             log.info("Received tweet for processing: {}", tweet);
 
-            CompletableFuture.runAsync(() -> tweetProcessing(tweetResponse, tweet));
+            CompletableFuture.runAsync(() -> tweetProcessing(tweet));
             CompletableFuture.runAsync(() -> recognitionProcessing(tweetResponse, tweet));
         }
     }
 
     protected void processErrorResponse(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
-
         log.error(exception.toString());
 
         if (exception.getStatusCode().value() >= 400 &&
@@ -147,7 +142,6 @@ public abstract class AbstractTwitterMonitor {
     }
 
     private void reshuffleClients(TwitterCustomClient twitterCustomClient) {
-
         twitterCustomClients.remove(twitterCustomClient);
         failedCustomClients.add(twitterCustomClient);
     }
@@ -180,7 +174,6 @@ public abstract class AbstractTwitterMonitor {
     }
 
     private void processAlertTarget(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
-
         Alert alert = Alert.builder()
                 .failedMonitorId(twitterCustomClient.getTwitterScraper().getTwitterUser().getTwitterId())
                 .failedMonitorsCount(failedCustomClients.size())
@@ -230,50 +223,48 @@ public abstract class AbstractTwitterMonitor {
         return client;
     }
 
-    private void tweetProcessing(TweetResponse tweetResponse, Tweet tweet) {
-        CompletableFuture.runAsync(() -> processCommonTarget(tweetResponse, tweet));
-        CompletableFuture.runAsync(() -> processLiveReleaseTarget(tweetResponse, tweet));
+    private void tweetProcessing(Tweet tweet) {
+        CompletableFuture.runAsync(() -> processCommonTarget(tweet));
+        CompletableFuture.runAsync(() -> processLiveReleaseTarget(tweet));
     }
 
     private void recognitionProcessing(TweetResponse tweetResponse, Tweet tweet) {
         BriefTweet briefTweet = buildBriefTweet(tweetResponse);
 
+        CompletableFuture.runAsync(() -> {
+            List<String> images = tweet.getMedia().stream()
+                    .filter(media -> media.getType().equals(MediaType.PHOTO))
+                    .map(Media::getStatical)
+                    .collect(Collectors.toList());
+            processImageRecognition(tweet, briefTweet, images);
+        });
         CompletableFuture.runAsync(() ->
-                processImageRecognition(tweetResponse, briefTweet, tweet.getImages()));
-        CompletableFuture.runAsync(() ->
-                processPlainTextRecognition(tweetResponse, briefTweet, null, tweetResponse.getEntities()
-                        .getUrls().stream()
-                        .map(Url::getExpandedUrl)
-                        .collect(Collectors.toList()))
+                processPlainTextRecognition(tweet, briefTweet, null, tweet.getDetectedUrls())
         );
 
-        if (tweetResponse.getRetweetedStatus() != null) {
-            BriefTweet nestedBriefTweet = buildBriefTweet(tweetResponse.getRetweetedStatus());
-
-            CompletableFuture.runAsync(() ->
-                    processPlainTextRecognition(tweetResponse, briefTweet, nestedBriefTweet, tweetResponse
-                            .getRetweetedStatus()
-                            .getEntities()
-                            .getUrls().stream()
-                            .map(Url::getExpandedUrl)
-                            .collect(Collectors.toList()))
-            );
-        } else if (tweetResponse.getQuotedStatus() != null) {
-            BriefTweet nestedBriefTweet = buildBriefTweet(tweetResponse.getRetweetedStatus());
-
-            CompletableFuture.runAsync(() ->
-                    processPlainTextRecognition(tweetResponse, briefTweet, nestedBriefTweet, tweetResponse
-                            .getQuotedStatus()
-                            .getEntities()
-                            .getUrls().stream()
-                            .map(Url::getExpandedUrl)
-                            .collect(Collectors.toList()))
-            );
-        }
+        // TODO: должны ли мы это делать?
+//        if (tweet.getType() == TweetType.RETWEET) {
+//            BriefTweet nestedBriefTweet = buildBriefTweet(tweetResponse.getRetweetedStatus());
+//
+//            CompletableFuture.runAsync(() ->
+//                    processPlainTextRecognition(
+//                            tweet,
+//                            briefTweet,
+//                            nestedBriefTweet,
+//                            tweet.getRetweeted().getDetectedUrls()
+//                    )
+//            );
+//        } else if (tweet.getType() == TweetType.REPLY) {
+//            BriefTweet nestedBriefTweet = buildBriefTweet(tweetResponse.getRetweetedStatus());
+//
+//            CompletableFuture.runAsync(() ->
+//                    processPlainTextRecognition(tweet, briefTweet, nestedBriefTweet, tweet.getReplied())
+//            );
+//        }
     }
 
     private void processPlainTextRecognition(
-            TweetResponse tweetResponse,
+            Tweet tweet,
             BriefTweet briefTweet,
             BriefTweet nestedBriefTweet,
             List<String> plainTextUrls
@@ -284,7 +275,7 @@ public abstract class AbstractTwitterMonitor {
                         .parallel()
                         .forEach(url -> recognitionProcessingWrapper(
                                 recognitionProcessor,
-                                tweetResponse,
+                                tweet,
                                 url,
                                 briefTweet,
                                 nestedBriefTweet)
@@ -293,7 +284,7 @@ public abstract class AbstractTwitterMonitor {
     }
 
     private void processImageRecognition(
-            TweetResponse tweetResponse,
+            Tweet tweet,
             BriefTweet briefTweet,
             List<String> imageUrls
     ) {
@@ -303,7 +294,7 @@ public abstract class AbstractTwitterMonitor {
                         .parallel()
                         .forEach(url -> recognitionProcessingWrapper(
                                 recognitionProcessor,
-                                tweetResponse,
+                                tweet,
                                 url,
                                 briefTweet,
                                 null)
@@ -313,7 +304,7 @@ public abstract class AbstractTwitterMonitor {
 
     private void recognitionProcessingWrapper(
             RecognitionProcessor recognitionProcessor,
-            TweetResponse tweetResponse,
+            Tweet tweet,
             String url,
             BriefTweet briefTweet,
             BriefTweet nestedBriefTweet
@@ -321,48 +312,48 @@ public abstract class AbstractTwitterMonitor {
         try {
             Recognition recognition = recognitionProcessor.processDataFromUrl(url);
 
-            recognition.setTweetType(tweetResponse.getType());
+            recognition.setTweetType(tweet.getType());
             recognition.setBriefTweet(briefTweet);
             recognition.setNestedBriefTweet(nestedBriefTweet);
 
-            CompletableFuture.runAsync(() -> processCommonTargetRecognition(tweetResponse, recognition));
-            CompletableFuture.runAsync(() -> processLiveReleaseTargetRecognition(tweetResponse, recognition));
+            CompletableFuture.runAsync(() -> processCommonTargetRecognition(tweet, recognition));
+            CompletableFuture.runAsync(() -> processLiveReleaseTargetRecognition(tweet, recognition));
         } catch (Exception ignored) {
         }
     }
 
-    private void processCommonTarget(TweetResponse tweetResponse, Tweet tweet) {
-        if (isCommonTargetValid(tweetResponse)) {
+    private void processCommonTarget(Tweet tweet) {
+        if (isCommonTargetValid(tweet)) {
             kafkaProducer.sendTweetToBaseBroadcast(tweet);
         }
     }
 
-    private void processLiveReleaseTarget(TweetResponse tweetResponse, Tweet tweet) {
-        if (isLiveReleaseTargetValid(tweetResponse)) {
+    private void processLiveReleaseTarget(Tweet tweet) {
+        if (isLiveReleaseTargetValid(tweet)) {
             kafkaProducer.sendTweetLiveReleaseBroadcast(tweet);
         }
     }
 
-    private void processCommonTargetRecognition(TweetResponse tweetResponse, Recognition recognition) {
-        if (isCommonTargetValid(tweetResponse)) {
+    private void processCommonTargetRecognition(Tweet tweet, Recognition recognition) {
+        if (isCommonTargetValid(tweet)) {
             kafkaProducer.sendTweetToBaseBroadcastRecognition(recognition);
         }
     }
 
-    private void processLiveReleaseTargetRecognition(TweetResponse tweetResponse, Recognition recognition) {
-        if (isLiveReleaseTargetValid(tweetResponse)) {
+    private void processLiveReleaseTargetRecognition(Tweet tweet, Recognition recognition) {
+        if (isLiveReleaseTargetValid(tweet)) {
             kafkaProducer.sendTweetLiveReleaseRecognition(recognition);
         }
     }
 
-    private Boolean isCommonTargetValid(TweetResponse tweetResponse) {
-        String targetId = tweetResponse.getUser().getId();
+    private Boolean isCommonTargetValid(Tweet tweet) {
+        String targetId = tweet.getUser().getId();
 
         return twitterHelperService.checkCommonPass(targetId);
     }
 
-    private Boolean isLiveReleaseTargetValid(TweetResponse tweetResponse) {
-        String targetId = tweetResponse.getUser().getId();
+    private Boolean isLiveReleaseTargetValid(Tweet tweet) {
+        String targetId = tweet.getUser().getId();
 
         return twitterHelperService.checkLiveReleasePass(targetId);
     }

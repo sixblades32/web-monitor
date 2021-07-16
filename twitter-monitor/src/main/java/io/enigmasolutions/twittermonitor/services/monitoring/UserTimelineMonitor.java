@@ -69,7 +69,7 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("user_id", user.getId());
         params.add("tweet_mode", "extended");
-        params.add("count", "${monitor.user-timeline.count}");
+        params.add("count", "1");
         params.add("include_entities", "1");
         params.add("include_user_entities", "1");
 

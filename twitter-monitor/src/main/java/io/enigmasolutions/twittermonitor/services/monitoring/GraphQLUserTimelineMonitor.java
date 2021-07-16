@@ -19,7 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
-import static io.enigmasolutions.twittermonitor.utils.BaseTweetResponseGenerator.generate;
+import static io.enigmasolutions.twittermonitor.utils.TweetResponseGenerator.generate;
 
 @Slf4j
 @Component

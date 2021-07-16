@@ -6,7 +6,7 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/twitter-monitor
+      uri: mongodb+srv://admin:7IXuqZqiRTqkvNcA@cluster0.mao4z.mongodb.net
       database: twitter-monitor
   security:
     user:
