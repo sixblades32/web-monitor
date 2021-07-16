@@ -310,7 +310,7 @@ public abstract class AbstractTwitterMonitor {
             BriefTweet nestedBriefTweet
     ) {
         try {
-            Recognition recognition = recognitionProcessor.processDataFromUrl(url);
+            Recognition recognition = recognitionProcessor.processUrl(url);
 
             recognition.setTweetType(tweet.getType());
             recognition.setBriefTweet(briefTweet);

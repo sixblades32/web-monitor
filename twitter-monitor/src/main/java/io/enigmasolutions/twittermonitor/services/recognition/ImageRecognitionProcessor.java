@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-public abstract class ImageRecognitionProcessor implements RecognitionProcessor {
+public abstract class ImageRecognitionProcessor extends RecognitionProcessor {
 
     private final static String USER_AGENT = "Mozilla/5.0";
 
