@@ -28,6 +28,7 @@ pipelines:
             - docker
           script:
             - cd auth-service
+            - echo $(ls)
             # Login to docker registry on AWS
             - eval $(aws ecr get-login --no-include-email)
             # Build image
