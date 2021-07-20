@@ -10,7 +10,6 @@ security:
   jwt:
     header: Authorization
     prefix: Bearer
-    expiration: ${SECURITY_JWT_EXPIRATION}
     secret: ${SECURITY_JWT_SECRET}
 
 kafka:

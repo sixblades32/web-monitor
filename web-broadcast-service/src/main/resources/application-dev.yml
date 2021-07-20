@@ -12,7 +12,6 @@ security:
   jwt:
     header: Authorization
     prefix: Bearer
-    expiration: 86400
     secret: jwt-secret
 
 kafka:
