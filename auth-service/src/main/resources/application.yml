@@ -38,6 +38,12 @@ management:
     port: 9010
     base-path: /manage
 
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 security:
   jwt:
     header: Authorization
