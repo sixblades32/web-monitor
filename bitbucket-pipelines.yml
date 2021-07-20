@@ -31,7 +31,7 @@ pipelines:
             # Login to docker registry on AWS
             - eval $(aws ecr get-login --no-include-email)
             # Build image
-            - docker build -t $DOCKER_IMAGE_URL:$BITBUCKET_BUILD_NUMBER -t $DOCKER_IMAGE_URL:latest .
+            - docker build -t $AUTH_SERVICE_DOCKER_IMAGE_URL:$BITBUCKET_BUILD_NUMBER -t $AUTH_SERVICE_DOCKER_IMAGE_URL:latest .
             # Push image to private registry
             - docker push $DOCKER_IMAGE_URL
       - step:
