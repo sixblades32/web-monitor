@@ -18,7 +18,7 @@ pipelines:
           script:
             - gradle clean build -p auth-service
           artifacts:
-            - auth-service/build/*
+            - auth-service/build/libs/*
       - step:
           name: Push Docker Image
           image: atlassian/pipelines-awscli
@@ -28,7 +28,7 @@ pipelines:
             - docker
           script:
             - cd auth-service
-            - echo $(ls)
+            - echo $(ls build/libs)
             # Login to docker registry on AWS
             - eval $(aws ecr get-login --no-include-email)
             # Build image
