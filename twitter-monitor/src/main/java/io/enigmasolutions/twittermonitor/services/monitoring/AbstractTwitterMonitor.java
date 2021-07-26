@@ -16,7 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static io.enigmasolutions.twittermonitor.utils.TweetGenerator.buildBriefTweet;
@@ -24,14 +24,18 @@ import static io.enigmasolutions.twittermonitor.utils.TweetGenerator.generate;
 
 public abstract class AbstractTwitterMonitor {
 
-    private final KafkaProducer kafkaProducer;
+    private final static Timer TIMER = new Timer();
+    private final static ExecutorService EXECUTOR =
+            new ThreadPoolExecutor(100, 100, 1, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
 
+    private final KafkaProducer kafkaProducer;
     private final int timelineDelay;
     private final TwitterScraperRepository twitterScraperRepository;
     private final TwitterHelperService twitterHelperService;
     private final Logger log;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
     private final List<ImageRecognitionProcessor> imageRecognitionProcessors;
+
     protected List<TwitterCustomClient> failedCustomClients = Collections.synchronizedList(new LinkedList<>());
 
     private Status status = Status.STOPPED;
@@ -69,7 +73,7 @@ public abstract class AbstractTwitterMonitor {
             initTwitterCustomClients();
         }
 
-        CompletableFuture.runAsync(this::runMonitor);
+        new Thread(this::runMonitor).start();
     }
 
     public void stop() {
@@ -117,8 +121,8 @@ public abstract class AbstractTwitterMonitor {
 
             log.info("Received tweet for processing: {}", tweet);
 
-            CompletableFuture.runAsync(() -> tweetProcessing(tweet));
-            CompletableFuture.runAsync(() -> recognitionProcessing(tweetResponse, tweet));
+            CompletableFuture.runAsync(() -> tweetProcessing(tweet), EXECUTOR);
+            CompletableFuture.runAsync(() -> recognitionProcessing(tweetResponse, tweet), EXECUTOR);
         }
     }
 
@@ -133,7 +137,7 @@ public abstract class AbstractTwitterMonitor {
             processRateLimitError(exception, twitterCustomClient);
             calculateDelay();
 
-            CompletableFuture.runAsync(() -> processAlertTarget(exception, twitterCustomClient));
+            CompletableFuture.runAsync(() -> processAlertTarget(exception, twitterCustomClient), EXECUTOR);
 
             if (failedCustomClients.size() > 15) {
                 stop();
@@ -149,7 +153,6 @@ public abstract class AbstractTwitterMonitor {
     private void processRateLimitError(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
 
         if (exception.getStatusCode().value() == 429) {
-            Timer timer = new Timer();
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
@@ -157,7 +160,7 @@ public abstract class AbstractTwitterMonitor {
                 }
             };
 
-            timer.schedule(timerTask, 60000);
+            TIMER.schedule(timerTask, 60000);
         }
     }
 
@@ -194,7 +197,7 @@ public abstract class AbstractTwitterMonitor {
         while (status == Status.RUNNING) {
             try {
                 Thread.sleep(delay);
-                CompletableFuture.runAsync(this::executeTwitterMonitoring);
+                CompletableFuture.runAsync(this::executeTwitterMonitoring, EXECUTOR);
             } catch (Exception exception) {
                 log.error("Unknown exception", exception);
             }
@@ -224,22 +227,26 @@ public abstract class AbstractTwitterMonitor {
     }
 
     private void tweetProcessing(Tweet tweet) {
-        CompletableFuture.runAsync(() -> processCommonTarget(tweet));
-        CompletableFuture.runAsync(() -> processLiveReleaseTarget(tweet));
+        CompletableFuture.runAsync(() -> processCommonTarget(tweet), EXECUTOR);
+        CompletableFuture.runAsync(() -> processLiveReleaseTarget(tweet), EXECUTOR);
     }
 
     private void recognitionProcessing(TweetResponse tweetResponse, Tweet tweet) {
         BriefTweet briefTweet = buildBriefTweet(tweetResponse);
 
-        CompletableFuture.runAsync(() -> {
-            List<String> images = tweet.getMedia().stream()
-                    .filter(media -> media.getType().equals(MediaType.PHOTO))
-                    .map(Media::getStatical)
-                    .collect(Collectors.toList());
-            processImageRecognition(tweet, briefTweet, images);
-        });
-        CompletableFuture.runAsync(() ->
-                processPlainTextRecognition(tweet, briefTweet, null, tweet.getDetectedUrls())
+        CompletableFuture.runAsync(
+                () -> {
+                    List<String> images = tweet.getMedia().stream()
+                            .filter(media -> media.getType().equals(MediaType.PHOTO))
+                            .map(Media::getStatical)
+                            .collect(Collectors.toList());
+                    processImageRecognition(tweet, briefTweet, images);
+                },
+                EXECUTOR
+        );
+        CompletableFuture.runAsync(
+                () -> processPlainTextRecognition(tweet, briefTweet, null, tweet.getDetectedUrls()),
+                EXECUTOR
         );
 
         // TODO: должны ли мы это делать?
@@ -316,8 +323,8 @@ public abstract class AbstractTwitterMonitor {
             recognition.setBriefTweet(briefTweet);
             recognition.setNestedBriefTweet(nestedBriefTweet);
 
-            CompletableFuture.runAsync(() -> processCommonTargetRecognition(tweet, recognition));
-            CompletableFuture.runAsync(() -> processLiveReleaseTargetRecognition(tweet, recognition));
+            CompletableFuture.runAsync(() -> processCommonTargetRecognition(tweet, recognition), EXECUTOR);
+            CompletableFuture.runAsync(() -> processLiveReleaseTargetRecognition(tweet, recognition), EXECUTOR);
         } catch (Exception ignored) {
         }
     }
