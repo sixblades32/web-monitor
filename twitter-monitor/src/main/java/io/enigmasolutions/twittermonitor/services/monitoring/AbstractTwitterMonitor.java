@@ -117,7 +117,7 @@ public abstract class AbstractTwitterMonitor {
     protected void processTweetResponse(TweetResponse tweetResponse) {
         if (tweetResponse == null) return;
 
-        if (!twitterHelperService.isInTweetCache(tweetResponse.getTweetId()) && isTweetRelevant(tweetResponse)) {
+        if (isTweetRelevant(tweetResponse) && !twitterHelperService.isInTweetCache(tweetResponse.getTweetId())) {
             Tweet tweet = generate(tweetResponse);
 
             log.info("Received tweet for processing: {}", tweet);
