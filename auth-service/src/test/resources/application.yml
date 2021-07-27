@@ -4,28 +4,28 @@ spring:
       client:
         registration:
           discord:
-            client-id: ${DISCORD_OAUTH_CLIENT_ID}
-            client-secret: ${DISCORD_OAUTH_CLIENT_SECRET}
+            client-id: 767419431357382656
+            client-secret: ENj1A0vJYcDHrRqiLO8N4mb4UiRuplHz
             client-authentication-method: post
             authorization-grant-type: authorization_code
             scope:
               - identify
               - email
               - guilds.join
-            redirect-uri: "https://enigmamonitors.io/api/auth/guest/login/oauth2/code/discord"
-            client-name: Enigma Monitors
+            redirect-uri: "http://localhost:8010/api/auth/guest/login/oauth2/code/discord"
+            client-name: Enigma Solutions
         provider:
           discord:
             authorizationUri: https://discordapp.com/api/oauth2/authorize
             tokenUri: https://discordapp.com/api/oauth2/token
             userInfoUri: https://discordapp.com/api/users/@me
             usernameAttribute: id
-  redis:
-    url: ${REDIS_URL}
   session:
-    store-type: redis
+    store-type: none
 
 server:
+  error:
+    include-stacktrace: always
   port: 8010
   servlet:
     session:
@@ -38,23 +38,17 @@ management:
     port: 9010
     base-path: /manage
 
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
-
 security:
   jwt:
     header: Authorization
     prefix: Bearer
-    expiration: ${SECURITY_JWT_EXPIRATION}
-    secret: ${SECURITY_JWT_SECRET}
+    expiration: 86400
+    secret: jwt-secret
   url:
-    login: https://enigmamonitors.io
-    logout: https://enigmamonitors.io/authorization
+    login: http://localhost:3000
+    logout: http://localhost:3000/authorization
 
 discord:
   bot:
-    token: ${DISCORD_BOT_TOKEN}
-  trusted-guild: 688446328761614440
+    token: Bot NzY3NDE5NDMxMzU3MzgyNjU2.X4xpCg.TTHtJEwsTv8ZlKQjJUVRFt1zBHI
+  trusted-guild: 688764592901324862

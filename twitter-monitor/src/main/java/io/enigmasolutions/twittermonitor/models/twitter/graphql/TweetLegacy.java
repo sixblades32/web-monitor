@@ -5,7 +5,6 @@ import io.enigmasolutions.broadcastmodels.TweetType;
 import io.enigmasolutions.twittermonitor.models.twitter.base.Entity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.ExtendedEntity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.QuotedStatusPermalink;
-import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,8 +16,9 @@ import static io.enigmasolutions.broadcastmodels.TweetType.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Legacy {
-    private final String TWITTER_URL = "https://twitter.com/";
+public class TweetLegacy {
+
+    private final static String TWITTER_URL = "https://twitter.com/";
 
     private TweetType tweetType;
     @JsonProperty("created_at")
@@ -51,34 +51,40 @@ public class Legacy {
             tweetType = RETWEET;
         } else if (inReplyToStatusId != null) {
             tweetType = REPLY;
-        } else {
-            // TODO: добавить какой-нибудь рантайм экспешн --> package exceptions UnsupportedTweetTypeException, чтобы дальше это дело не разлетолсь по консумерам
         }
+
 
         return tweetType;
     }
 
     public GraphQLTweet getRepliedStatus() {
-        if (inReplyToStatusId != null) {
-            User user = User.builder()
-                    .id(inReplyToUserId)
-                    .screenName(inReplyToScreenName)
-                    .userUrl(TWITTER_URL + inReplyToScreenName)
-                    .build();
+        if (inReplyToStatusId == null) return null;
 
-            Core core = Core.builder()
-                    .user(user)
-                    .build();
+        TweetLegacy tweetLegacy = TweetLegacy.builder()
+                .tweetId(inReplyToStatusId)
+                .build();
 
-            GraphQLTweet replied = GraphQLTweet.builder()
-                    .core(core)
-                    .tweetUrl(TWITTER_URL + inReplyToScreenName + "/status/" + inReplyToStatusId)
-                    .build();
+        UserLegacy userLegacy = UserLegacy.builder()
+                .screenName(inReplyToScreenName)
+                .userUrl(TWITTER_URL + inReplyToScreenName)
+                .build();
 
-            return replied;
-        }
-        return null;
+        GraphQLUser user = GraphQLUser.builder()
+                .restId(inReplyToUserId)
+                .legacy(userLegacy)
+                .build();
+
+        Core core = Core.builder()
+                .user(user)
+                .build();
+
+        return GraphQLTweet.builder()
+                .legacy(tweetLegacy)
+                .core(core)
+                .tweetUrl(TWITTER_URL + inReplyToScreenName + "/status/" + inReplyToStatusId)
+                .build();
     }
+
 
     public String getText() {
         if (retweetedStatus != null) {

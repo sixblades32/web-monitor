@@ -10,7 +10,7 @@ import io.enigmasolutions.twittermonitor.models.twitter.graphql.QueryStringData;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
-import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
+import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -19,7 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
-import static io.enigmasolutions.twittermonitor.utils.BaseTweetResponseGenerator.generate;
+import static io.enigmasolutions.twittermonitor.utils.TweetResponseGenerator.generate;
 
 @Slf4j
 @Component
@@ -81,7 +81,7 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                     .getTimeline()
                     .getNestedTimeline()
                     .getInstructions().get(0)
-                    .getEntries().get(1)
+                    .getEntries().get(0)
                     .getContent()
                     .getItemContent()
                     .getTweet());
@@ -98,13 +98,15 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
 
         QueryStringData data = QueryStringData.builder()
                 .userId(user.getId())
-                .count(2)
+                .count(1)
                 .withHighlightedLabel(true)
                 .withTweetQuoteCount(true)
                 .includePromotedContent(true)
                 .withTweetResult(false)
+                .withCommunity(false)
                 .withReactions(false)
                 .withSuperFollowsTweetFields(false)
+                .withSuperFollowsUserFields(false)
                 .withUserResults(false)
                 .withVoice(false)
                 .withBirdwatchPivots(false)

@@ -2,7 +2,7 @@ package io.enigmasolutions.twittermonitor.services.recognition;
 
 import io.enigmasolutions.broadcastmodels.Recognition;
 
-public abstract class PlainTextRecognitionProcessor implements RecognitionProcessor {
+public abstract class PlainTextRecognitionProcessor extends RecognitionProcessor {
 
     private final String basePath;
 

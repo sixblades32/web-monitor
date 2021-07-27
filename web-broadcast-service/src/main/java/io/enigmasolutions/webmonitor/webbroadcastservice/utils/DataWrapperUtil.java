@@ -16,7 +16,11 @@ public class DataWrapperUtil {
 
     public static <T> String wrapData(Timeline timeline, long timestamp, String data, Class<T> tClass)
             throws JsonProcessingException {
-        T tweet = objectMapper.readValue(data, tClass);
+        T tweet = null;
+
+        if (data != null && tClass != null) {
+            tweet = objectMapper.readValue(data, tClass);
+        }
 
         Message<T> message = Message.<T>builder()
                 .timeline(timeline)

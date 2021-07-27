@@ -6,15 +6,15 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/twitter-monitor
+      uri: ${MONGODB_URI}
       database: twitter-monitor
   security:
     user:
-      name: admin
-      password: password
+      name: ${MONITOR_USER_NAME}
+      password: ${MONITOR_USER_PASSWORD}
 
 kafka:
-  bootstrap-servers: localhost:9092
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
   producer:
     tweet-base-topic: twitter-tweet-broadcast-base
     tweet-live-release-topic: twitter-tweet-broadcast-live-release

@@ -5,7 +5,7 @@ import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
-import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
+import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

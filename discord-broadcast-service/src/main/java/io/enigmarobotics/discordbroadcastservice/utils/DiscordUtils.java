@@ -1,15 +1,14 @@
 package io.enigmarobotics.discordbroadcastservice.utils;
 
 import io.enigmarobotics.discordbroadcastservice.domain.models.*;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Recognition;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Tweet;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.TweetImage;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static io.enigmarobotics.discordbroadcastservice.domain.wrappers.MediaType.PHOTO;
 
 public class DiscordUtils {
 
@@ -40,9 +39,15 @@ public class DiscordUtils {
         Footer footer = Footer.builder()
                 .text("TWEET — " + tweet.getUser().getLogin())
                 .build();
-        if (tweet.getImages().size() > 0) {
+
+        List<Media> photos = tweet.getMedia().stream()
+                .filter(img -> img.getType().equals(PHOTO))
+                .collect(Collectors.toList());
+        int photosSize = photos.size();
+
+        if (photosSize > 0) {
             image = Image.builder()
-                    .url(tweet.getImages().get(0))
+                    .url(photos.get(0).getStatical())
                     .build();
         }
 
@@ -65,21 +70,20 @@ public class DiscordUtils {
                 .image(image)
                 .build());
 
-        if (tweet.getImages().size() > 1) {
-            List<String> images = tweet.getImages();
-            List<TweetImage> tweetImages = images.subList(1, images.size()).stream().map(url -> {
-                TweetImage.TweetImageBuilder builder = TweetImage.builder()
-                        .image(url)
-                        .userName(tweet.getUser().getLogin())
-                        .userId(tweet.getUser().getId())
-                        .tweetType(tweet.getType());
+        if (photosSize > 1) {
+            List<TweetImage> tweetImages = photos.subList(1, photosSize).stream()
+                    .map(photo -> {
+                        TweetImage.TweetImageBuilder builder = TweetImage.builder()
+                                .image(photo.getStatical())
+                                .userName(tweet.getUser().getLogin())
+                                .userId(tweet.getUser().getId())
+                                .tweetType(tweet.getType());
+                        if (tweet.getRetweeted() != null) {
+                            builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
+                        }
 
-                if (tweet.getRetweeted() != null) {
-                    builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
-                }
-
-                return builder.build();
-            }).collect(Collectors.toList());
+                        return builder.build();
+                    }).collect(Collectors.toList());
 
             tweetImages.forEach(tweetImage -> {
                 Embed imageEmbed = generateTweetImageEmbed(tweetImage, embedColor);
@@ -117,9 +121,14 @@ public class DiscordUtils {
                 .text("RETWEET  —  @" + tweet.getUser().getLogin() + " --> " + "@" + retweeted.getUser().getLogin())
                 .build();
 
-        if (tweet.getImages().size() > 0) {
+        List<Media> photos = tweet.getMedia().stream()
+                .filter(img -> img.getType().equals(PHOTO))
+                .collect(Collectors.toList());
+        int photosSize = photos.size();
+
+        if (photosSize > 0) {
             image = Image.builder()
-                    .url(tweet.getImages().get(0))
+                    .url(photos.get(0).getStatical())
                     .build();
         }
 
@@ -167,9 +176,14 @@ public class DiscordUtils {
                         tweet.getReplied().getUser().getLogin())
                 .build();
 
-        if (tweet.getImages().size() > 0) {
+        List<Media> photos = tweet.getMedia().stream()
+                .filter(img -> img.getType().equals(PHOTO))
+                .collect(Collectors.toList());
+        int photosSize = photos.size();
+
+        if (photosSize > 0) {
             image = Image.builder()
-                    .url(tweet.getImages().get(0))
+                    .url(photos.get(0).getStatical())
                     .build();
         }
 
@@ -225,9 +239,14 @@ public class DiscordUtils {
                 .text("RETWEET  —  @" + retweetedBy + " --> " + "@" + tweet.getUser().getLogin())
                 .build();
 
-        if (tweet.getImages().size() > 0) {
+        List<Media> photos = tweet.getMedia().stream()
+                .filter(img -> img.getType().equals(PHOTO))
+                .collect(Collectors.toList());
+        int photosSize = photos.size();
+
+        if (photosSize > 0) {
             image = Image.builder()
-                    .url(tweet.getImages().get(0))
+                    .url(photos.get(0).getStatical())
                     .build();
         }
 
@@ -250,21 +269,21 @@ public class DiscordUtils {
                 .image(image)
                 .build());
 
-        if (tweet.getImages().size() > 1) {
-            List<String> images = tweet.getImages();
-            List<TweetImage> tweetImages = images.subList(1, images.size()).stream().map(url -> {
-                TweetImage.TweetImageBuilder builder = TweetImage.builder()
-                        .image(url)
-                        .userName(tweet.getUser().getLogin())
-                        .userId(tweet.getUser().getId())
-                        .tweetType(tweet.getType());
+        if (photosSize > 1) {
+            List<TweetImage> tweetImages = photos.subList(1, photosSize).stream()
+                    .map(photo -> {
+                        TweetImage.TweetImageBuilder builder = TweetImage.builder()
+                                .image(photo.getStatical())
+                                .userName(tweet.getUser().getLogin())
+                                .userId(tweet.getUser().getId())
+                                .tweetType(tweet.getType());
 
-                if (tweet.getRetweeted() != null) {
-                    builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
-                }
+                        if (tweet.getRetweeted() != null) {
+                            builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
+                        }
 
-                return builder.build();
-            }).collect(Collectors.toList());
+                        return builder.build();
+                    }).collect(Collectors.toList());
 
             tweetImages.forEach(tweetImage -> {
                 Embed imageEmbed = generateTweetImageEmbed(tweetImage, embedColor);

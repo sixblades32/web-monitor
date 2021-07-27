@@ -16,7 +16,7 @@ public class GraphQLTweet {
     @JsonProperty("rest_id")
     private String restId;
     private Core core;
-    private Legacy legacy;
+    private TweetLegacy legacy;
 
     private String tweetUrl;
     private String retweetsUrl;
@@ -24,22 +24,24 @@ public class GraphQLTweet {
     private String followsUrl;
 
     public String getTweetUrl() {
-        tweetUrl = TWITTER_URL + core.getUser().getScreenName() + "/status/" + legacy.getTweetId();
+        tweetUrl = TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId();
         return tweetUrl;
     }
 
     public String getRetweetsUrl() {
-        retweetsUrl = TWITTER_URL + core.getUser().getScreenName() + "/status/" + legacy.getTweetId() + "/retweets";
+        retweetsUrl = TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId() +
+                "/retweets";
         return retweetsUrl;
     }
 
     public String getFollowsUrl() {
-        followsUrl = TWITTER_URL + core.getUser().getScreenName() + "/followers";
+        followsUrl = TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/followers";
         return followsUrl;
     }
 
     public String getLikesUrl() {
-        likesUrl = TWITTER_URL + core.getUser().getScreenName() + "/status/" + legacy.getTweetId() + "/likes";
+        likesUrl = TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId() +
+                "/likes";
         return likesUrl;
     }
 }

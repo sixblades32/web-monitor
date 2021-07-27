@@ -1,12 +1,13 @@
 package io.enigmasolutions.twittermonitor.utils;
 
-import io.enigmasolutions.broadcastmodels.BriefTweet;
-import io.enigmasolutions.broadcastmodels.Tweet;
-import io.enigmasolutions.broadcastmodels.TwitterUser;
+import io.enigmasolutions.broadcastmodels.*;
+import io.enigmasolutions.twittermonitor.models.twitter.base.Entity;
+import io.enigmasolutions.twittermonitor.models.twitter.base.ExtendedEntity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TweetGenerator {
 
@@ -15,27 +16,24 @@ public class TweetGenerator {
     }
 
     public static Tweet generate(TweetResponse tweetResponse) {
-        List<String> images = new LinkedList<>();
-        String videoUrl = null;
+        List<Media> media = retrieveMedia(tweetResponse);
+        List<String> detectedUrls = retrieveUrls(tweetResponse);
 
-        if (tweetResponse.getExtendedEntities() != null) {
-            retrieveImages(tweetResponse, images);
-            videoUrl = retrieveVideo(tweetResponse);
-        }
+        Tweet tweet = buildTweet(tweetResponse, media, detectedUrls);
 
-        replaceUrls(tweetResponse);
+        clearDuplicateMedia(tweet);
 
-        return buildTweet(tweetResponse, images, videoUrl);
+        return tweet;
     }
 
-    private static Tweet buildTweet(TweetResponse tweetResponse, List<String> images, String videoUrl) {
+    private static Tweet buildTweet(TweetResponse tweetResponse, List<Media> media, List<String> detectedUrls) {
         Tweet.TweetBuilder tweetBuilder = Tweet.builder()
                 .type(tweetResponse.getType())
-                .text(tweetResponse.getText())
+                .text(tweetResponse.getText().trim())
                 .user(buildTweetUser(tweetResponse))
                 .tweetUrl(tweetResponse.getTweetUrl())
-                .images(images)
-                .media(videoUrl)
+                .media(media)
+                .detectedUrls(detectedUrls)
                 .followsUrl(tweetResponse.getFollowsUrl())
                 .likesUrl(tweetResponse.getLikesUrl())
                 .retweetsUrl(tweetResponse.getRetweetsUrl());
@@ -58,41 +56,44 @@ public class TweetGenerator {
                 .build();
     }
 
-    private static String retrieveVideo(TweetResponse tweetResponse) {
-        return tweetResponse.getExtendedEntities()
-                .getMedia()
-                .get(0)
-                .getVideoInfo() != null ? tweetResponse.getExtendedEntities()
-                .getMedia()
-                .get(0)
-                .getVideoInfo()
-                .getVariants()
-                .get(0)
-                .getUrl() : null;
-    }
+    private static List<Media> retrieveMedia(TweetResponse tweetResponse) {
+        ExtendedEntity extendedEntities = tweetResponse.getExtendedEntities();
+        if (extendedEntities == null) return Collections.emptyList();
 
-    private static void retrieveImages(TweetResponse tweetResponse, List<String> images) {
-        tweetResponse.getExtendedEntities()
-                .getMedia()
-                .forEach(media -> {
-                    if (media.getSourceUserId() == null) {
-                        images.add(media.getMediaUrl());
-                        String text = tweetResponse.getText();
-                        tweetResponse.setText(text.replace(media.getUrl(), ""));
+        return extendedEntities.getMedia().stream()
+                .map(media -> {
+                    String tweetResponseText = tweetResponse.getText();
+                    tweetResponse.setText(tweetResponseText.replace(media.getUrl(), ""));
+
+                    Media.MediaBuilder mediaBuilder = Media.builder()
+                            .type(MediaType.valueOf(media.getType().toUpperCase()))
+                            .statical(media.getMediaUrl());
+
+                    if (media.getVideoInfo() != null) {
+                        String url = media.getVideoInfo().getVariants()
+                                .get(0)
+                                .getUrl();
+
+                        mediaBuilder.animation(url);
                     }
-                });
+
+                    return mediaBuilder.build();
+                })
+                .collect(Collectors.toList());
     }
 
-    private static void replaceUrls(TweetResponse tweetResponse) {
-        if (tweetResponse.getEntities() != null && tweetResponse.getEntities().getUrls().size() > 0) {
+    private static List<String> retrieveUrls(TweetResponse tweetResponse) {
+        Entity entity = tweetResponse.getEntities();
+        if (entity == null) return Collections.emptyList();
 
-            tweetResponse.getEntities()
-                    .getUrls()
-                    .forEach(url -> {
-                        String text = tweetResponse.getText();
-                        tweetResponse.setText(text.replace(url.getUrl(), url.getExpandedUrl()));
-                    });
-        }
+        return entity.getUrls().stream()
+                .map(url -> {
+                    String tweetResponseText = tweetResponse.getText();
+                    tweetResponse.setText(tweetResponseText.replace(url.getUrl(), url.getExpandedUrl()));
+
+                    return url.getExpandedUrl();
+                })
+                .collect(Collectors.toList());
     }
 
     private static TwitterUser buildTweetUser(TweetResponse tweetResponse) {
@@ -103,5 +104,14 @@ public class TweetGenerator {
                 .url(tweetResponse.getUser().getUserUrl())
                 .id(tweetResponse.getUser().getId())
                 .build();
+    }
+
+    private static void clearDuplicateMedia(Tweet tweet) {
+        Tweet retweeted = tweet.getRetweeted();
+        if (retweeted == null) return;
+
+        if (tweet.getMedia().equals(retweeted.getMedia())) {
+            tweet.setMedia(Collections.emptyList());
+        }
     }
 }

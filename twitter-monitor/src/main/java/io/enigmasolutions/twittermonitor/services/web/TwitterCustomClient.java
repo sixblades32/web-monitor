@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.services.rest;
+package io.enigmasolutions.twittermonitor.services.web;
 
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
@@ -17,7 +17,7 @@ import java.net.URI;
 public class TwitterCustomClient {
 
     private static final String BASE_API_PATH = "https://api.twitter.com/1.1/";
-    private static final String GRAPHQL_API_PATH = "https://twitter.com/i/api/graphql/omtTuEwTr6DFLIREto-MMg/UserTweets";
+    private static final String GRAPHQL_API_PATH = "https://twitter.com/i/api/graphql/wmAsSZ-tfs22k90iIA7X1w/UserTweetsAndReplies";
     private final RestTemplate restTemplate = new RestTemplate();
     private final TwitterScraper twitterScraper;
 

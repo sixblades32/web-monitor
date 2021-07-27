@@ -1,4 +1,6 @@
 server:
+  error:
+    include-stacktrace: always
   port: 8020
 
 management:
@@ -10,10 +12,10 @@ security:
   jwt:
     header: Authorization
     prefix: Bearer
-    secret: ${SECURITY_JWT_SECRET}
+    secret: jwt-secret
 
 kafka:
-  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  bootstrap-servers: localhost:9092
   tweet-consumer:
     group-id: web-broadcast-tweet-group
     topic: twitter-tweet-broadcast-base
@@ -23,3 +25,6 @@ kafka:
   staff-consumer:
     group-id: web-broadcast-staff-group
     topic: twitter-staff-broadcast
+
+broadcast:
+  history-limit: 25

@@ -6,14 +6,17 @@ import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.common.FollowsList;
-import io.enigmasolutions.twittermonitor.services.rest.TwitterRegularClient;
+import io.enigmasolutions.twittermonitor.services.web.TwitterRegularClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 @Service

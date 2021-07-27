@@ -6,7 +6,7 @@ import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
-import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
+import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -69,7 +69,7 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("user_id", user.getId());
         params.add("tweet_mode", "extended");
-        params.add("count", "${monitor.user-timeline.count}");
+        params.add("count", "1");
         params.add("include_entities", "1");
         params.add("include_user_entities", "1");
 

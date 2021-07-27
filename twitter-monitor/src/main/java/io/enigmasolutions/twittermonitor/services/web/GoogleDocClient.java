@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.services.rest;
+package io.enigmasolutions.twittermonitor.services.web;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;

@@ -1,26 +1,23 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
-import io.enigmasolutions.broadcastmodels.Alert;
-import io.enigmasolutions.broadcastmodels.BriefTweet;
-import io.enigmasolutions.broadcastmodels.Recognition;
-import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.*;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.monitor.Status;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
-import io.enigmasolutions.twittermonitor.models.twitter.base.Url;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.RecognitionProcessor;
-import io.enigmasolutions.twittermonitor.services.rest.TwitterCustomClient;
+import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import org.slf4j.Logger;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static io.enigmasolutions.twittermonitor.utils.TweetGenerator.buildBriefTweet;
@@ -28,14 +25,18 @@ import static io.enigmasolutions.twittermonitor.utils.TweetGenerator.generate;
 
 public abstract class AbstractTwitterMonitor {
 
-    private final KafkaProducer kafkaProducer;
+    private final static Timer TIMER = new Timer();
+    private final static ExecutorService MAIN_THREAD_EXECUTOR = Executors.newSingleThreadExecutor();
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newFixedThreadPool(250);
 
+    private final KafkaProducer kafkaProducer;
     private final int timelineDelay;
     private final TwitterScraperRepository twitterScraperRepository;
     private final TwitterHelperService twitterHelperService;
     private final Logger log;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
     private final List<ImageRecognitionProcessor> imageRecognitionProcessors;
+
     protected List<TwitterCustomClient> failedCustomClients = Collections.synchronizedList(new LinkedList<>());
 
     private Status status = Status.STOPPED;
@@ -73,10 +74,12 @@ public abstract class AbstractTwitterMonitor {
             initTwitterCustomClients();
         }
 
-        CompletableFuture.runAsync(this::runMonitor);
+        MAIN_THREAD_EXECUTOR.execute(this::runMonitor);
     }
 
     public void stop() {
+        if (status == Status.STOPPED) return;
+
         status = Status.STOPPED;
         failedCustomClients.clear();
 
@@ -114,18 +117,17 @@ public abstract class AbstractTwitterMonitor {
     protected void processTweetResponse(TweetResponse tweetResponse) {
         if (tweetResponse == null) return;
 
-        if (!twitterHelperService.isInTweetCache(tweetResponse.getTweetId()) && isTweetRelevant(tweetResponse)) {
+        if (isTweetRelevant(tweetResponse) && !twitterHelperService.isInTweetCache(tweetResponse.getTweetId())) {
             Tweet tweet = generate(tweetResponse);
 
             log.info("Received tweet for processing: {}", tweet);
 
-            CompletableFuture.runAsync(() -> tweetProcessing(tweetResponse, tweet));
-            CompletableFuture.runAsync(() -> recognitionProcessing(tweetResponse, tweet));
+            PROCESSING_EXECUTOR.execute(() -> tweetProcessing(tweet));
+            PROCESSING_EXECUTOR.execute(() -> recognitionProcessing(tweetResponse, tweet));
         }
     }
 
     protected void processErrorResponse(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
-
         log.error(exception.toString());
 
         if (exception.getStatusCode().value() >= 400 &&
@@ -136,7 +138,7 @@ public abstract class AbstractTwitterMonitor {
             processRateLimitError(exception, twitterCustomClient);
             calculateDelay();
 
-            CompletableFuture.runAsync(() -> processAlertTarget(exception, twitterCustomClient));
+            PROCESSING_EXECUTOR.execute(() -> processAlertTarget(exception, twitterCustomClient));
 
             if (failedCustomClients.size() > 15) {
                 stop();
@@ -145,7 +147,6 @@ public abstract class AbstractTwitterMonitor {
     }
 
     private void reshuffleClients(TwitterCustomClient twitterCustomClient) {
-
         twitterCustomClients.remove(twitterCustomClient);
         failedCustomClients.add(twitterCustomClient);
     }
@@ -153,7 +154,6 @@ public abstract class AbstractTwitterMonitor {
     private void processRateLimitError(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
 
         if (exception.getStatusCode().value() == 429) {
-            Timer timer = new Timer();
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
@@ -161,7 +161,7 @@ public abstract class AbstractTwitterMonitor {
                 }
             };
 
-            timer.schedule(timerTask, 60000);
+            TIMER.schedule(timerTask, 60000);
         }
     }
 
@@ -178,7 +178,6 @@ public abstract class AbstractTwitterMonitor {
     }
 
     private void processAlertTarget(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
-
         Alert alert = Alert.builder()
                 .failedMonitorId(twitterCustomClient.getTwitterScraper().getTwitterUser().getTwitterId())
                 .failedMonitorsCount(failedCustomClients.size())
@@ -199,7 +198,7 @@ public abstract class AbstractTwitterMonitor {
         while (status == Status.RUNNING) {
             try {
                 Thread.sleep(delay);
-                CompletableFuture.runAsync(this::executeTwitterMonitoring);
+                PROCESSING_EXECUTOR.execute(this::executeTwitterMonitoring);
             } catch (Exception exception) {
                 log.error("Unknown exception", exception);
             }
@@ -228,139 +227,118 @@ public abstract class AbstractTwitterMonitor {
         return client;
     }
 
-    private void tweetProcessing(TweetResponse tweetResponse, Tweet tweet) {
-        CompletableFuture.runAsync(() -> processCommonTarget(tweetResponse, tweet));
-        CompletableFuture.runAsync(() -> processLiveReleaseTarget(tweetResponse, tweet));
+    private void tweetProcessing(Tweet tweet) {
+        PROCESSING_EXECUTOR.execute(() -> processCommonTarget(tweet));
+        PROCESSING_EXECUTOR.execute(() -> processLiveReleaseTarget(tweet));
     }
 
     private void recognitionProcessing(TweetResponse tweetResponse, Tweet tweet) {
         BriefTweet briefTweet = buildBriefTweet(tweetResponse);
 
-        CompletableFuture.runAsync(() ->
-                processImageRecognition(tweetResponse, briefTweet, tweet.getImages()));
-        CompletableFuture.runAsync(() ->
-                processPlainTextRecognition(tweetResponse, briefTweet, null, tweetResponse.getEntities()
-                        .getUrls().stream()
-                        .map(Url::getExpandedUrl)
-                        .collect(Collectors.toList()))
+        PROCESSING_EXECUTOR.execute(() -> {
+                    List<String> images = tweet.getMedia().stream()
+                            .filter(media -> media.getType().equals(MediaType.PHOTO))
+                            .map(Media::getStatical)
+                            .collect(Collectors.toList());
+                    processImageRecognition(tweet, briefTweet, images);
+                }
         );
-
-        if (tweetResponse.getRetweetedStatus() != null) {
-            BriefTweet nestedBriefTweet = buildBriefTweet(tweetResponse.getRetweetedStatus());
-
-            CompletableFuture.runAsync(() ->
-                    processPlainTextRecognition(tweetResponse, briefTweet, nestedBriefTweet, tweetResponse
-                            .getRetweetedStatus()
-                            .getEntities()
-                            .getUrls().stream()
-                            .map(Url::getExpandedUrl)
-                            .collect(Collectors.toList()))
-            );
-        } else if (tweetResponse.getQuotedStatus() != null) {
-            BriefTweet nestedBriefTweet = buildBriefTweet(tweetResponse.getRetweetedStatus());
-
-            CompletableFuture.runAsync(() ->
-                    processPlainTextRecognition(tweetResponse, briefTweet, nestedBriefTweet, tweetResponse
-                            .getQuotedStatus()
-                            .getEntities()
-                            .getUrls().stream()
-                            .map(Url::getExpandedUrl)
-                            .collect(Collectors.toList()))
-            );
-        }
+        PROCESSING_EXECUTOR.execute(() ->
+                processPlainTextRecognition(tweet, briefTweet, null, tweet.getDetectedUrls())
+        );
     }
 
     private void processPlainTextRecognition(
-            TweetResponse tweetResponse,
+            Tweet tweet,
             BriefTweet briefTweet,
             BriefTweet nestedBriefTweet,
             List<String> plainTextUrls
     ) {
-        plainTextRecognitionProcessors.stream()
-                .parallel()
-                .forEach(recognitionProcessor -> plainTextUrls.stream()
-                        .parallel()
-                        .forEach(url -> recognitionProcessingWrapper(
-                                recognitionProcessor,
-                                tweetResponse,
-                                url,
-                                briefTweet,
-                                nestedBriefTweet)
-                        )
+        plainTextRecognitionProcessors
+                .forEach(recognitionProcessor -> PROCESSING_EXECUTOR.execute(() ->
+                        plainTextUrls
+                                .forEach(url -> PROCESSING_EXECUTOR.execute(() ->
+                                        recognitionProcessingWrapper(
+                                                recognitionProcessor,
+                                                tweet,
+                                                url,
+                                                briefTweet,
+                                                nestedBriefTweet
+                                        ))))
                 );
     }
 
     private void processImageRecognition(
-            TweetResponse tweetResponse,
+            Tweet tweet,
             BriefTweet briefTweet,
             List<String> imageUrls
     ) {
-        imageRecognitionProcessors.stream()
-                .parallel()
-                .forEach(recognitionProcessor -> imageUrls.stream()
-                        .parallel()
-                        .forEach(url -> recognitionProcessingWrapper(
-                                recognitionProcessor,
-                                tweetResponse,
-                                url,
-                                briefTweet,
-                                null)
-                        )
+        imageRecognitionProcessors
+                .forEach(recognitionProcessor -> PROCESSING_EXECUTOR.execute(() ->
+                        imageUrls
+                                .forEach(url -> PROCESSING_EXECUTOR.execute(() ->
+                                        recognitionProcessingWrapper(
+                                                recognitionProcessor,
+                                                tweet,
+                                                url,
+                                                briefTweet,
+                                                null
+                                        ))))
                 );
     }
 
     private void recognitionProcessingWrapper(
             RecognitionProcessor recognitionProcessor,
-            TweetResponse tweetResponse,
+            Tweet tweet,
             String url,
             BriefTweet briefTweet,
             BriefTweet nestedBriefTweet
     ) {
         try {
-            Recognition recognition = recognitionProcessor.processDataFromUrl(url);
+            Recognition recognition = recognitionProcessor.processUrl(url);
 
-            recognition.setTweetType(tweetResponse.getType());
+            recognition.setTweetType(tweet.getType());
             recognition.setBriefTweet(briefTweet);
             recognition.setNestedBriefTweet(nestedBriefTweet);
 
-            CompletableFuture.runAsync(() -> processCommonTargetRecognition(tweetResponse, recognition));
-            CompletableFuture.runAsync(() -> processLiveReleaseTargetRecognition(tweetResponse, recognition));
+            PROCESSING_EXECUTOR.execute(() -> processCommonTargetRecognition(tweet, recognition));
+            PROCESSING_EXECUTOR.execute(() -> processLiveReleaseTargetRecognition(tweet, recognition));
         } catch (Exception ignored) {
         }
     }
 
-    private void processCommonTarget(TweetResponse tweetResponse, Tweet tweet) {
-        if (isCommonTargetValid(tweetResponse)) {
+    private void processCommonTarget(Tweet tweet) {
+        if (isCommonTargetValid(tweet)) {
             kafkaProducer.sendTweetToBaseBroadcast(tweet);
         }
     }
 
-    private void processLiveReleaseTarget(TweetResponse tweetResponse, Tweet tweet) {
-        if (isLiveReleaseTargetValid(tweetResponse)) {
+    private void processLiveReleaseTarget(Tweet tweet) {
+        if (isLiveReleaseTargetValid(tweet)) {
             kafkaProducer.sendTweetLiveReleaseBroadcast(tweet);
         }
     }
 
-    private void processCommonTargetRecognition(TweetResponse tweetResponse, Recognition recognition) {
-        if (isCommonTargetValid(tweetResponse)) {
+    private void processCommonTargetRecognition(Tweet tweet, Recognition recognition) {
+        if (isCommonTargetValid(tweet)) {
             kafkaProducer.sendTweetToBaseBroadcastRecognition(recognition);
         }
     }
 
-    private void processLiveReleaseTargetRecognition(TweetResponse tweetResponse, Recognition recognition) {
-        if (isLiveReleaseTargetValid(tweetResponse)) {
+    private void processLiveReleaseTargetRecognition(Tweet tweet, Recognition recognition) {
+        if (isLiveReleaseTargetValid(tweet)) {
             kafkaProducer.sendTweetLiveReleaseRecognition(recognition);
         }
     }
 
-    private Boolean isCommonTargetValid(TweetResponse tweetResponse) {
-        String targetId = tweetResponse.getUser().getId();
+    private Boolean isCommonTargetValid(Tweet tweet) {
+        String targetId = tweet.getUser().getId();
 
         return twitterHelperService.checkCommonPass(targetId);
     }
 
-    private Boolean isLiveReleaseTargetValid(TweetResponse tweetResponse) {
-        String targetId = tweetResponse.getUser().getId();
+    private Boolean isLiveReleaseTargetValid(Tweet tweet) {
+        String targetId = tweet.getUser().getId();
 
         return twitterHelperService.checkLiveReleasePass(targetId);
     }

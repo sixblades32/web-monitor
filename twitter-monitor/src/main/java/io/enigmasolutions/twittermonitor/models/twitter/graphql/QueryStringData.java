@@ -16,8 +16,10 @@ public class QueryStringData {
     private Boolean withTweetQuoteCount;
     private Boolean includePromotedContent;
     private Boolean withTweetResult;
+    private Boolean withCommunity;
     private Boolean withReactions;
     private Boolean withSuperFollowsTweetFields;
+    private Boolean withSuperFollowsUserFields;
     private Boolean withUserResults;
     private Boolean withVoice;
     private Boolean withBirdwatchPivots;
