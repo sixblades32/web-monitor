@@ -24,7 +24,11 @@ public class DiscordValidationService {
 
     private final static String BASE_PATH = "https://discord.com/api";
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public DiscordValidationService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public boolean validateMutualGuilds(String discordId) {
         boolean result = false;

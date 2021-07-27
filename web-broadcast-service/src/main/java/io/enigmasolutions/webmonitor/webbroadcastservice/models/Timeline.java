@@ -5,5 +5,6 @@ public enum Timeline {
     TWITTER,
     RECOGNITION,
     STAFF,
-    EXPRESS
+    EXPRESS,
+    HEARTBEAT
 }

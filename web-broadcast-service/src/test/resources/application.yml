@@ -25,3 +25,6 @@ kafka:
   staff-consumer:
     group-id: web-broadcast-staff-group
     topic: twitter-staff-broadcast
+
+broadcast:
+  history-limit: 25
