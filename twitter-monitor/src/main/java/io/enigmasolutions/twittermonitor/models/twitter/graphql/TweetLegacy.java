@@ -60,6 +60,10 @@ public class TweetLegacy {
     public GraphQLTweet getRepliedStatus() {
         if (inReplyToStatusId == null) return null;
 
+        TweetLegacy tweetLegacy = TweetLegacy.builder()
+                .tweetId(inReplyToStatusId)
+                .build();
+
         UserLegacy userLegacy = UserLegacy.builder()
                 .screenName(inReplyToScreenName)
                 .userUrl(TWITTER_URL + inReplyToScreenName)
@@ -75,6 +79,7 @@ public class TweetLegacy {
                 .build();
 
         return GraphQLTweet.builder()
+                .legacy(tweetLegacy)
                 .core(core)
                 .tweetUrl(TWITTER_URL + inReplyToScreenName + "/status/" + inReplyToStatusId)
                 .build();
