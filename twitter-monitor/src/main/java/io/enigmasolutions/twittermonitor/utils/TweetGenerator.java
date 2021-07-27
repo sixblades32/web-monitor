@@ -29,7 +29,7 @@ public class TweetGenerator {
     private static Tweet buildTweet(TweetResponse tweetResponse, List<Media> media, List<String> detectedUrls) {
         Tweet.TweetBuilder tweetBuilder = Tweet.builder()
                 .type(tweetResponse.getType())
-                .text(tweetResponse.getText())
+                .text(tweetResponse.getText().trim())
                 .user(buildTweetUser(tweetResponse))
                 .tweetUrl(tweetResponse.getTweetUrl())
                 .media(media)
