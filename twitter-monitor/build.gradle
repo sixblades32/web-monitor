@@ -23,6 +23,7 @@ dependencies {
     implementation 'org.springframework.data:spring-data-mongodb'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.social:spring-social-core:1.1.6.RELEASE'
     implementation 'org.springdoc:springdoc-openapi-ui:1.5.9'
     implementation 'com.amazonaws:aws-java-sdk-rekognition:1.12.15'

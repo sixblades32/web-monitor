@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.services.rest;
+package io.enigmasolutions.twittermonitor.services.web;
 
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.Optional;
 
 public class TwitterRegularClient {
 

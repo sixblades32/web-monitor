@@ -2,7 +2,7 @@ package io.enigmasolutions.twittermonitor.services.recognition;
 
 import io.enigmasolutions.broadcastmodels.Recognition;
 import io.enigmasolutions.broadcastmodels.RecognitionType;
-import io.enigmasolutions.twittermonitor.services.rest.PastebinClient;
+import io.enigmasolutions.twittermonitor.services.web.PastebinClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.services.rest;
+package io.enigmasolutions.twittermonitor.services.web;
 
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;

@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.services.rest;
+package io.enigmasolutions.twittermonitor.services.web;
 
 import io.enigmasolutions.twittermonitor.db.models.references.Credentials;
 import org.springframework.social.oauth1.AbstractOAuth1ApiBinding;
