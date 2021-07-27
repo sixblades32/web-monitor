@@ -77,7 +77,6 @@ services:
 
   mongo:
     image: mongo
-
     hostname: mongo
     container_name: mongo
     expose:

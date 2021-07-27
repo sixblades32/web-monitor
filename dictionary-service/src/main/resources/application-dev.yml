@@ -1,0 +1,13 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: dictionary-service
+
+server:
+  port: 8015
+
+management:
+  server:
+    port: 9015
+    base-path: /manage
