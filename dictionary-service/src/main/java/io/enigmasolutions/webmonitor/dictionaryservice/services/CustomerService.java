@@ -1,7 +1,7 @@
 package io.enigmasolutions.webmonitor.dictionaryservice.services;
 
-import io.enigmasolutions.webmonitor.dictionaryservice.db.models.references.DiscordBroadcast;
-import io.enigmasolutions.webmonitor.dictionaryservice.db.models.references.DiscordGuild;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
 import io.enigmasolutions.webmonitor.dictionaryservice.db.repositories.CustomerRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -18,14 +18,29 @@ public class CustomerService {
         this.customerRepository = customerRepository;
     }
 
-    public Mono<DiscordGuild> retrieveCustomerGuildDetails(String id) {
+    public Mono<CustomerDiscordGuild> retrieveCustomerGuildDetails(String id) {
         return customerRepository.findById(id)
-                .flatMap(customer -> Mono.just(customer.getDiscordGuild()));
+                .flatMap(customer -> {
+                    CustomerDiscordGuild customerDiscordGuild = CustomerDiscordGuild.builder()
+                            .guildId(customer.getDiscordGuild().getGuildId())
+                            .moderatorsRoles(customer.getDiscordGuild().getModeratorsRoles())
+                            .usersRoles(customer.getDiscordGuild().getUsersRoles())
+                            .build();
+
+                    return Mono.just(customerDiscordGuild);
+                });
     }
 
-    public Mono<List<DiscordBroadcast>> retrieveAllWebhooks() {
+    public Mono<List<CustomerDiscordBroadcast>> retrieveAllWebhooks() {
         return customerRepository.findAll()
-                .flatMap(customer -> Mono.just(customer.getDiscordBroadcast()))
+                .flatMap(customer -> {
+                    CustomerDiscordBroadcast customerDiscordBroadcast = CustomerDiscordBroadcast.builder()
+                            .commonWebhooks(customer.getDiscordBroadcast().getCommonWebhooks())
+                            .advancedWebhooks(customer.getDiscordBroadcast().getAdvancedWebhooks())
+                            .build();
+
+                    return Mono.just(customerDiscordBroadcast);
+                })
                 .collect(Collectors.toList());
     }
 }

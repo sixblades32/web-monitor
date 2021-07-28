@@ -1,12 +1,14 @@
 package io.enigmasolutions.webmonitor.dictionaryservice.controllers;
 
-import io.enigmasolutions.webmonitor.dictionaryservice.db.models.references.DiscordBroadcast;
-import io.enigmasolutions.webmonitor.dictionaryservice.db.models.references.DiscordGuild;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
 import io.enigmasolutions.webmonitor.dictionaryservice.services.CustomerService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -22,12 +24,13 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}/guild")
-    public Mono<DiscordGuild> getCustomerGuildDetails(@PathVariable String id) {
-        return customerService.retrieveCustomerGuildDetails(id);
+    public Mono<CustomerDiscordGuild> getCustomerGuildDetails(@PathVariable String id) {
+        return customerService.retrieveCustomerGuildDetails(id)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     @GetMapping("/all/webhooks")
-    public Mono<List<DiscordBroadcast>> getAllWebhooks() {
+    public Mono<List<CustomerDiscordBroadcast>> getAllWebhooks() {
         return customerService.retrieveAllWebhooks();
     }
 }
