@@ -3,8 +3,10 @@ package io.enigmarobotics.discordbroadcastservice.services.kafka;
 import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Recognition;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.DiscordBroadcastTweetType;
 import io.enigmarobotics.discordbroadcastservice.services.PostmanService;
+import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
+import io.enigmasolutions.broadcastmodels.Recognition;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -46,7 +48,10 @@ public class RecognitionConsumerService {
     }
 
     private Message generateRecognitionMessage(Recognition recognition) {
-        List<Embed> embeds = recognition.getTweetType().generateRecognitionEmbed(recognition, discordEmbedColorConfig);
+
+        DiscordBroadcastTweetType tweetType = DiscordUtils.convertTweetType(recognition.getTweetType());
+
+        List<Embed> embeds = tweetType.generateRecognitionEmbed(recognition, discordEmbedColorConfig);
 
         return Message.builder()
                 .content("")
