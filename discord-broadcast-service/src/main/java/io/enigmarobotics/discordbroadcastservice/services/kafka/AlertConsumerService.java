@@ -19,9 +19,10 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class AlertConsumerService {
 
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
+
     private final PostmanService postmanService;
     private final DiscordEmbedColorConfig discordEmbedColorConfig;
-    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     @Autowired
     AlertConsumerService(PostmanService postmanService, DiscordEmbedColorConfig discordEmbedColorConfig) {
@@ -33,16 +34,15 @@ public class AlertConsumerService {
             groupId = "${kafka.alert-consumer.group-id}",
             containerFactory = "alertKafkaListenerContainerFactory")
     public void consume(Alert alert) {
+        log.info("Received alert: {}", alert);
 
-        log.info("Received Alert Message");
-
-        Embed alertEmbed = DiscordUtils.generateAlertEmbed(alert, discordEmbedColorConfig.getAlert());
-
-        Message message = Message.builder()
-                .content("")
-                .embeds(Collections.singletonList(alertEmbed))
-                .build();
-
-        PROCESSING_EXECUTOR.execute(() -> postmanService.sendAlertEmbed(message));
+        PROCESSING_EXECUTOR.execute(() -> {
+            Embed alertEmbed = DiscordUtils.generateAlertEmbed(alert, discordEmbedColorConfig.getAlert());
+            Message message = Message.builder()
+                    .content("")
+                    .embeds(Collections.singletonList(alertEmbed))
+                    .build();
+            postmanService.sendAlertEmbed(message);
+        });
     }
 }

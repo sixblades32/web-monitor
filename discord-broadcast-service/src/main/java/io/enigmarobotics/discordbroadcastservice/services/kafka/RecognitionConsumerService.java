@@ -20,9 +20,10 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class RecognitionConsumerService {
 
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
+
     private final PostmanService postmanService;
     private final DiscordEmbedColorConfig discordEmbedColorConfig;
-    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     @Autowired
     RecognitionConsumerService(PostmanService postmanService, DiscordEmbedColorConfig discordEmbedColorConfig) {
@@ -36,8 +37,10 @@ public class RecognitionConsumerService {
     public void consumeBaseTopic(Recognition recognition) {
         log.info("Received base recognition message {}", recognition);
 
-        Message message = generateRecognitionMessage(recognition);
-        PROCESSING_EXECUTOR.execute(() -> postmanService.processBase(message));
+        PROCESSING_EXECUTOR.execute(() -> {
+            Message message = generateRecognitionMessage(recognition);
+            postmanService.processBase(message);
+        });
     }
 
     @KafkaListener(topics = "${kafka.recognition-consumer-live-release.topic}",
@@ -46,8 +49,10 @@ public class RecognitionConsumerService {
     public void consumeLiveReleaseTopic(Recognition recognition) {
         log.info("Received live release recognition message {}", recognition);
 
-        Message message = generateRecognitionMessage(recognition);
-        PROCESSING_EXECUTOR.execute(() -> postmanService.processLive(message));
+        PROCESSING_EXECUTOR.execute(() -> {
+            Message message = generateRecognitionMessage(recognition);
+            postmanService.processLive(message);
+        });
     }
 
     private Message generateRecognitionMessage(Recognition recognition) {

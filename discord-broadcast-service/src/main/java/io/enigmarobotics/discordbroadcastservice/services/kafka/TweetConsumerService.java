@@ -17,13 +17,18 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static io.enigmasolutions.broadcastmodels.MediaType.ANIMATED_GIF;
+import static io.enigmasolutions.broadcastmodels.MediaType.VIDEO;
+
 @Service
 @Slf4j
 public class TweetConsumerService {
 
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
+    private final List<MediaType> mediaTypes = List.of(VIDEO, ANIMATED_GIF);
+
     private final PostmanService postmanService;
     private final DiscordEmbedColorConfig discordEmbedColorConfig;
-    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     @Autowired
     TweetConsumerService(PostmanService postmanService, DiscordEmbedColorConfig discordEmbedColorConfig) {
@@ -34,14 +39,19 @@ public class TweetConsumerService {
     @KafkaListener(topics = "${kafka.tweet-consumer-base.topic}",
             groupId = "${kafka.tweet-consumer-base.group-id}",
             containerFactory = "tweetKafkaListenerContainerFactory")
-    public void consumeBaseTopic(Tweet tweet) throws InterruptedException {
+    public void consumeBaseTopic(Tweet tweet) {
         log.info("Received base tweet message {}", tweet);
 
-        Message message = generateTweetMessage(tweet);
-        Message videoMessage = generateVideoMessage(tweet);
-
-        PROCESSING_EXECUTOR.execute(() -> postmanService.processLive(message));
-        PROCESSING_EXECUTOR.execute(() -> processBaseVideoMessage(videoMessage));
+        PROCESSING_EXECUTOR.execute(() -> {
+            Message message = generateTweetMessage(tweet);
+            postmanService.processLive(message);
+        });
+        PROCESSING_EXECUTOR.execute(() -> {
+            Message videoMessage = generateVideoMessage(tweet);
+            if (videoMessage != null) {
+                postmanService.processBase(videoMessage);
+            }
+        });
     }
 
     @KafkaListener(topics = "${kafka.tweet-consumer-live-release.topic}",
@@ -50,15 +60,19 @@ public class TweetConsumerService {
     public void consumeLiveReleaseTopic(Tweet tweet) {
         log.info("Received live release tweet message {}", tweet);
 
-        Message message = generateTweetMessage(tweet);
-        Message videoMessage = generateVideoMessage(tweet);
-
-        PROCESSING_EXECUTOR.execute(() -> postmanService.processLive(message));
-        PROCESSING_EXECUTOR.execute(() -> processLiveVideoMessage(videoMessage));
+        PROCESSING_EXECUTOR.execute(() -> {
+            Message message = generateTweetMessage(tweet);
+            postmanService.processLive(message);
+        });
+        PROCESSING_EXECUTOR.execute(() -> {
+            Message videoMessage = generateVideoMessage(tweet);
+            if (videoMessage != null) {
+                postmanService.processLive(videoMessage);
+            }
+        });
     }
 
     private Message generateTweetMessage(Tweet tweet) {
-
         DiscordBroadcastTweetType tweetType = DiscordUtils.convertTweetType(tweet.getType());
         List<Embed> embeds = tweetType.generateTweetEmbed(tweet, discordEmbedColorConfig);
 
@@ -68,21 +82,10 @@ public class TweetConsumerService {
                 .build();
     }
 
-    private void processBaseVideoMessage(Message videoMessage) {
-        if (videoMessage == null) return;
-
-        postmanService.processBase(videoMessage);
-    }
-
-    private void processLiveVideoMessage(Message videoMessage) {
-        if (videoMessage == null) return;
-
-        postmanService.processLive(videoMessage);
-    }
-
     private Message generateVideoMessage(Tweet tweet) {
-
-        if (tweet.getMedia().size() > 1 && tweet.getMedia().get(0).getType() == MediaType.PHOTO) return null;
+        if (tweet.getMedia().isEmpty() || !mediaTypes.contains(tweet.getMedia().get(0).getType())) {
+            return null;
+        }
 
         return Message.builder()
                 .content(tweet.getMedia().get(0).getAnimation())
