@@ -13,6 +13,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
@@ -20,6 +22,7 @@ public class RecognitionConsumerService {
 
     private final PostmanService postmanService;
     private final DiscordEmbedColorConfig discordEmbedColorConfig;
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     @Autowired
     RecognitionConsumerService(PostmanService postmanService, DiscordEmbedColorConfig discordEmbedColorConfig) {
@@ -34,7 +37,7 @@ public class RecognitionConsumerService {
         log.info("Received base recognition message {}", recognition);
 
         Message message = generateRecognitionMessage(recognition);
-        postmanService.processCommon(message);
+        PROCESSING_EXECUTOR.execute(() -> postmanService.processBase(message));
     }
 
     @KafkaListener(topics = "${kafka.recognition-consumer-live-release.topic}",
@@ -44,7 +47,7 @@ public class RecognitionConsumerService {
         log.info("Received live release recognition message {}", recognition);
 
         Message message = generateRecognitionMessage(recognition);
-        postmanService.processAdvanced(message);
+        PROCESSING_EXECUTOR.execute(() -> postmanService.processLive(message));
     }
 
     private Message generateRecognitionMessage(Recognition recognition) {

@@ -23,7 +23,7 @@ public class TweetConsumerService {
 
     private final PostmanService postmanService;
     private final DiscordEmbedColorConfig discordEmbedColorConfig;
-    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newFixedThreadPool(250);
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     @Autowired
     TweetConsumerService(PostmanService postmanService, DiscordEmbedColorConfig discordEmbedColorConfig) {
@@ -38,9 +38,10 @@ public class TweetConsumerService {
         log.info("Received base tweet message {}", tweet);
 
         Message message = generateTweetMessage(tweet);
+        Message videoMessage = generateVideoMessage(tweet);
 
-        PROCESSING_EXECUTOR.execute(() -> postmanService.processCommon(message));
-        PROCESSING_EXECUTOR.execute(() -> processBaseVideoMessage(tweet));
+        PROCESSING_EXECUTOR.execute(() -> postmanService.processLive(message));
+        PROCESSING_EXECUTOR.execute(() -> processBaseVideoMessage(videoMessage));
     }
 
     @KafkaListener(topics = "${kafka.tweet-consumer-live-release.topic}",
@@ -50,9 +51,10 @@ public class TweetConsumerService {
         log.info("Received live release tweet message {}", tweet);
 
         Message message = generateTweetMessage(tweet);
+        Message videoMessage = generateVideoMessage(tweet);
 
-        PROCESSING_EXECUTOR.execute(() -> postmanService.processCommon(message));
-        PROCESSING_EXECUTOR.execute(() -> processLiveVideoMessage(tweet));
+        PROCESSING_EXECUTOR.execute(() -> postmanService.processLive(message));
+        PROCESSING_EXECUTOR.execute(() -> processLiveVideoMessage(videoMessage));
     }
 
     private Message generateTweetMessage(Tweet tweet) {
@@ -66,23 +68,22 @@ public class TweetConsumerService {
                 .build();
     }
 
-    private void processBaseVideoMessage(Tweet tweet) {
-        if (tweet.getMedia().size() != 1) return;
-        if (tweet.getMedia().get(0).getType() == MediaType.PHOTO) return;
+    private void processBaseVideoMessage(Message videoMessage) {
+        if (videoMessage == null) return;
 
-        Message videoMessage = generateVideoMessage(tweet);
-        postmanService.processCommon(videoMessage);
+        postmanService.processBase(videoMessage);
     }
 
-    private void processLiveVideoMessage(Tweet tweet) {
-        if (tweet.getMedia().size() != 1) return;
-        if (tweet.getMedia().get(0).getType() == MediaType.PHOTO) return;
+    private void processLiveVideoMessage(Message videoMessage) {
+        if (videoMessage == null) return;
 
-        Message videoMessage = generateVideoMessage(tweet);
-        postmanService.processAdvanced(videoMessage);
+        postmanService.processLive(videoMessage);
     }
 
     private Message generateVideoMessage(Tweet tweet) {
+
+        if (tweet.getMedia().size() > 1 && tweet.getMedia().get(0).getType() == MediaType.PHOTO) return null;
+
         return Message.builder()
                 .content(tweet.getMedia().get(0).getAnimation())
                 .build();

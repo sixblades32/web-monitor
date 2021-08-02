@@ -12,6 +12,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
@@ -19,6 +21,7 @@ public class AlertConsumerService {
 
     private final PostmanService postmanService;
     private final DiscordEmbedColorConfig discordEmbedColorConfig;
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     @Autowired
     AlertConsumerService(PostmanService postmanService, DiscordEmbedColorConfig discordEmbedColorConfig) {
@@ -40,6 +43,6 @@ public class AlertConsumerService {
                 .embeds(Collections.singletonList(alertEmbed))
                 .build();
 
-        postmanService.sendAlertEmbed(message);
+        PROCESSING_EXECUTOR.execute(() -> postmanService.sendAlertEmbed(message));
     }
 }
