@@ -33,26 +33,15 @@ public class GuestSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .antMatcher("/guest/**")
+                .antMatcher("/guests/**")
                 .csrf().disable()
                 .cors()
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-
-        http
-                .authorizeRequests()
-                .anyRequest().authenticated();
-
-        http
-                .oauth2Login()
-                .authorizationEndpoint().baseUri("/guest/oauth2/authorization")
-                .and()
-                .loginProcessingUrl("/guest/login/oauth2/code/discord")
-                .defaultSuccessUrl(loginUrl, true)
+                .and().authorizeRequests().anyRequest().authenticated()
+                .and().exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                .and().oauth2Login().authorizationEndpoint().baseUri("/guests/oauth2/authorization")
+                .and().loginProcessingUrl("/guests/login/oauth2/code/discord").defaultSuccessUrl(loginUrl, true)
                 .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
-                .and()
-                .userInfoEndpoint().userService(userService());
+                .and().userInfoEndpoint().userService(userService());
     }
 
     @Bean

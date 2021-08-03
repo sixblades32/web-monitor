@@ -41,7 +41,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        String incomingToken = header.replace(jwtConfig.getPrefix(), "");
+        String incomingToken = header.replace(jwtConfig.getPrefix(), "").trim();
 
         if (!jwtTokenProvider.validateToken(incomingToken)) {
             filterChain.doFilter(request, response);

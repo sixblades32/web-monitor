@@ -1,4 +1,4 @@
-package io.enigmasolutions.dictionarymodels;
+package io.enigmasolutions.webmonitor.authservice.models.discord;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerDiscordGuild {
-    private String guildId;
-    private List<String> usersRoles;
-    private List<String> moderatorsRoles;
+public class DiscordGuildMember {
+    private List<String> roles;
 }

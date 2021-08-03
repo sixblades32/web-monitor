@@ -5,21 +5,23 @@ import io.enigmasolutions.webmonitor.authservice.db.repositories.JwtTokenReposit
 import io.enigmasolutions.webmonitor.authservice.exceptions.DeprecatedTokenException;
 import io.enigmasolutions.webmonitor.authservice.exceptions.NoMutualGuildException;
 import io.enigmasolutions.webmonitor.authservice.models.external.JwtTokenDto;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Service
-public class CustomerService {
+public class GuestService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final DiscordValidationService discordValidationService;
     private final JwtTokenRepository jwtTokenRepository;
 
     @Autowired
-    public CustomerService(
+    public GuestService(
             JwtTokenProvider jwtTokenProvider,
             DiscordValidationService discordValidationService,
             JwtTokenRepository jwtTokenRepository
@@ -30,24 +32,13 @@ public class CustomerService {
     }
 
     /**
-     * Method have to be invoked only with UsernamePasswordAuthenticationToken.class
+     * Method have to be invoked only with DefaultOAuth2User.class
      *
      * @return JwtTokenDto
      */
-    public JwtTokenDto refreshJwtToken() {
-        UsernamePasswordAuthenticationToken token = resolveUsernamePasswordAuthenticationToken();
-
-        String tokenPrincipal = token.getPrincipal().toString();
-        Claims claims = (Claims) token.getCredentials();
-
-        String discordId = claims.getSubject();
-        String customerId = claims.get("customer_id").toString();
-
-        JwtToken jwtToken = jwtTokenRepository.findJwtTokenByValue(tokenPrincipal)
-                .orElseThrow(() ->
-                        new DeprecatedTokenException(
-                                String.format("Deprecated token was rejected for user with Discord id: %s", discordId)
-                        ));
+    public JwtTokenDto generateJwtToken(HttpServletRequest request, String customerId) {
+        DefaultOAuth2User authentication = getDefaultOAuth2User();
+        String discordId = authentication.getName();
 
         if (!discordValidationService.isUserContainsMutualGuild(discordId, customerId)) {
             throw new NoMutualGuildException(
@@ -59,15 +50,25 @@ public class CustomerService {
 
         String generatedToken = jwtTokenProvider.generateToken(discordId, customerId);
 
-        jwtToken.setValue(generatedToken);
-        jwtTokenRepository.save(jwtToken);
+        JwtToken jwtToken = JwtToken.builder()
+                .value(generatedToken)
+                .build();
+        try {
+            jwtTokenRepository.save(jwtToken);
+        } catch (OptimisticLockingFailureException e) {
+            throw new DeprecatedTokenException(
+                    String.format("Deprecated token was rejected for user with Discord id: %s", discordId)
+            );
+        }
+        request.getSession(false);
+        request.getSession().invalidate();
 
         return JwtTokenDto.builder()
                 .jwt(generatedToken)
                 .build();
     }
 
-    private UsernamePasswordAuthenticationToken resolveUsernamePasswordAuthenticationToken() {
-        return (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+    private DefaultOAuth2User getDefaultOAuth2User() {
+        return (DefaultOAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

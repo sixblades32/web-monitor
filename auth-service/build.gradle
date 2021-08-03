@@ -13,17 +13,22 @@ jar {
 }
 
 dependencies {
+    implementation project(":dictionary-models")
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.security:spring-security-oauth2-client'
-    implementation 'org.springframework.session:spring-session-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'org.springdoc:springdoc-openapi-ui:1.5.9'
 
+    compile 'org.springframework.session:spring-session-data-mongodb'
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
 
