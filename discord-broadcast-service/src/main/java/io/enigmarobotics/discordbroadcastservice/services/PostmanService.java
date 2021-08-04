@@ -58,18 +58,13 @@ public class PostmanService {
         }));
     }
 
-    public void sendRecognition(Message message) {
-
-        dictionaryClientService.getWebhooks().forEach(webhooksPack -> PROCESSING_EXECUTOR.execute(() -> {
-            String url = getRandomWebhook(webhooksPack.getBaseWebhooks());
-
-            discordClient.sendEmbed(url, message);
-            log.info("Recognition embed sent to customer's" + " live release webhook. (" + url + ")");
-        }));
-    }
-
     private String getRandomWebhook(List<String> webhooks){
         Random rand = new Random();
-        return webhooks.get(rand.nextInt(webhooks.size()));
+
+        if(webhooks != null){
+            return webhooks.get(rand.nextInt(webhooks.size()));
+        }
+
+        return null;
     }
 }

@@ -38,8 +38,8 @@ public class CustomerService {
         return customerRepository.findAll()
                 .flatMap(customer -> {
                     CustomerDiscordBroadcast customerDiscordBroadcast = CustomerDiscordBroadcast.builder()
-                            .baseWebhooks(customer.getDiscordBroadcast().getCommonWebhooks())
-                            .liveWebhooks(customer.getDiscordBroadcast().getAdvancedWebhooks())
+                            .baseWebhooks(customer.getDiscordBroadcast().getBaseWebhooks())
+                            .liveWebhooks(customer.getDiscordBroadcast().getLiveWebhooks())
                             .build();
 
                     return Mono.just(customerDiscordBroadcast);

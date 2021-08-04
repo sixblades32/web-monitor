@@ -19,9 +19,6 @@ public class DictionaryClient {
                 .build();
     }
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private static final String DICTIONARY_URL = "http://localhost:8015/customers/all/webhooks";
-
     public CustomerDiscordBroadcast[] getWebhooks() {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/customers/all/webhooks")
