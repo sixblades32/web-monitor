@@ -1,8 +1,9 @@
 package io.enigmarobotics.discordbroadcastservice.domain.wrappers;
 
 import io.enigmarobotics.discordbroadcastservice.domain.models.Footer;
+import io.enigmasolutions.broadcastmodels.Recognition;
 
-public enum RecognitionType {
+public enum DiscordBroadcastRecognitionType {
     PASTEBIN {
         @Override
         public String toString() {

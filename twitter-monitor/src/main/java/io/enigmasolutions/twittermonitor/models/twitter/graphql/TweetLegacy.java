@@ -30,10 +30,8 @@ public class TweetLegacy {
     private Entity entities;
     @JsonProperty("extended_entities")
     private ExtendedEntity extendedEntities;
-    @JsonProperty("retweeted_status")
-    private GraphQLTweet retweetedStatus;
-    @JsonProperty("quoted_status")
-    private GraphQLTweet quotedStatus;
+    @JsonProperty("retweeted_status_result")
+    private RetweetedStatusResult retweetedStatus;
     private GraphQLTweet repliedStatus;
     @JsonProperty("quoted_status_permalink")
     private QuotedStatusPermalink quotedStatusPermalink;
@@ -47,12 +45,11 @@ public class TweetLegacy {
     public TweetType getTweetType() {
         tweetType = TWEET;
 
-        if (retweetedStatus != null || quotedStatus != null) {
+        if (retweetedStatus != null || quotedStatusPermalink != null) {
             tweetType = RETWEET;
         } else if (inReplyToStatusId != null) {
             tweetType = REPLY;
         }
-
 
         return tweetType;
     }
@@ -91,7 +88,7 @@ public class TweetLegacy {
             text = "";
         } else if (inReplyToStatusId != null) {
             text = text.replace("@" + inReplyToScreenName + " ", "");
-        } else if (quotedStatus != null) {
+        } else if (quotedStatusPermalink != null) {
             text = text.replace(quotedStatusPermalink.getUrl(), "");
         }
 

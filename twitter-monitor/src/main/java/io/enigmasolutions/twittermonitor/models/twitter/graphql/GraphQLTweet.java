@@ -17,6 +17,8 @@ public class GraphQLTweet {
     private String restId;
     private Core core;
     private TweetLegacy legacy;
+    @JsonProperty("quoted_status_result")
+    private RetweetedStatusResult quotedStatus;
 
     private String tweetUrl;
     private String retweetsUrl;

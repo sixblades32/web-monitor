@@ -1,4 +1,4 @@
-package io.enigmarobotics.discordbroadcastservice.domain.wrappers;
+package io.enigmasolutions.broadcastmodels;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
