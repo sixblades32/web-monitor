@@ -2,19 +2,32 @@ package io.enigmarobotics.discordbroadcastservice.services;
 
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class DictionaryClient {
+
+    private final WebClient webClient;
+
+    public DictionaryClient(@Value("${dictionary-service.url}") String dictionaryServiceUrl) {
+        this.webClient = WebClient.builder()
+                .baseUrl(dictionaryServiceUrl)
+                .build();
+    }
+
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String DICTIONARY_URL = "http://localhost:8080/customers/all/webhooks";
+    private static final String DICTIONARY_URL = "http://localhost:8015/customers/all/webhooks";
 
-    public ResponseEntity<CustomerDiscordBroadcast[]> getWebhooks() {
-        HttpHeaders headers = new HttpHeaders();
-
-        HttpEntity<Message> request = new HttpEntity<>(headers);
-        return restTemplate.exchange(DICTIONARY_URL, HttpMethod.GET, request, CustomerDiscordBroadcast[].class);
+    public CustomerDiscordBroadcast[] getWebhooks() {
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/customers/all/webhooks")
+                        .build())
+                .retrieve()
+                .bodyToMono(CustomerDiscordBroadcast[].class)
+                .block();
     }
 }
