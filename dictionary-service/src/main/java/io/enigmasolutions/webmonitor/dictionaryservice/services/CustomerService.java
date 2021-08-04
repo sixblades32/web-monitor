@@ -2,8 +2,11 @@ package io.enigmasolutions.webmonitor.dictionaryservice.services;
 
 import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
+import io.enigmasolutions.webmonitor.dictionaryservice.db.models.documents.Customer;
 import io.enigmasolutions.webmonitor.dictionaryservice.db.repositories.CustomerRepository;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -35,8 +38,8 @@ public class CustomerService {
         return customerRepository.findAll()
                 .flatMap(customer -> {
                     CustomerDiscordBroadcast customerDiscordBroadcast = CustomerDiscordBroadcast.builder()
-                            .commonWebhooks(customer.getDiscordBroadcast().getCommonWebhooks())
-                            .advancedWebhooks(customer.getDiscordBroadcast().getAdvancedWebhooks())
+                            .baseWebhooks(customer.getDiscordBroadcast().getCommonWebhooks())
+                            .liveWebhooks(customer.getDiscordBroadcast().getAdvancedWebhooks())
                             .build();
 
                     return Mono.just(customerDiscordBroadcast);
