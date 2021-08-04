@@ -44,7 +44,7 @@ public class PostmanService {
             String url = getRandomWebhook(webhooksPack.getBaseWebhooks());
 
             discordClient.sendEmbed(url, message);
-            log.info("Tweet embed sent to customer's" + " common webhook. (" + url + ")");
+            log.info("Tweet embed sent to customer's" + " base webhook. (" + url + ")");
         }));
     }
 
@@ -61,7 +61,7 @@ public class PostmanService {
     private String getRandomWebhook(List<String> webhooks){
         Random rand = new Random();
 
-        if(webhooks != null){
+        if(webhooks.size() > 0){
             return webhooks.get(rand.nextInt(webhooks.size()));
         }
 

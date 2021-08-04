@@ -27,13 +27,7 @@ public class DictionaryClientService {
     @Cacheable(value = "webhooks")
     public List<CustomerDiscordBroadcast> getWebhooks(){
 
-        CustomerDiscordBroadcast[] webhooks = dictionaryClient.getWebhooks();
-
-        if (webhooks != null) {
-            return Arrays.asList(webhooks);
-        }
-
-        return null;
+        return dictionaryClient.getWebhooks();
     }
 
     @CachePut(value = "webhooks")

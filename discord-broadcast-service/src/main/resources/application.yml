@@ -12,6 +12,9 @@ management:
     port: 9085
     base-path: /manage
 
+dictionary-service:
+  url: ${DICTIONARY_SERVICE_URL}
+
 alert:
   discord:
     url: ${ALERT_DISCORD_URL}
