@@ -1,69 +1,40 @@
 package io.enigmasolutions.webmonitor.authservice.services;
 
+import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
+import io.enigmasolutions.webmonitor.authservice.models.discord.DiscordGuildMember;
+import io.enigmasolutions.webmonitor.authservice.services.web.DictionaryServiceClient;
+import io.enigmasolutions.webmonitor.authservice.services.web.DiscordClient;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientResponseException;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Collections;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.reactive.function.client.WebClientException;
 
 @Slf4j
 @Service
 public class DiscordValidationService {
 
-    @Value("${discord.bot.token}")
-    private String botToken;
+    private final DictionaryServiceClient dictionaryServiceClient;
+    private final DiscordClient discordClient;
 
-    @Value("${discord.trusted-guild}")
-    private String trustedGuild;
-
-    private final static String BASE_PATH = "https://discord.com/api";
-
-    private final RestTemplate restTemplate;
-
-    public DiscordValidationService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public DiscordValidationService(DictionaryServiceClient dictionaryServiceClient, DiscordClient discordClient) {
+        this.dictionaryServiceClient = dictionaryServiceClient;
+        this.discordClient = discordClient;
     }
 
-    public boolean validateMutualGuilds(String discordId) {
-        boolean result = false;
-
+    public boolean isUserContainsMutualGuild(String discordId, String customerId) {
         try {
-            ResponseEntity<Void> responseEntity = getEmptyGuildMember(discordId);
-            result = responseEntity.getStatusCode().is2xxSuccessful();
-        } catch (RestClientResponseException responseException) {
-            log.error(
-                    "Failed to validate mutual servers for discordId: {}, {}",
-                    discordId,
-                    responseException.getResponseBodyAsString()
-            );
-        } catch (Exception exception) {
-            log.error("Unknown exception", exception);
+            CustomerDiscordGuild customerDiscordGuild =
+                    dictionaryServiceClient.retrieveCustomerDiscordGuild(customerId);
+            DiscordGuildMember discordGuildMember =
+                    discordClient.retrieveDiscordGuildMember(customerDiscordGuild.getGuildId(), discordId);
+
+            return CollectionUtils.containsAny(customerDiscordGuild.getUsersRoles(), discordGuildMember.getRoles());
+        } catch (WebClientException e) {
+            log.error(e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected exemption", e);
         }
 
-        return result;
-    }
-
-    private ResponseEntity<Void> getEmptyGuildMember(String discordId) {
-        String url = BASE_PATH + "/guilds/" + trustedGuild + "/members/" + discordId;
-
-        HttpHeaders requestHeaders = new HttpHeaders();
-
-        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-        requestHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        requestHeaders.add("User-Agent", "EnigmaSolutions");
-        requestHeaders.add("Authorization", botToken);
-
-        RequestEntity<Void> requestEntity = RequestEntity
-                .get(url)
-                .headers(requestHeaders)
-                .build();
-
-        return restTemplate.exchange(requestEntity, Void.class);
+        return false;
     }
 }

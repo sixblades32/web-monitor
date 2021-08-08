@@ -1,13 +1,7 @@
 package io.enigmasolutions.webmonitor.authservice.services;
 
 import io.enigmasolutions.webmonitor.authservice.configuration.JwtConfig;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,13 +19,14 @@ public class JwtTokenProvider {
         this.jwtConfig = jwtConfig;
     }
 
-    public String generateToken(String subject) {
+    public String generateToken(String discordId, String customerId) {
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
-                .setSubject(subject)
+                .setSubject(discordId)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + jwtConfig.getExpiration() * 1000L))
+                .claim("customer_id", customerId)
                 .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes())
                 .compact();
     }

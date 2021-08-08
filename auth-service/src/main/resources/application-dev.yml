@@ -1,4 +1,11 @@
 spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: auth-service
+      auto-index-creation: true
+  session:
+    store-type: mongodb
   security:
     oauth2:
       client:
@@ -12,7 +19,7 @@ spring:
               - identify
               - email
               - guilds.join
-            redirect-uri: "http://localhost:8010/api/auth/guest/login/oauth2/code/discord"
+            redirect-uri: "http://localhost:8010/api/auth/guests/login/oauth2/code/discord"
             client-name: Enigma Solutions
         provider:
           discord:
@@ -20,10 +27,6 @@ spring:
             tokenUri: https://discordapp.com/api/oauth2/token
             userInfoUri: https://discordapp.com/api/users/@me
             usernameAttribute: id
-  redis:
-    url: redis://localhost:6379
-  session:
-    store-type: redis
 
 server:
   error:
@@ -53,4 +56,6 @@ security:
 discord:
   bot:
     token: Bot NzY3NDE5NDMxMzU3MzgyNjU2.X4xpCg.TTHtJEwsTv8ZlKQjJUVRFt1zBHI
-  trusted-guild: 688764592901324862
+
+dictionary-service:
+  url: http://localhost:8015/dictionary

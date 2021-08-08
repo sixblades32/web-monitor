@@ -3,6 +3,8 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017
       database: dictionary-service
+  webflux:
+    base-path: /dictionary
 
 server:
   port: 8015
