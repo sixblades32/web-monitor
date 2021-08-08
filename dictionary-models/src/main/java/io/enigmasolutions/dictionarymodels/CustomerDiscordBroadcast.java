@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerDiscordBroadcast {
-    private List<String> commonWebhooks;
-    private List<String> advancedWebhooks;
+    private List<String> baseWebhooks;
+    private List<String> liveWebhooks;
 }
 

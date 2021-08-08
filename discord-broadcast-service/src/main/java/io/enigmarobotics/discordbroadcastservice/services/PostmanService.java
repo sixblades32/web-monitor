@@ -1,19 +1,15 @@
 package io.enigmarobotics.discordbroadcastservice.services;
 
-import io.enigmarobotics.discordbroadcastservice.concurent.ConcurrentCustomer;
-import io.enigmarobotics.discordbroadcastservice.db.models.documents.Customer;
-import io.enigmarobotics.discordbroadcastservice.db.repositories.CustomerRepository;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,30 +19,16 @@ public class PostmanService {
     private String alertDiscordUrl;
 
     private final DiscordClient discordClient;
-    private final CustomerRepository CustomerRepository;
+    private final DictionaryClientService dictionaryClientService;
     private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
-
-    private List<ConcurrentCustomer> customers;
 
     @Autowired
     public PostmanService(
             DiscordClient discordClient,
-            CustomerRepository CustomerRepository
+            DictionaryClientService dictionaryClientService
     ) {
         this.discordClient = discordClient;
-        this.CustomerRepository = CustomerRepository;
-    }
-
-    @PostConstruct
-    public void init() {
-        initCustomers();
-    }
-
-    private void initCustomers() {
-        List<Customer> customers = CustomerRepository.findAll();
-        this.customers = customers.stream()
-                .map(ConcurrentCustomer::new)
-                .collect(Collectors.toList());
+        this.dictionaryClientService = dictionaryClientService;
     }
 
     public void sendAlertEmbed(Message message) {
@@ -58,31 +40,31 @@ public class PostmanService {
 
     public void processBase(Message message) {
 
-        customers.forEach(customer -> PROCESSING_EXECUTOR.execute(() -> {
-            String url = customer.retrieveBaseWebhook();
+        dictionaryClientService.getWebhooks().forEach(webhooksPack -> PROCESSING_EXECUTOR.execute(() -> {
+            String url = getRandomWebhook(webhooksPack.getBaseWebhooks());
 
             discordClient.sendEmbed(url, message);
-            log.info("Tweet embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") common webhook.");
+            log.info("Tweet embed sent to customer's" + " base webhook. (" + url + ")");
         }));
     }
 
     public void processLive(Message message) {
 
-        customers.forEach(customer -> PROCESSING_EXECUTOR.execute(() -> {
-            String url = customer.retrieveLiveWebhook();
+        dictionaryClientService.getWebhooks().forEach(webhooksPack -> PROCESSING_EXECUTOR.execute(() -> {
+            String url = getRandomWebhook(webhooksPack.getLiveWebhooks());
 
             discordClient.sendEmbed(url, message);
-            log.info("Tweet embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") live release webhook.");
+            log.info("Tweet embed sent to customer's" + " live release webhook. (" + url + ")");
         }));
     }
 
-    public void sendRecognition(Message message) {
+    private String getRandomWebhook(List<String> webhooks){
+        Random rand = new Random();
 
-        customers.forEach(customer -> PROCESSING_EXECUTOR.execute(() -> {
-            String url = customer.retrieveBaseWebhook();
+        if(webhooks.size() > 0){
+            return webhooks.get(rand.nextInt(webhooks.size()));
+        }
 
-            discordClient.sendEmbed(url, message);
-            log.info("Recognition embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") live release webhook.");
-        }));
+        return null;
     }
 }
