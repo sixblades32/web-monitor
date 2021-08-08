@@ -19,7 +19,7 @@ spring:
               - identify
               - email
               - guilds.join
-            redirect-uri: "https://enigmamonitors.io/api/auth/guest/login/oauth2/code/discord"
+            redirect-uri: "https://enigmamonitors.io/api/auth/guests/login/oauth2/code/discord"
             client-name: Enigma Monitors
         provider:
           discord:
