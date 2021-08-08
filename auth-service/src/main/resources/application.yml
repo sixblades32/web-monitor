@@ -60,4 +60,6 @@ security:
 discord:
   bot:
     token: ${DISCORD_BOT_TOKEN}
-  trusted-guild: 688446328761614440
+
+dictionary-service:
+  url: ${DICTIONARY_SERVICE_URL}
