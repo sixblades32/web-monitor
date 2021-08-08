@@ -19,13 +19,13 @@ public class PostmanService {
     private String alertDiscordUrl;
 
     private final DiscordClient discordClient;
-    private final DictionaryClientService dictionaryClientService;
+    private final DictionaryClientCache dictionaryClientService;
     private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     @Autowired
     public PostmanService(
             DiscordClient discordClient,
-            DictionaryClientService dictionaryClientService
+            DictionaryClientCache dictionaryClientService
     ) {
         this.discordClient = discordClient;
         this.dictionaryClientService = dictionaryClientService;
