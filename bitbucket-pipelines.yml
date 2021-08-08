@@ -123,3 +123,41 @@ pipelines:
                 CLUSTER_NAME: 'web-monitor'
                 SERVICE_NAME: 'discord-broadcast-service'
                 FORCE_NEW_DEPLOYMENT: 'true'
+    dictionary-service:
+      - step:
+          name: Build Dictionary Service
+          image: gradle:7.1-jdk11
+          caches:
+            - gradle
+          script:
+            - gradle clean build -p dictionary-service
+          artifacts:
+            - dictionary-service/build/libs/*
+      - step:
+          name: Push Docker Image
+          image: atlassian/pipelines-awscli
+          services:
+            - docker
+          caches:
+            - docker
+          script:
+            - cd dictionary-service
+            - echo $(ls build/libs)
+            # Login to docker registry on AWS
+            - eval $(aws ecr get-login --no-include-email)
+            # Build image
+            - docker build -t $DICTIONARY_SERVICE_DOCKER_IMAGE_URL:$BITBUCKET_BUILD_NUMBER -t $DICTIONARY_SERVICE_DOCKER_IMAGE_URL:latest .
+            # Push image to private registry
+            - docker push $DICTIONARY_SERVICE_DOCKER_IMAGE_URL
+      - step:
+          name: Deploy to AWS
+          trigger: manual
+          script:
+            - pipe: atlassian/aws-ecs-deploy:1.5.0
+              variables:
+                AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+                AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+                AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+                CLUSTER_NAME: 'web-monitor'
+                SERVICE_NAME: 'dictionary-service'
+                FORCE_NEW_DEPLOYMENT: 'true'

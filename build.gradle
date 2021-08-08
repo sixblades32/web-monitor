@@ -9,7 +9,7 @@ subprojects {
     apply plugin: 'idea'
 
     group = 'io.enigmasolutions.webmonitor'
-    version = '0.1.0'
+    version = '0.2.0'
     sourceCompatibility = '11'
 
     repositories {
