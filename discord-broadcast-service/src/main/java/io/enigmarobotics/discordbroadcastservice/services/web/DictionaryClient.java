@@ -1,4 +1,4 @@
-package io.enigmarobotics.discordbroadcastservice.services;
+package io.enigmarobotics.discordbroadcastservice.services.web;
 
 import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
 import org.springframework.beans.factory.annotation.Value;

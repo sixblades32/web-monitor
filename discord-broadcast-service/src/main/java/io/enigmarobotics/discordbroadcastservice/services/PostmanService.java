@@ -1,6 +1,7 @@
 package io.enigmarobotics.discordbroadcastservice.services;
 
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
+import io.enigmarobotics.discordbroadcastservice.services.web.DiscordClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
