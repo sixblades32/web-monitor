@@ -2,13 +2,13 @@ package io.enigmarobotics.discordbroadcastservice.utils;
 
 import io.enigmarobotics.discordbroadcastservice.domain.models.*;
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.*;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.DiscordBroadcastRecognitionType;
+import io.enigmasolutions.broadcastmodels.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static io.enigmarobotics.discordbroadcastservice.domain.wrappers.MediaType.PHOTO;
 
 public class DiscordUtils {
 
@@ -41,7 +41,7 @@ public class DiscordUtils {
                 .build();
 
         List<Media> photos = tweet.getMedia().stream()
-                .filter(img -> img.getType().equals(PHOTO))
+                .filter(img -> img.getType().equals(MediaType.PHOTO))
                 .collect(Collectors.toList());
         int photosSize = photos.size();
 
@@ -122,7 +122,7 @@ public class DiscordUtils {
                 .build();
 
         List<Media> photos = tweet.getMedia().stream()
-                .filter(img -> img.getType().equals(PHOTO))
+                .filter(img -> img.getType().equals(MediaType.PHOTO))
                 .collect(Collectors.toList());
         int photosSize = photos.size();
 
@@ -177,7 +177,7 @@ public class DiscordUtils {
                 .build();
 
         List<Media> photos = tweet.getMedia().stream()
-                .filter(img -> img.getType().equals(PHOTO))
+                .filter(img -> img.getType().equals(MediaType.PHOTO))
                 .collect(Collectors.toList());
         int photosSize = photos.size();
 
@@ -240,7 +240,7 @@ public class DiscordUtils {
                 .build();
 
         List<Media> photos = tweet.getMedia().stream()
-                .filter(img -> img.getType().equals(PHOTO))
+                .filter(img -> img.getType().equals(MediaType.PHOTO))
                 .collect(Collectors.toList());
         int photosSize = photos.size();
 
@@ -338,13 +338,13 @@ public class DiscordUtils {
         Field validMonitorsField = Field.builder()
                 .inline(false)
                 .name("**Valid monitors count:**")
-                .value(alert.getValidMonitorsCount())
+                .value(alert.getValidMonitorsCount().toString())
                 .build();
 
         Field failedMonitorsField = Field.builder()
                 .inline(false)
                 .name("**Failed monitors count:**")
-                .value(alert.getFailedMonitorsCount())
+                .value(alert.getFailedMonitorsCount().toString())
                 .build();
 
         Field newFailedMonitorsField = Field.builder()
@@ -376,8 +376,11 @@ public class DiscordUtils {
     }
 
     public static Embed generateTweetRecognitionEmbed(Recognition recognition, int embedColor) {
-        Footer footer = recognition.getType().generateTweetRecognitionFooter(recognition);
-        String title = recognition.getType().getTitle();
+
+        DiscordBroadcastRecognitionType discordBroadcastRecognitionType = convertRecognitionType(recognition.getType());
+
+        Footer footer = discordBroadcastRecognitionType.generateTweetRecognitionFooter(recognition);
+        String title = discordBroadcastRecognitionType.getTitle();
 
         return Embed.builder()
                 .title(title)
@@ -388,8 +391,11 @@ public class DiscordUtils {
     }
 
     public static Embed generateRetweetRecognitionEmbed(Recognition recognition, int embedColor) {
-        Footer footer = recognition.getType().generateRetweetRecognitionFooter(recognition);
-        String title = recognition.getType().getTitle();
+
+        DiscordBroadcastRecognitionType discordBroadcastRecognitionType = convertRecognitionType(recognition.getType());
+
+        Footer footer = discordBroadcastRecognitionType.generateRetweetRecognitionFooter(recognition);
+        String title = discordBroadcastRecognitionType.getTitle();
 
         return Embed.builder()
                 .title(title)
@@ -400,8 +406,11 @@ public class DiscordUtils {
     }
 
     public static Embed generateReplyRecognitionEmbed(Recognition recognition, int embedColor) {
-        Footer footer = recognition.getType().generateReplyRecognitionFooter(recognition);
-        String title = recognition.getType().getTitle();
+
+        DiscordBroadcastRecognitionType discordBroadcastRecognitionType = convertRecognitionType(recognition.getType());
+
+        Footer footer = discordBroadcastRecognitionType.generateReplyRecognitionFooter(recognition);
+        String title = discordBroadcastRecognitionType.getTitle();
 
         return Embed.builder()
                 .title(title)
@@ -409,5 +418,13 @@ public class DiscordUtils {
                 .description(recognition.getResult())
                 .color(embedColor)
                 .build();
+    }
+
+    public static DiscordBroadcastRecognitionType convertRecognitionType(RecognitionType value) {
+        return DiscordBroadcastRecognitionType.values()[value.ordinal()];
+    }
+
+    public static DiscordBroadcastTweetType convertTweetType(TweetType value) {
+        return DiscordBroadcastTweetType.values()[value.ordinal()];
     }
 }

@@ -1,8 +1,8 @@
 package io.enigmarobotics.discordbroadcastservice.configuration;
 
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Recognition;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Tweet;
+import io.enigmasolutions.broadcastmodels.Alert;
+import io.enigmasolutions.broadcastmodels.Recognition;
+import io.enigmasolutions.broadcastmodels.Tweet;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +50,8 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, Tweet> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(tweetConsumerFactory());
+        factory.setConcurrency(2);
+        factory.getContainerProperties().setPollTimeout(3000);
 
         return factory;
     }
@@ -100,6 +102,9 @@ public class KafkaConfig {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
         props.put(
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class);

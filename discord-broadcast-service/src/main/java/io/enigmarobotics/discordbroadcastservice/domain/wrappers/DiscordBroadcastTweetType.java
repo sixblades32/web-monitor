@@ -3,12 +3,15 @@ package io.enigmarobotics.discordbroadcastservice.domain.wrappers;
 import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
+import io.enigmasolutions.broadcastmodels.Recognition;
+import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.TweetImage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public enum TweetType {
+public enum DiscordBroadcastTweetType {
 
     TWEET {
         @Override

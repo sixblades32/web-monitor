@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,6 +24,7 @@ public class PostmanService {
 
     private final DiscordClient discordClient;
     private final CustomerRepository CustomerRepository;
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     private List<ConcurrentCustomer> customers;
 
@@ -53,32 +56,33 @@ public class PostmanService {
     }
 
 
-    public void processCommon(Message message) {
+    public void processBase(Message message) {
 
-        customers.stream().parallel().forEach(customer -> {
-            String url = customer.retrieveCommonWebhook();
+        customers.forEach(customer -> PROCESSING_EXECUTOR.execute(() -> {
+            String url = customer.retrieveBaseWebhook();
 
             discordClient.sendEmbed(url, message);
             log.info("Tweet embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") common webhook.");
-        });
+        }));
     }
 
-    public void processAdvanced(Message message) {
+    public void processLive(Message message) {
 
-        customers.stream().parallel().forEach(customer -> {
-            String url = customer.retrieveAdvancedWebhook();
+        customers.forEach(customer -> PROCESSING_EXECUTOR.execute(() -> {
+            String url = customer.retrieveLiveWebhook();
 
             discordClient.sendEmbed(url, message);
             log.info("Tweet embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") live release webhook.");
-        });
+        }));
     }
 
     public void sendRecognition(Message message) {
-        customers.stream().parallel().forEach(customer -> {
-            String url = customer.retrieveCommonWebhook();
+
+        customers.forEach(customer -> PROCESSING_EXECUTOR.execute(() -> {
+            String url = customer.retrieveBaseWebhook();
 
             discordClient.sendEmbed(url, message);
             log.info("Recognition embed sent to customer's(id: " + customer.getCustomer().getCustomerId() + ") live release webhook.");
-        });
+        }));
     }
 }

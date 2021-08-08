@@ -27,7 +27,7 @@ public abstract class AbstractTwitterMonitor {
 
     private final static Timer TIMER = new Timer();
     private final static ExecutorService MAIN_THREAD_EXECUTOR = Executors.newSingleThreadExecutor();
-    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newFixedThreadPool(250);
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     private final KafkaProducer kafkaProducer;
     private final int timelineDelay;

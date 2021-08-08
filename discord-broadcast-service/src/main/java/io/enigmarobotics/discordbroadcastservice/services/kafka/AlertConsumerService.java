@@ -3,19 +3,23 @@ package io.enigmarobotics.discordbroadcastservice.services.kafka;
 import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Alert;
 import io.enigmarobotics.discordbroadcastservice.services.PostmanService;
 import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
+import io.enigmasolutions.broadcastmodels.Alert;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
 public class AlertConsumerService {
+
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     private final PostmanService postmanService;
     private final DiscordEmbedColorConfig discordEmbedColorConfig;
@@ -30,16 +34,15 @@ public class AlertConsumerService {
             groupId = "${kafka.alert-consumer.group-id}",
             containerFactory = "alertKafkaListenerContainerFactory")
     public void consume(Alert alert) {
+        log.info("Received alert: {}", alert);
 
-        log.info("Received Alert Message");
-
-        Embed alertEmbed = DiscordUtils.generateAlertEmbed(alert, discordEmbedColorConfig.getAlert());
-
-        Message message = Message.builder()
-                .content("")
-                .embeds(Collections.singletonList(alertEmbed))
-                .build();
-
-        postmanService.sendAlertEmbed(message);
+        PROCESSING_EXECUTOR.execute(() -> {
+            Embed alertEmbed = DiscordUtils.generateAlertEmbed(alert, discordEmbedColorConfig.getAlert());
+            Message message = Message.builder()
+                    .content("")
+                    .embeds(Collections.singletonList(alertEmbed))
+                    .build();
+            postmanService.sendAlertEmbed(message);
+        });
     }
 }

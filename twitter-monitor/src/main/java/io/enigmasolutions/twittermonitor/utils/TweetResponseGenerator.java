@@ -21,11 +21,12 @@ public class TweetResponseGenerator {
                 .extendedEntities(graphQLTweet.getLegacy().getExtendedEntities())
                 .user(transformGraphQLUserToBase(graphQLTweet.getCore().getUser()))
                 .retweetedStatus(graphQLTweet.getLegacy().getRetweetedStatus() != null ?
-                        generate(graphQLTweet.getLegacy().getRetweetedStatus()) : null)
-                .quotedStatus(graphQLTweet.getLegacy().getQuotedStatus() != null ?
-                        generate(graphQLTweet.getLegacy().getQuotedStatus()) : null)
+                        generate(graphQLTweet.getLegacy().getRetweetedStatus().getResult()) : null)
+                .quotedStatus(graphQLTweet.getQuotedStatus() != null ?
+                        generate(graphQLTweet.getQuotedStatus().getResult()) : null)
                 .repliedStatus(graphQLTweet.getLegacy().getRepliedStatus() != null ?
                         generateReplied(graphQLTweet.getLegacy().getRepliedStatus()) : null)
+                .quotedStatusPermalink(graphQLTweet.getLegacy().getQuotedStatusPermalink())
                 .inReplyToScreenName(graphQLTweet.getLegacy().getInReplyToScreenName())
                 .inReplyToStatusId(graphQLTweet.getLegacy().getInReplyToStatusId())
                 .inReplyToUserId(graphQLTweet.getLegacy().getInReplyToUserId())
@@ -36,7 +37,7 @@ public class TweetResponseGenerator {
                 .build();
     }
 
-    private static TweetResponse generateReplied(GraphQLTweet graphQLTweet){
+    private static TweetResponse generateReplied(GraphQLTweet graphQLTweet) {
         return TweetResponse.builder()
                 .user(transformGraphQLUserToBase(graphQLTweet.getCore().getUser()))
                 .tweetUrl(graphQLTweet.getTweetUrl())

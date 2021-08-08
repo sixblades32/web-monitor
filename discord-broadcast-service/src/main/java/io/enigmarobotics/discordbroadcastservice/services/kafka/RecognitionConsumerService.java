@@ -3,18 +3,24 @@ package io.enigmarobotics.discordbroadcastservice.services.kafka;
 import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.Recognition;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.DiscordBroadcastTweetType;
 import io.enigmarobotics.discordbroadcastservice.services.PostmanService;
+import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
+import io.enigmasolutions.broadcastmodels.Recognition;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
 public class RecognitionConsumerService {
+
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     private final PostmanService postmanService;
     private final DiscordEmbedColorConfig discordEmbedColorConfig;
@@ -31,8 +37,10 @@ public class RecognitionConsumerService {
     public void consumeBaseTopic(Recognition recognition) {
         log.info("Received base recognition message {}", recognition);
 
-        Message message = generateRecognitionMessage(recognition);
-        postmanService.processCommon(message);
+        PROCESSING_EXECUTOR.execute(() -> {
+            Message message = generateRecognitionMessage(recognition);
+            postmanService.processBase(message);
+        });
     }
 
     @KafkaListener(topics = "${kafka.recognition-consumer-live-release.topic}",
@@ -41,12 +49,17 @@ public class RecognitionConsumerService {
     public void consumeLiveReleaseTopic(Recognition recognition) {
         log.info("Received live release recognition message {}", recognition);
 
-        Message message = generateRecognitionMessage(recognition);
-        postmanService.processAdvanced(message);
+        PROCESSING_EXECUTOR.execute(() -> {
+            Message message = generateRecognitionMessage(recognition);
+            postmanService.processLive(message);
+        });
     }
 
     private Message generateRecognitionMessage(Recognition recognition) {
-        List<Embed> embeds = recognition.getTweetType().generateRecognitionEmbed(recognition, discordEmbedColorConfig);
+
+        DiscordBroadcastTweetType tweetType = DiscordUtils.convertTweetType(recognition.getTweetType());
+
+        List<Embed> embeds = tweetType.generateRecognitionEmbed(recognition, discordEmbedColorConfig);
 
         return Message.builder()
                 .content("")
