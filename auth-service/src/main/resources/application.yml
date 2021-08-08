@@ -1,4 +1,11 @@
 spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      database: auth-service
+      auto-index-creation: true
+  session:
+    store-type: mongodb
   security:
     oauth2:
       client:
@@ -20,10 +27,6 @@ spring:
             tokenUri: https://discordapp.com/api/oauth2/token
             userInfoUri: https://discordapp.com/api/users/@me
             usernameAttribute: id
-  redis:
-    url: ${REDIS_URL}
-  session:
-    store-type: redis
 
 server:
   port: 8010
