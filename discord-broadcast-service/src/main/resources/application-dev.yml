@@ -18,6 +18,9 @@ discord:
       reply: 3460243
       alert: 16023551
 
+dictionary-service:
+  url: http://localhost:8015
+
 kafka:
   bootstrap-servers: localhost:9092
   tweet-consumer-base:
