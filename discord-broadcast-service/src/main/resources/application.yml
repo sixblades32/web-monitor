@@ -7,11 +7,6 @@ spring:
 server:
   port: 9085
 
-management:
-  server:
-    port: 9085
-    base-path: /manage
-
 dictionary-service:
   url: ${DICTIONARY_SERVICE_URL}
 
