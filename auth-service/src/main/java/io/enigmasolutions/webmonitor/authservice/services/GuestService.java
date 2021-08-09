@@ -11,8 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-
 @Service
 public class GuestService {
 
@@ -36,7 +34,7 @@ public class GuestService {
      *
      * @return JwtTokenDto
      */
-    public JwtTokenDto generateJwtToken(HttpServletRequest request, String customerId) {
+    public JwtTokenDto generateJwtToken(String customerId) {
         DefaultOAuth2User authentication = getDefaultOAuth2User();
         String discordId = authentication.getName();
 
@@ -60,8 +58,8 @@ public class GuestService {
                     String.format("Deprecated token was rejected for user with Discord id: %s", discordId)
             );
         }
-        request.getSession(false);
-        request.getSession().invalidate();
+
+        SecurityContextHolder.clearContext();
 
         return JwtTokenDto.builder()
                 .jwt(generatedToken)

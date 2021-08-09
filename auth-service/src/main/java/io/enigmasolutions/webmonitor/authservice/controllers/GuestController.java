@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RestController
 @RequestMapping("/guests")
 public class GuestController {
@@ -23,9 +21,8 @@ public class GuestController {
 
     @GetMapping("/{customerId}/token")
     public JwtTokenDto generateCustomerGuestJwtToken(
-            @PathVariable String customerId,
-            HttpServletRequest request
+            @PathVariable String customerId
     ) {
-        return guestService.generateJwtToken(request, customerId);
+        return guestService.generateJwtToken(customerId);
     }
 }
