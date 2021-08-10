@@ -3,7 +3,6 @@ package io.enigmasolutions.twittermonitor.services.web;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.common.FollowsList;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
@@ -22,7 +21,7 @@ public class TwitterRegularClient {
         this.twitterRestTemplate = new TwitterRestTemplate(twitterConsumer.getCredentials()).getRestTemplate();
     }
 
-    @NotNull
+//    @NotNull
     public ResponseEntity<User[]> getUser(MultiValueMap<String, String> params) {
 
         RequestEntity<Void> requestEntity = buildRequestEntity(USERS_PATH, params);
@@ -30,7 +29,7 @@ public class TwitterRegularClient {
         return twitterRestTemplate.exchange(requestEntity, User[].class);
     }
 
-    @NotNull
+    //    @NotNull
     public ResponseEntity<FollowsList> getFollows(MultiValueMap<String, String> params) {
 
         RequestEntity<Void> requestEntity = buildRequestEntity(FOLLOWS_PATH, params);

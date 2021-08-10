@@ -3,7 +3,6 @@ package io.enigmasolutions.twittermonitor.services.web;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLResponse;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +47,7 @@ public class TwitterCustomClient {
         return authData;
     }
 
-    @NotNull
+//    @NotNull
     private ResponseEntity<TweetResponse[]> getResponseEntity(
             MultiValueMap<String, String> params,
             MultiValueMap<String, String> tweetDeckAuth,
@@ -70,7 +69,7 @@ public class TwitterCustomClient {
         return restTemplate.exchange(requestEntity, TweetResponse[].class);
     }
 
-    @NotNull
+    //    @NotNull
     private ResponseEntity<GraphQLResponse> getResponseEntity(
             MultiValueMap<String, String> params,
             MultiValueMap<String, String> tweetDeckAuth
