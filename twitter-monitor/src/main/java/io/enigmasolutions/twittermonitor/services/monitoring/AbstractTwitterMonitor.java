@@ -132,7 +132,9 @@ public abstract class AbstractTwitterMonitor {
 
         if (exception.getStatusCode().value() >= 400 &&
                 exception.getStatusCode().value() < 500 &&
-                exception.getStatusCode().value() != 404) {
+                exception.getStatusCode().value() != 404 &&
+                exception.getStatusCode().value() != 401
+        ) {
 
             reshuffleClients(twitterCustomClient);
             processRateLimitError(exception, twitterCustomClient);
