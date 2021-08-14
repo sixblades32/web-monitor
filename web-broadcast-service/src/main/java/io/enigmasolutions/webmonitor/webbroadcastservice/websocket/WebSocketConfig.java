@@ -17,7 +17,7 @@ import java.util.Map;
 @Configuration
 public class WebSocketConfig {
 
-    private final static String BROADCAST_HANDLER_PATH = "/api/broadcast";
+    private final static String BROADCAST_HANDLER_PATH = "/api/broadcast/gateway";
 
     private final WebSocketHandler webSocketHandler;
     private final JwtTokenProvider jwtTokenProvider;
