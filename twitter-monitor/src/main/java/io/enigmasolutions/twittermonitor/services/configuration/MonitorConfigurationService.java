@@ -80,13 +80,13 @@ public class MonitorConfigurationService {
     public void createGlobalTarget(UserStartForm body) {
         User user;
 
-        try{
+        try {
             user = twitterHelperService.retrieveUser(body.getScreenName());
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new NoTwitterUserMatchesException();
         }
 
-        if(twitterHelperService.getBaseTargetsIds().contains(user.getId())){
+        if (twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
             throw new TargetAlreadyAddedException();
         }
 
@@ -103,13 +103,13 @@ public class MonitorConfigurationService {
     public void deleteGlobalTarget(UserStartForm body) {
         User user;
 
-        try{
+        try {
             user = twitterHelperService.retrieveUser(body.getScreenName());
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new NoTwitterUserMatchesException();
         }
 
-        if(!twitterHelperService.getBaseTargetsIds().contains(user.getId())){
+        if (!twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
             throw new NoTargetMatchesException();
         }
 
@@ -125,13 +125,13 @@ public class MonitorConfigurationService {
     public void createTemporaryTarget(UserStartForm body) {
         User user;
 
-        try{
+        try {
             user = twitterHelperService.retrieveUser(body.getScreenName());
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new NoTwitterUserMatchesException();
         }
 
-        if(twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())){
+        if (twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
             throw new TargetAlreadyAddedException();
         }
 
@@ -142,13 +142,13 @@ public class MonitorConfigurationService {
     public void deleteTemporaryTarget(UserStartForm body) {
         User user;
 
-        try{
+        try {
             user = twitterHelperService.retrieveUser(body.getScreenName());
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new NoTwitterUserMatchesException();
         }
 
-        if(!twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())){
+        if (!twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
             throw new NoTargetMatchesException();
         }
 

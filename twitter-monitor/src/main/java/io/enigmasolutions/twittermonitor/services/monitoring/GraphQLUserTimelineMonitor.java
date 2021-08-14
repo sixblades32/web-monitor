@@ -52,8 +52,8 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
     public void start(String screenName) {
         try {
             user = twitterHelperService.retrieveUser(screenName);
-        }catch (HttpClientErrorException e){
-            if(e.getStatusCode() == HttpStatus.NOT_FOUND){
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new NoTwitterUserMatchesException();
             }
         }

@@ -14,28 +14,28 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ControllerAdvice {
 
     @ExceptionHandler(MonitorRunningException.class)
-    public ResponseEntity<RestResponse> handleMonitorRunningException (MonitorRunningException e){
+    public ResponseEntity<RestResponse> handleMonitorRunningException(MonitorRunningException e) {
         RestResponse response = new RestResponse(e.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(NoTwitterUserMatchesException.class)
-    public ResponseEntity<RestResponse> handleUserMatchesException(NoTwitterUserMatchesException e){
+    public ResponseEntity<RestResponse> handleUserMatchesException(NoTwitterUserMatchesException e) {
         RestResponse response = new RestResponse(e.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(NoTargetMatchesException.class)
-    public ResponseEntity<RestResponse> handleTargetMatchesException(NoTargetMatchesException e){
+    public ResponseEntity<RestResponse> handleTargetMatchesException(NoTargetMatchesException e) {
         RestResponse response = new RestResponse(e.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(TargetAlreadyAddedException.class)
-    public ResponseEntity<RestResponse> handleTargetAlreadyAddedException(TargetAlreadyAddedException e){
+    public ResponseEntity<RestResponse> handleTargetAlreadyAddedException(TargetAlreadyAddedException e) {
         RestResponse response = new RestResponse(e.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);

@@ -125,7 +125,7 @@ public class TwitterHelperService {
         return liveReleaseTargetsIds;
     }
 
-    public List<String> getLiveReleaseTargetsScreenNames(){
+    public List<String> getLiveReleaseTargetsScreenNames() {
         return liveReleaseTargetsScreenNames;
     }
 

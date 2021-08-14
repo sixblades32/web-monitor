@@ -23,7 +23,7 @@ public class GraphQLUserTimelineMonitorController {
     }
 
     @PostMapping("/stop")
-    public void stop(){
+    public void stop() {
         graphQLUserTimelineMonitor.stop();
     }
 
