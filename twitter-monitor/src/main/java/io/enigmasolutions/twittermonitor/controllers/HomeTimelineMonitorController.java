@@ -1,8 +1,6 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
-import io.enigmasolutions.twittermonitor.models.external.RestResponse;
-import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.services.monitoring.HomeTimelineTwitterMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
