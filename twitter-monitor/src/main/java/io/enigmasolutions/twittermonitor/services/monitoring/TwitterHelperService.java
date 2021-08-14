@@ -22,14 +22,15 @@ import java.util.stream.Collectors;
 @Service
 public class TwitterHelperService {
 
-    private final List<String> advancedTargetIds = new LinkedList<>();
+    private final List<String> liveReleaseTargetsIds = new LinkedList<>();
+    private final List<String> liveReleaseTargetsScreenNames = new LinkedList<>();
     private final List<String> tweetsCache = new LinkedList<>();
 
     private final TwitterConsumerRepository twitterConsumerRepository;
     private final TargetRepository targetRepository;
 
     private List<TwitterRegularClient> twitterRegularClients;
-    private List<String> commonTargetIds;
+    private List<String> baseTargetsIds;
 
     @Autowired
     public TwitterHelperService(TwitterConsumerRepository twitterClientRepository, TargetRepository targetRepository) {
@@ -46,7 +47,7 @@ public class TwitterHelperService {
     private void initTargets() {
         List<Target> targets = targetRepository.findAll();
 
-        commonTargetIds = targets.stream()
+        baseTargetsIds = targets.stream()
                 .map(Target::getIdentifier)
                 .collect(Collectors.toList());
     }
@@ -59,12 +60,12 @@ public class TwitterHelperService {
                 .collect(Collectors.toList());
     }
 
-    public Boolean checkCommonPass(String id) {
-        return commonTargetIds.contains(id);
+    public Boolean checkBasePass(String id) {
+        return baseTargetsIds.contains(id);
     }
 
     public Boolean checkLiveReleasePass(String id) {
-        return advancedTargetIds.contains(id);
+        return liveReleaseTargetsIds.contains(id);
     }
 
     public User retrieveUser(String screenName) {
@@ -120,11 +121,15 @@ public class TwitterHelperService {
         timer.schedule(timerTask, 60000);
     }
 
-    public List<String> getAdvancedTargetIds() {
-        return advancedTargetIds;
+    public List<String> getLiveReleaseTargetsIds() {
+        return liveReleaseTargetsIds;
     }
 
-    public List<String> getCommonTargetIds() {
-        return commonTargetIds;
+    public List<String> getLiveReleaseTargetsScreenNames() {
+        return liveReleaseTargetsScreenNames;
+    }
+
+    public List<String> getBaseTargetsIds() {
+        return baseTargetsIds;
     }
 }

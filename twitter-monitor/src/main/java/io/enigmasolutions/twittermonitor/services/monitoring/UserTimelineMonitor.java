@@ -1,6 +1,7 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
+import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
@@ -8,10 +9,12 @@ import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionPr
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 
 import java.util.List;
 
@@ -44,7 +47,13 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
     }
 
     public void start(String screenName) {
-        user = twitterHelperService.retrieveUser(screenName);
+        try {
+            user = twitterHelperService.retrieveUser(screenName);
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new NoTwitterUserMatchesException();
+            }
+        }
 
         log.info("Current monitor user is: {}", user);
 

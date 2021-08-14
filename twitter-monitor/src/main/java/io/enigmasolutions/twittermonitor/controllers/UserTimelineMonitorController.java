@@ -23,7 +23,7 @@ public class UserTimelineMonitorController {
     }
 
     @PostMapping("/stop")
-    public void stop(){
+    public void stop() {
         userTimelineMonitor.stop();
     }
 

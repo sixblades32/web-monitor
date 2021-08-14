@@ -3,6 +3,7 @@ package io.enigmasolutions.twittermonitor.services.monitoring;
 import io.enigmasolutions.broadcastmodels.*;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
+import io.enigmasolutions.twittermonitor.exceptions.MonitorRunningException;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.monitor.Status;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
@@ -68,7 +69,7 @@ public abstract class AbstractTwitterMonitor {
 
     public void start() {
         synchronized (this) {
-            if (status != Status.STOPPED) return;
+            if (status != Status.STOPPED) throw new MonitorRunningException();
             status = Status.RUNNING;
             params = generateParams();
             initTwitterCustomClients();
@@ -336,7 +337,7 @@ public abstract class AbstractTwitterMonitor {
     private Boolean isCommonTargetValid(Tweet tweet) {
         String targetId = tweet.getUser().getId();
 
-        return twitterHelperService.checkCommonPass(targetId);
+        return twitterHelperService.checkBasePass(targetId);
     }
 
     private Boolean isLiveReleaseTargetValid(Tweet tweet) {
