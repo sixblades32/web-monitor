@@ -17,7 +17,7 @@ public class DiscordClient {
     public void sendEmbed(String webhookUrl, Message message) {
         webClient.post()
                 .uri(webhookUrl)
-                .body(message, Message.class)
+                .bodyValue(message)
                 .retrieve()
                 .toBodilessEntity()
                 .block();
