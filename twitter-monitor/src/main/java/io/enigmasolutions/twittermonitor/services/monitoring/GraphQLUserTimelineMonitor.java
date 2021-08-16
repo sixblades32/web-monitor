@@ -82,7 +82,12 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                 .getGraphQLApiTimelineTweets(getParams())
                 .getBody();
 
-        if (graphQlDataResponse != null) {
+        if (graphQlDataResponse != null && !graphQlDataResponse.getData()
+                .getUser()
+                .getResult()
+                .getTimeline()
+                .getNestedTimeline()
+                .getInstructions().isEmpty()) {
             tweetResponse = generate(graphQlDataResponse.getData()
                     .getUser()
                     .getResult()
@@ -121,8 +126,6 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-
-        //TODO: нужно что-то придумать с этим, т.к. будет НПЕ
 
         try {
             variables = objectMapper.writeValueAsString(data);
