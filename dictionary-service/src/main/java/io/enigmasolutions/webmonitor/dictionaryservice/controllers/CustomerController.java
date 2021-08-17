@@ -2,6 +2,7 @@ package io.enigmasolutions.webmonitor.dictionaryservice.controllers;
 
 import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
+import io.enigmasolutions.dictionarymodels.CustomerTheme;
 import io.enigmasolutions.webmonitor.dictionaryservice.services.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,5 +33,11 @@ public class CustomerController {
     @GetMapping("/all/webhooks")
     public Mono<List<CustomerDiscordBroadcast>> getAllWebhooks() {
         return customerService.retrieveAllWebhooks();
+    }
+
+    @GetMapping("/{id}/theme")
+    public Mono<CustomerTheme> getCustomerTheme(@PathVariable String id) {
+        return customerService.retrieveCustomerTheme(id)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 }

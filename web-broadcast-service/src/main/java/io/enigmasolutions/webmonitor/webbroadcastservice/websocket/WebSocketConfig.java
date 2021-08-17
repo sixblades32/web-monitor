@@ -1,5 +1,6 @@
 package io.enigmasolutions.webmonitor.webbroadcastservice.websocket;
 
+import io.enigmasolutions.webmonitor.webbroadcastservice.configuration.JwtConfig;
 import io.enigmasolutions.webmonitor.webbroadcastservice.services.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,11 +20,13 @@ public class WebSocketConfig {
 
     private final static String BROADCAST_HANDLER_PATH = "/api/broadcast/gateway";
 
+    private final JwtConfig jwtConfig;
     private final WebSocketHandler webSocketHandler;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public WebSocketConfig(WebSocketHandler webSocketHandler, JwtTokenProvider jwtTokenProvider) {
+    public WebSocketConfig(JwtConfig jwtConfig, WebSocketHandler webSocketHandler, JwtTokenProvider jwtTokenProvider) {
+        this.jwtConfig = jwtConfig;
         this.webSocketHandler = webSocketHandler;
         this.jwtTokenProvider = jwtTokenProvider;
     }
@@ -41,6 +44,6 @@ public class WebSocketConfig {
     @Bean
     public WebSocketService webSocketService() {
         ReactorNettyRequestUpgradeStrategy strategy = new ReactorNettyRequestUpgradeStrategy();
-        return new JwtHandshakeWebSocketService(strategy, jwtTokenProvider);
+        return new JwtHandshakeWebSocketService(strategy, jwtConfig, jwtTokenProvider);
     }
 }
