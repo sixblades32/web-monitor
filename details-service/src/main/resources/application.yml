@@ -3,8 +3,6 @@ spring:
     base-path: /api/details
 
 server:
-  error:
-    include-stacktrace: always
   port: 8045
 
 management:
