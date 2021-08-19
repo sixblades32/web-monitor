@@ -33,7 +33,13 @@ public class WebSecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeExchange()
-                .pathMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/swagger-ui/**")
+                .pathMatchers(
+                        "/actuator/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/webjars/swagger-ui/**"
+                )
                 .permitAll()
                 .anyExchange().authenticated()
                 .and()
