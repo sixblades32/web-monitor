@@ -32,10 +32,14 @@ public class JwtTokenProvider {
     }
 
     public Claims getClaimsFromJWT(String token) {
-        return Jwts.parser()
-                .setSigningKey(jwtConfig.getSecret().getBytes())
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(jwtConfig.getSecret().getBytes())
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException ex) {
+            return ex.getClaims();
+        }
     }
 
     public boolean validateToken(String authToken) {
