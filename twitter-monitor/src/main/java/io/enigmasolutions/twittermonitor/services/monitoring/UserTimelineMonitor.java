@@ -2,6 +2,7 @@ package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
+import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
@@ -58,6 +59,14 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
         log.info("Current monitor user is: {}", user);
 
         super.start();
+    }
+
+    @Override
+    public MonitorStatus getMonitorStatus(){
+        return MonitorStatus.builder()
+                .status(super.getStatus())
+                .user(user)
+                .build();
     }
 
     @Override

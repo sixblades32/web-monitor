@@ -29,6 +29,6 @@ public class GraphQLUserTimelineMonitorController {
 
     @GetMapping("/status")
     public MonitorStatus status() {
-        return graphQLUserTimelineMonitor.getStatus();
+        return graphQLUserTimelineMonitor.getMonitorStatus();
     }
 }

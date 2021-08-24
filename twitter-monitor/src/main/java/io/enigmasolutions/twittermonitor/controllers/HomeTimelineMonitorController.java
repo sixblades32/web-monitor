@@ -32,6 +32,6 @@ public class HomeTimelineMonitorController {
 
     @GetMapping("/status")
     public MonitorStatus status() {
-        return homeTimelineMonitor.getStatus();
+        return homeTimelineMonitor.getMonitorStatus();
     }
 }
