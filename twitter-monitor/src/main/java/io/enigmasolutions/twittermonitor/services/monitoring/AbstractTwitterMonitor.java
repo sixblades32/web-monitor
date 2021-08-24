@@ -63,6 +63,10 @@ public abstract class AbstractTwitterMonitor {
         this.log = log;
     }
 
+    public Status getStatus(){
+        return status;
+    }
+
     public MultiValueMap<String, String> getParams() {
         return params;
     }
@@ -87,7 +91,7 @@ public abstract class AbstractTwitterMonitor {
         log.info("Monitor has been stopped");
     }
 
-    public MonitorStatus getStatus() {
+    public MonitorStatus getMonitorStatus() {
         return MonitorStatus.builder()
                 .status(status)
                 .build();
@@ -129,7 +133,7 @@ public abstract class AbstractTwitterMonitor {
     }
 
     protected void processErrorResponse(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
-        log.error(exception.toString());
+        if (exception.getStatusCode().value() < 500) log.error(exception.toString());
 
         if (exception.getStatusCode().value() >= 400 &&
                 exception.getStatusCode().value() < 500 &&

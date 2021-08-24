@@ -29,6 +29,6 @@ public class UserTimelineMonitorController {
 
     @GetMapping("/status")
     public MonitorStatus status() {
-        return userTimelineMonitor.getStatus();
+        return userTimelineMonitor.getMonitorStatus();
     }
 }
