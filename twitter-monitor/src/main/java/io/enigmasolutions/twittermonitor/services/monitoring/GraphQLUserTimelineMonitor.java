@@ -22,7 +22,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
-import static io.enigmasolutions.twittermonitor.utils.TweetResponseGenerator.generate;
+import static io.enigmasolutions.twittermonitor.utils.TweetResponseGeneratorForGraphQL.generate;
 
 @Slf4j
 @Component

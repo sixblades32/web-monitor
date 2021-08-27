@@ -3,6 +3,7 @@ package io.enigmasolutions.twittermonitor.services.web;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLResponse;
+import io.enigmasolutions.twittermonitor.models.twitter.v2.V2Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ public class TwitterCustomClient {
 
     private static final String BASE_API_PATH = "https://api.twitter.com/1.1/";
     private static final String GRAPHQL_API_PATH = "https://twitter.com/i/api/graphql/wmAsSZ-tfs22k90iIA7X1w/UserTweetsAndReplies";
+    private static final String V2_BASE_API_PATH = "https://twitter.com/i/api/2/";
     private final RestTemplate restTemplate = new RestTemplate();
     private final TwitterScraper twitterScraper;
 
@@ -33,7 +35,13 @@ public class TwitterCustomClient {
     public ResponseEntity<GraphQLResponse> getGraphQLApiTimelineTweets(MultiValueMap<String, String> params) {
         MultiValueMap<String, String> tweetDeckAuth = generateAuthData();
 
-        return getResponseEntity(params, tweetDeckAuth);
+        return getGraphQLResponseEntity(params, tweetDeckAuth);
+    }
+
+    public ResponseEntity<V2Response> getV2BaseTimelineTweets(MultiValueMap<String, String> params, String timelinePath) {
+        MultiValueMap<String, String> tweetDeckAuth = generateAuthData();
+
+        return getV2ResponseEntity(params, tweetDeckAuth, timelinePath);
     }
 
     private MultiValueMap<String, String> generateAuthData() {
@@ -47,13 +55,34 @@ public class TwitterCustomClient {
         return authData;
     }
 
-//    @NotNull
     private ResponseEntity<TweetResponse[]> getResponseEntity(
             MultiValueMap<String, String> params,
             MultiValueMap<String, String> tweetDeckAuth,
             String path
     ) {
-        String url = BASE_API_PATH + path;
+        return restTemplate.exchange(
+                generateRequestEntity(params, tweetDeckAuth, path, BASE_API_PATH),
+                TweetResponse[].class
+        );
+    }
+
+    private ResponseEntity<V2Response> getV2ResponseEntity(
+            MultiValueMap<String, String> params,
+            MultiValueMap<String, String> tweetDeckAuth,
+            String path
+    ) {
+        return restTemplate.exchange(
+                generateRequestEntity(params, tweetDeckAuth, path, V2_BASE_API_PATH),
+                V2Response.class
+        );
+    }
+
+    private RequestEntity<Void> generateRequestEntity(
+            MultiValueMap<String, String> params,
+            MultiValueMap<String, String> tweetDeckAuth,
+            String path, String baseApiPath) {
+
+        String url = baseApiPath + path;
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParams(params);
@@ -61,16 +90,13 @@ public class TwitterCustomClient {
         HttpHeaders headers = new HttpHeaders();
         headers.addAll(tweetDeckAuth);
 
-        RequestEntity<Void> requestEntity = RequestEntity
+        return RequestEntity
                 .get(builder.toUriString())
                 .headers(headers)
                 .build();
-
-        return restTemplate.exchange(requestEntity, TweetResponse[].class);
     }
 
-    //    @NotNull
-    private ResponseEntity<GraphQLResponse> getResponseEntity(
+    private ResponseEntity<GraphQLResponse> getGraphQLResponseEntity(
             MultiValueMap<String, String> params,
             MultiValueMap<String, String> tweetDeckAuth
     ) {

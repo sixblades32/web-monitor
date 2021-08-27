@@ -21,7 +21,6 @@ public class TwitterRegularClient {
         this.twitterRestTemplate = new TwitterRestTemplate(twitterConsumer.getCredentials()).getRestTemplate();
     }
 
-//    @NotNull
     public ResponseEntity<User[]> getUser(MultiValueMap<String, String> params) {
 
         RequestEntity<Void> requestEntity = buildRequestEntity(USERS_PATH, params);
@@ -29,7 +28,6 @@ public class TwitterRegularClient {
         return twitterRestTemplate.exchange(requestEntity, User[].class);
     }
 
-    //    @NotNull
     public ResponseEntity<FollowsList> getFollows(MultiValueMap<String, String> params) {
 
         RequestEntity<Void> requestEntity = buildRequestEntity(FOLLOWS_PATH, params);
