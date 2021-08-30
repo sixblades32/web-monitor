@@ -106,9 +106,9 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
     protected void prepareClients(List<TwitterScraper> scrapers) {
 
         List<TwitterScraper> invalidScrapers = new ArrayList<>();
+        log.info("Preparing started");
 
         for(TwitterScraper twitterScraper: scrapers){
-            log.info("Preparing started");
             String scraperTwitterId = twitterScraper.getTwitterUser().getTwitterId();
             if(scraperTwitterId.equals("1371445090401542147") || scraperTwitterId.equals("1377556119808249859") || scraperTwitterId.equals("1376524710616432648")){
                 invalidScrapers.add(twitterScraper);
