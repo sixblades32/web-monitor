@@ -178,6 +178,7 @@ public abstract class AbstractTwitterMonitor {
     }
 
     public void restoreFailedClient(TwitterCustomClient twitterCustomClient) {
+        if(failedCustomClients.isEmpty()) throw new NoTargetMatchesException();
 
         if(twitterCustomClient.getTwitterScraper().getCredentials() == null) twitterCustomClient = getFullFailedClient(twitterCustomClient
                 .getTwitterScraper()

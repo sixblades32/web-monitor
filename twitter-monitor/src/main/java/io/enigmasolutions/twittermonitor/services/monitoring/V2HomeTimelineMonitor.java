@@ -114,6 +114,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
             String clientTwitterId = twitterCustomClient.getTwitterScraper().getTwitterUser().getTwitterId();
             if(clientTwitterId.equals("1371445090401542147") || clientTwitterId.equals("1377556119808249859") || clientTwitterId.equals("1376524710616432648")){
                 invalidClients.add(twitterCustomClient);
+                log.info(clientTwitterId + " scraper not loaded in Twitter Custom Clients Pool!");
             }
         }
 
