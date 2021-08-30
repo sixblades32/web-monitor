@@ -104,21 +104,23 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
 
     @Override
     protected void prepareClients(List<TwitterScraper> scrapers) {
-        List<TwitterCustomClient> clients = scrapers.stream()
-                .map(TwitterCustomClient::new)
-                .collect(Collectors.toList());
 
-        List<TwitterCustomClient> invalidClients = new ArrayList<>();
+        List<TwitterScraper> invalidScrapers = new ArrayList<>();
 
-        for(TwitterCustomClient twitterCustomClient: clients){
-            String clientTwitterId = twitterCustomClient.getTwitterScraper().getTwitterUser().getTwitterId();
-            if(clientTwitterId.equals("1371445090401542147") || clientTwitterId.equals("1377556119808249859") || clientTwitterId.equals("1376524710616432648")){
-                invalidClients.add(twitterCustomClient);
-                log.info(clientTwitterId + " scraper not loaded in Twitter Custom Clients Pool!");
+        for(TwitterScraper twitterScraper: scrapers){
+            log.info("Preparing started");
+            String scraperTwitterId = twitterScraper.getTwitterUser().getTwitterId();
+            if(scraperTwitterId.equals("1371445090401542147") || scraperTwitterId.equals("1377556119808249859") || scraperTwitterId.equals("1376524710616432648")){
+                invalidScrapers.add(twitterScraper);
+                log.info(scraperTwitterId + " scraper not loaded in Twitter Custom Clients Pool!");
             }
         }
 
-        invalidClients.forEach(clients::remove);
+        invalidScrapers.forEach(scrapers::remove);
+
+        List<TwitterCustomClient> clients = scrapers.stream()
+                .map(TwitterCustomClient::new)
+                .collect(Collectors.toList());
 
         twitterCustomClients = Collections.synchronizedList(clients);
     }
