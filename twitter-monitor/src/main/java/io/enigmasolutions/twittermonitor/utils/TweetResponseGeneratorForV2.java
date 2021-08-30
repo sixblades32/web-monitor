@@ -12,11 +12,6 @@ public class TweetResponseGeneratorForV2 {
     }
 
     public static TweetResponse generateV2(ArrayList<Tweet> tweets, ArrayList<User> users, TweetResponse.TweetResponseBuilder tweetResponseBuilder) {
-        return setting(tweets, users, tweetResponseBuilder);
-    }
-
-
-    private static TweetResponse setting(ArrayList<Tweet> tweets, ArrayList<User> users, TweetResponse.TweetResponseBuilder tweetResponseBuilder) {
         if (tweets.size() > 1) {
             tweets.forEach(tweet -> {
                 ArrayList<Tweet> retweetTweets = new ArrayList<>(tweets);
