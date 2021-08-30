@@ -4,6 +4,7 @@ import io.enigmasolutions.broadcastmodels.*;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.exceptions.MonitorRunningException;
+import io.enigmasolutions.twittermonitor.exceptions.NoTargetMatchesException;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.monitor.Status;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
@@ -32,7 +33,7 @@ public abstract class AbstractTwitterMonitor {
 
     private final KafkaProducer kafkaProducer;
     private final int timelineDelay;
-    private final TwitterScraperRepository twitterScraperRepository;
+    protected final TwitterScraperRepository twitterScraperRepository;
     private final TwitterHelperService twitterHelperService;
     private final Logger log;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
@@ -43,7 +44,7 @@ public abstract class AbstractTwitterMonitor {
     private Status status = Status.STOPPED;
     private Integer delay = null;
     private MultiValueMap<String, String> params;
-    private List<TwitterCustomClient> twitterCustomClients;
+    protected List<TwitterCustomClient> twitterCustomClients;
 
     public AbstractTwitterMonitor(
             int timelineDelay,
@@ -176,12 +177,34 @@ public abstract class AbstractTwitterMonitor {
         delay = timelineDelay / twitterCustomClients.size();
     }
 
-    private void restoreFailedClient(TwitterCustomClient twitterCustomClient) {
-        if (!failedCustomClients.contains(twitterCustomClient)) return;
+    public void restoreFailedClient(TwitterCustomClient twitterCustomClient) {
+        if(failedCustomClients.isEmpty()) throw new NoTargetMatchesException();
+
+        if(twitterCustomClient.getTwitterScraper().getCredentials() == null) twitterCustomClient = getFullFailedClient(twitterCustomClient
+                .getTwitterScraper()
+                .getTwitterUser()
+                .getTwitterId());
 
         failedCustomClients.remove(twitterCustomClient);
         twitterCustomClients.add(twitterCustomClient);
         log.info("Scraper " + twitterCustomClient.getTwitterScraper().getId() + " successfully restored!");
+    }
+
+    private TwitterCustomClient getFullFailedClient(String twitterId){
+        TwitterCustomClient fullCustomClient = null;
+
+        for (TwitterCustomClient failedCustomClient : failedCustomClients) {
+            if (failedCustomClient
+                    .getTwitterScraper()
+                    .getTwitterUser()
+                    .getTwitterId().equals(twitterId)) {
+                fullCustomClient = failedCustomClient;
+            }
+        }
+
+        if (fullCustomClient == null) throw new NoTargetMatchesException();
+
+        return fullCustomClient;
     }
 
     private void processAlertTarget(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
@@ -216,12 +239,10 @@ public abstract class AbstractTwitterMonitor {
     private void initTwitterCustomClients() {
         List<TwitterScraper> scrapers = twitterScraperRepository.findAll();
 
-        this.twitterCustomClients = scrapers.stream()
-                .map(TwitterCustomClient::new)
-                .collect(Collectors.toList());
-
-        twitterCustomClients = Collections.synchronizedList(twitterCustomClients);
+        prepareClients(scrapers);
     }
+
+    protected abstract void prepareClients(List<TwitterScraper> scrapers);
 
     private Boolean isTweetRelevant(TweetResponse tweetResponse) {
         return new Date().getTime() - Date.parse(tweetResponse.getCreatedAt()) <= 25000;

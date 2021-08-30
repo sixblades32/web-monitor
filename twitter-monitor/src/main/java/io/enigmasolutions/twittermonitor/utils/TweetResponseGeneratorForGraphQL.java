@@ -5,10 +5,9 @@ import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLTweet;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLUser;
 
-public class TweetResponseGenerator {
+public class TweetResponseGeneratorForGraphQL {
 
-    private TweetResponseGenerator() {
-
+    private TweetResponseGeneratorForGraphQL() {
     }
 
     public static TweetResponse generate(GraphQLTweet graphQLTweet) {

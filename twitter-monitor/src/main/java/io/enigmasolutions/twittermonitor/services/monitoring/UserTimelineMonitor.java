@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
@@ -17,7 +18,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -92,5 +95,14 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
         params.add("include_user_entities", "1");
 
         return params;
+    }
+
+    @Override
+    protected void prepareClients(List<TwitterScraper> scrapers) {
+        this.twitterCustomClients = scrapers.stream()
+                .map(TwitterCustomClient::new)
+                .collect(Collectors.toList());
+
+        twitterCustomClients = Collections.synchronizedList(twitterCustomClients);
     }
 }

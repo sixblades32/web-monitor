@@ -2,40 +2,40 @@ package io.enigmasolutions.twittermonitor.controllers;
 
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
-import io.enigmasolutions.twittermonitor.services.monitoring.HomeTimelineTwitterMonitor;
+import io.enigmasolutions.twittermonitor.services.monitoring.V2HomeTimelineMonitor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/home-timeline")
-public class HomeTimelineMonitorController {
+@RequestMapping("/v2-home-timeline")
+public class V2HomeTimelineController {
 
-    private final HomeTimelineTwitterMonitor homeTimelineMonitor;
+    private final V2HomeTimelineMonitor v2HomeTimelineMonitor;
 
     @Autowired
-    public HomeTimelineMonitorController(HomeTimelineTwitterMonitor homeTimelineMonitor) {
-        this.homeTimelineMonitor = homeTimelineMonitor;
+    public V2HomeTimelineController(V2HomeTimelineMonitor v2HomeTimelineMonitor) {
+        this.v2HomeTimelineMonitor = v2HomeTimelineMonitor;
     }
 
     @PostMapping("/start")
     public void start() {
-        homeTimelineMonitor.start();
+        v2HomeTimelineMonitor.start();
     }
 
 
     @PostMapping("/stop")
     public void stop() {
-        homeTimelineMonitor.stop();
+        v2HomeTimelineMonitor.stop();
     }
 
     @GetMapping("/status")
     public MonitorStatus status() {
-        return homeTimelineMonitor.getMonitorStatus();
+        return v2HomeTimelineMonitor.getMonitorStatus();
     }
 
     @PostMapping("/restore")
     public void restore(@RequestBody TwitterScraper twitterScraper) {
-        homeTimelineMonitor.restoreFailedClient(new TwitterCustomClient(twitterScraper));
+        v2HomeTimelineMonitor.restoreFailedClient(new TwitterCustomClient(twitterScraper));
     }
 }

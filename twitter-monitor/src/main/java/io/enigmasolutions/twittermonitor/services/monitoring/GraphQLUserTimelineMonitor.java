@@ -2,6 +2,7 @@ package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
@@ -20,9 +21,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static io.enigmasolutions.twittermonitor.utils.TweetResponseGenerator.generate;
+import static io.enigmasolutions.twittermonitor.utils.TweetResponseGeneratorForGraphQL.generate;
 
 @Slf4j
 @Component
@@ -145,5 +148,14 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
         params.add("variables", variables);
 
         return params;
+    }
+
+    @Override
+    protected void prepareClients(List<TwitterScraper> scrapers) {
+        this.twitterCustomClients = scrapers.stream()
+                .map(TwitterCustomClient::new)
+                .collect(Collectors.toList());
+
+        twitterCustomClients = Collections.synchronizedList(twitterCustomClients);
     }
 }
