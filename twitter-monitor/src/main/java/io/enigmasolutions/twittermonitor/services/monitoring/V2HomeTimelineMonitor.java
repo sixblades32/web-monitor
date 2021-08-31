@@ -35,7 +35,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                                  KafkaProducer kafkaProducer,
                                  List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
                                  List<ImageRecognitionProcessor> imageRecognitionProcessors) {
-        super(1006,
+        super(503,
                 twitterScraperRepository,
                 twitterHelperService,
                 kafkaProducer,
@@ -106,7 +106,6 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
     protected void prepareClients(List<TwitterScraper> scrapers) {
 
         List<TwitterScraper> invalidScrapers = new ArrayList<>();
-        log.info("Preparing started");
 
         for(TwitterScraper twitterScraper: scrapers){
             String scraperTwitterId = twitterScraper.getTwitterUser().getTwitterId();
