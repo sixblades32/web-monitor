@@ -49,7 +49,7 @@ public class TweetResponseGeneratorForV2 {
                     }
                 }
             });
-        } else if (!tweets.isEmpty()) {
+        } else if (!tweets.isEmpty() && !users.isEmpty()) {
             Tweet tweet = tweets.get(0);
             User user = users.get(0);
 
