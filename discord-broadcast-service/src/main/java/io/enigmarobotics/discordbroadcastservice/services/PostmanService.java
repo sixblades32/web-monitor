@@ -2,6 +2,7 @@ package io.enigmarobotics.discordbroadcastservice.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColorConfig;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
 import io.enigmarobotics.discordbroadcastservice.services.web.DiscordClient;
@@ -23,6 +24,7 @@ public class PostmanService {
 
     private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
     private final static ObjectMapper objectMapper = new ObjectMapper();
+    private final DiscordEmbedColorConfig discordEmbedColorConfig;
     private final DiscordClient discordClient;
     private final DictionaryClientCache dictionaryClientService;
     @Value("${alert.discord.url}")
@@ -31,10 +33,12 @@ public class PostmanService {
     @Autowired
     public PostmanService(
             DiscordClient discordClient,
-            DictionaryClientCache dictionaryClientService
+            DictionaryClientCache dictionaryClientService,
+            DiscordEmbedColorConfig discordEmbedColorConfig
     ) {
         this.discordClient = discordClient;
         this.dictionaryClientService = dictionaryClientService;
+        this.discordEmbedColorConfig = discordEmbedColorConfig;
     }
 
     public void sendAlertEmbed(Message message) {
@@ -95,14 +99,15 @@ public class PostmanService {
     }
 
     private void setColors(Message message, CustomerDiscordBroadcastConfig customerDiscordBroadcastConfig) {
-        Embed mainEmbed = message.getEmbeds().get(0);
 
-        if (mainEmbed.getTitle().equals(String.valueOf(TweetType.TWEET))) {
-            message.getEmbeds().forEach(embed -> embed.setColor(customerDiscordBroadcastConfig.getTheme().getTweetColor()));
-        } else if (mainEmbed.getTitle().equals(String.valueOf(TweetType.RETWEET))) {
-            message.getEmbeds().forEach(embed -> embed.setColor(customerDiscordBroadcastConfig.getTheme().getRetweetColor()));
-        } else if (mainEmbed.getTitle().equals(String.valueOf(TweetType.REPLY))) {
-            message.getEmbeds().forEach(embed -> embed.setColor(customerDiscordBroadcastConfig.getTheme().getReplyColor()));
-        }
+        message.getEmbeds().forEach(embed -> {
+            if (embed.getColor() == discordEmbedColorConfig.getTweet()) {
+                embed.setColor(customerDiscordBroadcastConfig.getTheme().getTweetColor());
+            } else if (embed.getColor() == discordEmbedColorConfig.getRetweet()) {
+                embed.setColor(customerDiscordBroadcastConfig.getTheme().getRetweetColor());
+            } else if (embed.getColor() == discordEmbedColorConfig.getReply()) {
+                embed.setColor(customerDiscordBroadcastConfig.getTheme().getReplyColor());
+            }
+        });
     }
 }
