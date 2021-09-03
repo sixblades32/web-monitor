@@ -2,11 +2,9 @@ package io.enigmasolutions.webmonitor.dictionaryservice.services;
 
 import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
-import io.enigmasolutions.webmonitor.dictionaryservice.db.models.documents.Customer;
+import io.enigmasolutions.dictionarymodels.CustomerTheme;
 import io.enigmasolutions.webmonitor.dictionaryservice.db.repositories.CustomerRepository;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -45,5 +43,17 @@ public class CustomerService {
                     return Mono.just(customerDiscordBroadcast);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Mono<CustomerTheme> retrieveCustomerTheme(String id) {
+        return customerRepository.findById(id)
+                .flatMap(customer -> {
+                    CustomerTheme customerTheme = CustomerTheme.builder()
+                            .hexColor(customer.getTheme().getHexColor())
+                            .logoUrl(customer.getTheme().getLogoUrl())
+                            .build();
+
+                    return Mono.just(customerTheme);
+                });
     }
 }

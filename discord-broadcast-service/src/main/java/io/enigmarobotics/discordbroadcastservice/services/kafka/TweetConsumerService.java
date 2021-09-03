@@ -44,7 +44,7 @@ public class TweetConsumerService {
 
         PROCESSING_EXECUTOR.execute(() -> {
             Message message = generateTweetMessage(tweet);
-            postmanService.processLive(message);
+            postmanService.processBase(message);
         });
         PROCESSING_EXECUTOR.execute(() -> {
             Message videoMessage = generateVideoMessage(tweet);

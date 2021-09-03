@@ -1,20 +1,25 @@
 package io.enigmarobotics.discordbroadcastservice.services.web;
 
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
-import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class DiscordClient {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final WebClient webClient;
 
-    public ResponseEntity<String> sendEmbed(String url, Message message) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+    public DiscordClient() {
+        this.webClient = WebClient.builder()
+                .build();
+    }
 
-        HttpEntity<Message> request = new HttpEntity<>(message, headers);
-        return restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+    public void sendEmbed(String webhookUrl, Message message) {
+        webClient.post()
+                .uri(webhookUrl)
+                .bodyValue(message)
+                .retrieve()
+                .toBodilessEntity()
+                .block();
     }
 }

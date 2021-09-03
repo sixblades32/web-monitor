@@ -20,7 +20,7 @@ public class PostmanService {
     private String alertDiscordUrl;
 
     private final DiscordClient discordClient;
-    private final DictionaryClientCache dictionaryClientService;
+    private final DictionaryClientCache dictionaryClientCache;
     private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
     @Autowired
@@ -29,7 +29,7 @@ public class PostmanService {
             DictionaryClientCache dictionaryClientService
     ) {
         this.discordClient = discordClient;
-        this.dictionaryClientService = dictionaryClientService;
+        this.dictionaryClientCache = dictionaryClientService;
     }
 
     public void sendAlertEmbed(Message message) {
@@ -41,7 +41,7 @@ public class PostmanService {
 
     public void processBase(Message message) {
 
-        dictionaryClientService.getWebhooks().forEach(webhooksPack -> PROCESSING_EXECUTOR.execute(() -> {
+        dictionaryClientCache.getWebhooks().forEach(webhooksPack -> PROCESSING_EXECUTOR.execute(() -> {
             String url = getRandomWebhook(webhooksPack.getBaseWebhooks());
 
             discordClient.sendEmbed(url, message);
@@ -51,7 +51,7 @@ public class PostmanService {
 
     public void processLive(Message message) {
 
-        dictionaryClientService.getWebhooks().forEach(webhooksPack -> PROCESSING_EXECUTOR.execute(() -> {
+        dictionaryClientCache.getWebhooks().forEach(webhooksPack -> PROCESSING_EXECUTOR.execute(() -> {
             String url = getRandomWebhook(webhooksPack.getLiveWebhooks());
 
             discordClient.sendEmbed(url, message);

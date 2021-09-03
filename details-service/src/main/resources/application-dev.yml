@@ -1,0 +1,22 @@
+spring:
+  webflux:
+    base-path: /api/details
+
+server:
+  error:
+    include-stacktrace: always
+  port: 8045
+
+management:
+  server:
+    port: 9045
+    base-path: /manage
+
+security:
+  jwt:
+    header: Authorization
+    prefix: Bearer
+    secret: jwt-secret
+
+dictionary-service:
+  url: http://localhost:8015/api/dictionary

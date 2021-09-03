@@ -8,8 +8,7 @@ management:
 
 security:
   jwt:
-    header: Authorization
-    prefix: Bearer
+    query-param: token
     secret: ${SECURITY_JWT_SECRET}
 
 kafka:

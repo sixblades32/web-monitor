@@ -36,6 +36,6 @@ public class DictionaryClientCache {
 
     @CachePut(value = "webhooks")
     public List<CustomerDiscordBroadcast> updateWebhooks(){
-        return getWebhooks();
+        return dictionaryClient.getWebhooks();
     }
 }
