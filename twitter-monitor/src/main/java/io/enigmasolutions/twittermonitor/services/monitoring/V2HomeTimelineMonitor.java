@@ -19,6 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                                  KafkaProducer kafkaProducer,
                                  List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
                                  List<ImageRecognitionProcessor> imageRecognitionProcessors) {
-        super(700,
+        super(550,
                 twitterScraperRepository,
                 twitterHelperService,
                 kafkaProducer,
@@ -68,10 +69,36 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
             ArrayList<Tweet> tweets = new ArrayList<>(globalObjects.getTweets().values());
             ArrayList<User> users = new ArrayList<>(globalObjects.getUsers().values());
 
-            tweetResponse = generateV2(tweets, users, TweetResponse.builder());
+            if (isTweetRelevant(tweets) && !isTweetInCache(tweets))
+                tweetResponse = generateV2(tweets, users, TweetResponse.builder());
         }
 
         return tweetResponse;
+    }
+
+    private Boolean isTweetInCache(ArrayList<Tweet> tweets) {
+        boolean isInCache = false;
+
+        for (Tweet tweet : tweets) {
+            if (twitterHelperService.isTweetInV2Cache(tweet.getTweetId())) {
+                isInCache = true;
+            }
+        }
+
+        return isInCache;
+    }
+
+    private Boolean isTweetRelevant(ArrayList<Tweet> tweets) {
+        boolean isRelevant = false;
+
+        for (Tweet tweet : tweets) {
+            if (new Date().getTime() - Date.parse(tweet.getCreatedAt()) <= 25000) {
+                isRelevant = true;
+                break;
+            }
+        }
+
+        return isRelevant;
     }
 
     @Override
@@ -107,9 +134,9 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
 
         List<TwitterScraper> invalidScrapers = new ArrayList<>();
 
-        for(TwitterScraper twitterScraper: scrapers){
+        for (TwitterScraper twitterScraper : scrapers) {
             String scraperTwitterId = twitterScraper.getTwitterUser().getTwitterId();
-            if(scraperTwitterId.equals("1371445090401542147") || scraperTwitterId.equals("1377556119808249859") || scraperTwitterId.equals("1376524710616432648")){
+            if (scraperTwitterId.equals("1371445090401542147") || scraperTwitterId.equals("1377556119808249859") || scraperTwitterId.equals("1376524710616432648")) {
                 invalidScrapers.add(twitterScraper);
                 log.info(scraperTwitterId + " scraper not loaded in Twitter Custom Clients Pool!");
             }

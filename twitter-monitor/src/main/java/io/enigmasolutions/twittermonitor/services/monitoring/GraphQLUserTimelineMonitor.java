@@ -9,7 +9,10 @@ import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLResponse;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLTweet;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.QueryStringData;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.TweetLegacy;
+import io.enigmasolutions.twittermonitor.models.twitter.v2.Tweet;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
@@ -21,7 +24,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,7 +73,7 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
     }
 
     @Override
-    public MonitorStatus getMonitorStatus(){
+    public MonitorStatus getMonitorStatus() {
         return MonitorStatus.builder()
                 .status(super.getStatus())
                 .user(user)
@@ -100,7 +105,8 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                 .getTimeline()
                 .getNestedTimeline()
                 .getInstructions().isEmpty()) {
-            tweetResponse = generate(graphQlDataResponse.getData()
+
+            GraphQLTweet tweet = graphQlDataResponse.getData()
                     .getUser()
                     .getResult()
                     .getTimeline()
@@ -109,10 +115,17 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                     .getEntries().get(0)
                     .getContent()
                     .getItemContent()
-                    .getTweet());
+                    .getTweet();
+
+            if (isTweetRelevant(tweet.getLegacy()) && !twitterHelperService.isTweetInGraphQLCache(tweet.getRestId()))
+                tweetResponse = generate(tweet);
         }
 
         return tweetResponse;
+    }
+
+    private Boolean isTweetRelevant(TweetLegacy tweet) {
+        return new Date().getTime() - Date.parse(tweet.getCreatedAt()) <= 25000;
     }
 
     @Override

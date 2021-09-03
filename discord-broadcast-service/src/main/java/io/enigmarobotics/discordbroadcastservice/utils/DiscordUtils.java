@@ -219,6 +219,18 @@ public class DiscordUtils {
         List<Embed> embeds = new LinkedList<>();
 
         String description;
+        String title = "TWEET";
+        Field repliedTweetField = null;
+
+        if (tweet.getType() == TweetType.REPLY){
+            title = "REPLY";
+
+            repliedTweetField = Field.builder()
+                    .inline(false)
+                    .name("TWEET")
+                    .value("**[©" + tweet.getReplied().getUser().getLogin() + "](" + tweet.getReplied().getTweetUrl() + ")**")
+                    .build();
+        }
 
         if (!tweet.getText().equals("")) {
             description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
@@ -257,12 +269,16 @@ public class DiscordUtils {
                         ") • [**Likes**](" + tweet.getLikesUrl() + ")")
                 .build();
 
+        if (repliedTweetField != null){
+            fields.add(repliedTweetField);
+        }
+
         fields.add(additionalInfoField);
 
         embeds.add(Embed.builder()
                 .author(author)
                 .footer(footer)
-                .title("TWEET")
+                .title(title)
                 .description(description)
                 .color(embedColor)
                 .fields(fields)

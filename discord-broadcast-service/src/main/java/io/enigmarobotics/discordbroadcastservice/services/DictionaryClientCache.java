@@ -1,7 +1,7 @@
 package io.enigmarobotics.discordbroadcastservice.services;
 
 import io.enigmarobotics.discordbroadcastservice.services.web.DictionaryClient;
-import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
+import io.enigmasolutions.dictionarymodels.CustomerConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,22 +20,15 @@ public class DictionaryClientCache {
         this.dictionaryClient = dictionaryClient;
     }
 
-    @Scheduled(fixedRate = 15000)
-    public void scheduleCacheUpdate() {
-        List<CustomerDiscordBroadcast> customerDiscordBroadcasts = updateWebhooks();
-        log.info(
-                "Received {} CustomerDiscordBroadcast objects while updating webhooks cache",
-                customerDiscordBroadcasts.size()
-        );
+
+
+    @Cacheable(value = "customers")
+    public List<CustomerConfig> getCustomersConfigs(){
+        return dictionaryClient.getCustomerConfig();
     }
 
-    @Cacheable(value = "webhooks")
-    public List<CustomerDiscordBroadcast> getWebhooks(){
-        return dictionaryClient.getWebhooks();
-    }
-
-    @CachePut(value = "webhooks")
-    public List<CustomerDiscordBroadcast> updateWebhooks(){
-        return dictionaryClient.getWebhooks();
+    @CachePut(value = "customers")
+    public List<CustomerConfig> updateCustomers(){
+        return getCustomersConfigs();
     }
 }

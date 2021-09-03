@@ -29,7 +29,6 @@ public class TweetGenerator {
     private static Tweet buildTweet(TweetResponse tweetResponse, List<Media> media, List<String> detectedUrls) {
         Tweet.TweetBuilder tweetBuilder = Tweet.builder()
                 .type(tweetResponse.getType())
-                .text(tweetResponse.getText().trim())
                 .user(buildTweetUser(tweetResponse))
                 .tweetUrl(tweetResponse.getTweetUrl())
                 .media(media)
@@ -37,6 +36,10 @@ public class TweetGenerator {
                 .followsUrl(tweetResponse.getFollowsUrl())
                 .likesUrl(tweetResponse.getLikesUrl())
                 .retweetsUrl(tweetResponse.getRetweetsUrl());
+
+        if(tweetResponse.getText() != null) {
+            tweetBuilder.text(tweetResponse.getText().trim());
+        }
 
         if (tweetResponse.getRetweetedStatus() != null) {
             tweetBuilder.retweeted(generate(tweetResponse.getRetweetedStatus()));

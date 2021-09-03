@@ -45,14 +45,27 @@ public enum DiscordBroadcastTweetType {
         @Override
         public List<Embed> generateTweetEmbed(Tweet tweet, DiscordEmbedColorConfig discordEmbedColorConfig) {
             List<Embed> embeds = new ArrayList<>();
+            List<Embed> retweetedTweet;
+            Embed coMainTweet = null;
+
             Embed mainTweet = DiscordUtils.generateRetweetEmbed(tweet, discordEmbedColorConfig.getRetweet());
-            List<Embed> retweetedTweet = DiscordUtils.generateTweetFromRetweetEmbed(
-                    tweet.getRetweeted(),
-                    tweet.getUser().getLogin(),
-                    discordEmbedColorConfig.getRetweet()
-            );
+
+            if(tweet.getRetweeted().getRetweeted() != null){
+                coMainTweet = DiscordUtils.generateRetweetEmbed(tweet.getRetweeted(), discordEmbedColorConfig.getRetweet());
+                retweetedTweet = DiscordUtils.generateTweetFromRetweetEmbed(
+                        tweet.getRetweeted().getRetweeted(),
+                        tweet.getRetweeted().getUser().getLogin(),
+                        discordEmbedColorConfig.getRetweet());
+            }else {
+                retweetedTweet = DiscordUtils.generateTweetFromRetweetEmbed(
+                        tweet.getRetweeted(),
+                        tweet.getUser().getLogin(),
+                        discordEmbedColorConfig.getRetweet()
+                );
+            }
 
             embeds.add(mainTweet);
+            if(coMainTweet != null) embeds.add(coMainTweet);
             embeds.addAll(retweetedTweet);
 
             return embeds;

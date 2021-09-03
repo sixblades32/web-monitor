@@ -34,7 +34,7 @@ public abstract class AbstractTwitterMonitor {
     private final KafkaProducer kafkaProducer;
     private final int timelineDelay;
     protected final TwitterScraperRepository twitterScraperRepository;
-    private final TwitterHelperService twitterHelperService;
+    protected final TwitterHelperService twitterHelperService;
     private final Logger log;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
     private final List<ImageRecognitionProcessor> imageRecognitionProcessors;
@@ -64,7 +64,7 @@ public abstract class AbstractTwitterMonitor {
         this.log = log;
     }
 
-    public Status getStatus(){
+    public Status getStatus() {
         return status;
     }
 
@@ -123,7 +123,7 @@ public abstract class AbstractTwitterMonitor {
     protected void processTweetResponse(TweetResponse tweetResponse) {
         if (tweetResponse == null) return;
 
-        if (isTweetRelevant(tweetResponse) && !twitterHelperService.isInTweetCache(tweetResponse.getTweetId())) {
+        if (isTweetRelevant(tweetResponse) && !twitterHelperService.isTweetInCache(tweetResponse.getTweetId())) {
             Tweet tweet = generate(tweetResponse);
 
             log.info("Received tweet for processing: {}", tweet);
@@ -178,19 +178,20 @@ public abstract class AbstractTwitterMonitor {
     }
 
     public void restoreFailedClient(TwitterCustomClient twitterCustomClient) {
-        if(failedCustomClients.isEmpty()) throw new NoTargetMatchesException();
+        if (failedCustomClients.isEmpty()) throw new NoTargetMatchesException();
 
-        if(twitterCustomClient.getTwitterScraper().getCredentials() == null) twitterCustomClient = getFullFailedClient(twitterCustomClient
-                .getTwitterScraper()
-                .getTwitterUser()
-                .getTwitterId());
+        if (twitterCustomClient.getTwitterScraper().getCredentials() == null)
+            twitterCustomClient = getFullFailedClient(twitterCustomClient
+                    .getTwitterScraper()
+                    .getTwitterUser()
+                    .getTwitterId());
 
         failedCustomClients.remove(twitterCustomClient);
         twitterCustomClients.add(twitterCustomClient);
         log.info("Scraper " + twitterCustomClient.getTwitterScraper().getId() + " successfully restored!");
     }
 
-    private TwitterCustomClient getFullFailedClient(String twitterId){
+    private TwitterCustomClient getFullFailedClient(String twitterId) {
         TwitterCustomClient fullCustomClient = null;
 
         for (TwitterCustomClient failedCustomClient : failedCustomClients) {

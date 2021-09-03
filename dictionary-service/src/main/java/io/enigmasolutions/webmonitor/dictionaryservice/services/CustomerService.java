@@ -1,5 +1,6 @@
 package io.enigmasolutions.webmonitor.dictionaryservice.services;
 
+import io.enigmasolutions.dictionarymodels.CustomerConfig;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
 import io.enigmasolutions.dictionarymodels.CustomerTheme;
@@ -55,5 +56,33 @@ public class CustomerService {
 
                     return Mono.just(customerTheme);
                 });
+    }
+
+    public Mono<List<CustomerConfig>> retrieveAllCustomersConfigs() {
+        return customerRepository.findAll()
+                .flatMap(customer -> {
+                    CustomerConfig customerConfig = CustomerConfig.builder()
+                            .customerDiscordBroadcast(CustomerDiscordBroadcast.builder()
+                                    .baseWebhooks(customer.getDiscordBroadcast().getBaseWebhooks())
+                                    .liveWebhooks(customer.getDiscordBroadcast().getLiveWebhooks())
+                                    .build())
+                            .customerDiscordGuild(CustomerDiscordGuild.builder()
+                                    .guildId(customer.getDiscordGuild().getGuildId())
+                                    .moderatorsRoles(customer.getDiscordGuild().getModeratorsRoles())
+                                    .usersRoles(customer.getDiscordGuild().getUsersRoles())
+                                    .build())
+                            .theme(CustomerTheme.builder()
+                                    .tweetColor(customer.getTheme().getTweetColor())
+                                    .retweetColor(customer.getTheme().getRetweetColor())
+                                    .replyColor(customer.getTheme().getReplyColor())
+                                    .isCustom(customer.getTheme().getIsCustom())
+                                    .hexColor(customer.getTheme().getHexColor())
+                                    .logoUrl(customer.getTheme().getLogoUrl())
+                                    .build())
+                            .build();
+
+                    return Mono.just(customerConfig);
+                })
+                .collect(Collectors.toList());
     }
 }

@@ -25,6 +25,8 @@ public class TwitterHelperService {
     private final List<String> liveReleaseTargetsIds = new LinkedList<>();
     private final List<String> liveReleaseTargetsScreenNames = new LinkedList<>();
     private final List<String> tweetsCache = new LinkedList<>();
+    private final List<String> v2TweetsCache = new LinkedList<>();
+    private final List<String> graphQLTweetsCache = new LinkedList<>();
 
     private final TwitterConsumerRepository twitterConsumerRepository;
     private final TargetRepository targetRepository;
@@ -99,22 +101,42 @@ public class TwitterHelperService {
         return client;
     }
 
-    public Boolean isInTweetCache(String id) {
+    public Boolean isTweetInCache(String id) {
         if (tweetsCache.contains(id)) {
             return true;
         } else {
             tweetsCache.add(id);
-            removeFromCache(id);
+            removeFromCache(id, tweetsCache);
             return false;
         }
     }
 
-    public void removeFromCache(String id) {
+    public Boolean isTweetInV2Cache(String id) {
+        if (v2TweetsCache.contains(id)) {
+            return true;
+        } else {
+            v2TweetsCache.add(id);
+            removeFromCache(id, v2TweetsCache);
+            return false;
+        }
+    }
+
+    public Boolean isTweetInGraphQLCache(String id) {
+        if (graphQLTweetsCache.contains(id)) {
+            return true;
+        } else {
+            graphQLTweetsCache.add(id);
+            removeFromCache(id, graphQLTweetsCache);
+            return false;
+        }
+    }
+
+    public void removeFromCache(String id, List<String> cache) {
         Timer timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                tweetsCache.remove(id);
+                cache.remove(id);
             }
         };
 
