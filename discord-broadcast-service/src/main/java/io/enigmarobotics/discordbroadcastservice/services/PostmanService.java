@@ -44,13 +44,19 @@ public class PostmanService {
     public void processBase(Message message) {
 
         dictionaryClientService.getCustomersConfigs().forEach(customerConfig -> PROCESSING_EXECUTOR.execute(() -> {
+
+            Message localMessage = Message.builder()
+                    .embeds(message.getEmbeds())
+                    .content(message.getContent())
+                    .build();
+
             String url = getRandomWebhook(customerConfig.getCustomerDiscordBroadcast().getBaseWebhooks());
 
             if (customerConfig.getTheme().getIsCustom()) {
-                setColors(message, customerConfig);
+                setColors(localMessage, customerConfig);
             }
 
-            discordClient.sendEmbed(url, message);
+            discordClient.sendEmbed(url, localMessage);
             log.info("Tweet embed sent to customer's" + " base webhook. (" + url + ")");
         }));
     }
