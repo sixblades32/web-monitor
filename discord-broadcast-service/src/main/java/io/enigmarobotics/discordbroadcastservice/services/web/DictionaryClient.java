@@ -21,7 +21,7 @@ public class DictionaryClient {
 
     public List<CustomerDiscordBroadcastConfig> getCustomerConfig() {
         return webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/discord/broadcast/configs/all")
+                .uri(uriBuilder -> uriBuilder.path("/customers/discord/broadcast/configs/all")
                         .build())
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<CustomerDiscordBroadcastConfig>>() {

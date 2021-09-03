@@ -21,7 +21,7 @@ public class DictionaryClientCacheScheduler {
     public void scheduleCacheUpdate() {
         List<CustomerDiscordBroadcastConfig> customerDiscordBroadcastConfigs = dictionaryClientCache.updateCustomers();
         log.info(
-                "Received {} CustomerDiscordBroadcast objects while updating webhooks cache",
+                "Received {} CustomerDiscordBroadcastConfig objects while updating customer's configs cache",
                 customerDiscordBroadcastConfigs.size()
         );
     }
