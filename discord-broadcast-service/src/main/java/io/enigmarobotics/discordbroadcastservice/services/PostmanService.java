@@ -1,5 +1,7 @@
 package io.enigmarobotics.discordbroadcastservice.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
 import io.enigmarobotics.discordbroadcastservice.services.web.DiscordClient;
@@ -20,6 +22,7 @@ import java.util.concurrent.Executors;
 public class PostmanService {
 
     private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
+    private final static ObjectMapper objectMapper = new ObjectMapper();
     private final DiscordClient discordClient;
     private final DictionaryClientCache dictionaryClientService;
     @Value("${alert.discord.url}")
@@ -44,34 +47,40 @@ public class PostmanService {
     public void processBase(Message message) {
 
         dictionaryClientService.getCustomersConfigs().forEach(customerConfig -> PROCESSING_EXECUTOR.execute(() -> {
+            try {
+                Message localMessage = objectMapper.readValue(objectMapper.writeValueAsString(message), Message.class);
 
-            Message localMessage = Message.builder()
-                    .embeds(message.getEmbeds())
-                    .content(message.getContent())
-                    .build();
+                String url = getRandomWebhook(customerConfig.getCustomerDiscordBroadcast().getBaseWebhooks());
 
-            String url = getRandomWebhook(customerConfig.getCustomerDiscordBroadcast().getBaseWebhooks());
+                if (customerConfig.getTheme().getIsCustom() && localMessage != null) {
+                    setColors(localMessage, customerConfig);
+                }
 
-            if (customerConfig.getTheme().getIsCustom()) {
-                setColors(localMessage, customerConfig);
+                discordClient.sendEmbed(url, localMessage);
+                log.info("Tweet embed sent to customer's" + " base webhook. (" + url + ")");
+            } catch (JsonProcessingException e) {
+                log.error(e.getMessage());
             }
-
-            discordClient.sendEmbed(url, localMessage);
-            log.info("Tweet embed sent to customer's" + " base webhook. (" + url + ")");
         }));
     }
 
     public void processLive(Message message) {
 
         dictionaryClientService.getCustomersConfigs().forEach(customerConfig -> PROCESSING_EXECUTOR.execute(() -> {
-            String url = getRandomWebhook(customerConfig.getCustomerDiscordBroadcast().getLiveWebhooks());
+            try {
+                Message localMessage = objectMapper.readValue(objectMapper.writeValueAsString(message), Message.class);
 
-            if (customerConfig.getTheme().getIsCustom()) {
-                setColors(message, customerConfig);
+                String url = getRandomWebhook(customerConfig.getCustomerDiscordBroadcast().getLiveWebhooks());
+
+                if (customerConfig.getTheme().getIsCustom() && localMessage != null) {
+                    setColors(localMessage, customerConfig);
+                }
+
+                discordClient.sendEmbed(url, localMessage);
+                log.info("Tweet embed sent to customer's" + " live release webhook. (" + url + ")");
+            } catch (JsonProcessingException e) {
+                log.error(e.getMessage());
             }
-
-            discordClient.sendEmbed(url, message);
-            log.info("Tweet embed sent to customer's" + " live release webhook. (" + url + ")");
         }));
     }
 
