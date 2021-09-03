@@ -14,6 +14,6 @@ public class CustomerTheme {
     private Integer tweetColor;
     private Integer retweetColor;
     private Integer replyColor;
-    private String hexColor;
+    private String generalColor;
     private String logoUrl;
 }

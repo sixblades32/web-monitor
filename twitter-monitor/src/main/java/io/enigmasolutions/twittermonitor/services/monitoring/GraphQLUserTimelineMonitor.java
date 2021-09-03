@@ -12,7 +12,6 @@ import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLTweet;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.QueryStringData;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.TweetLegacy;
-import io.enigmasolutions.twittermonitor.models.twitter.v2.Tweet;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
@@ -24,7 +23,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;

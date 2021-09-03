@@ -54,7 +54,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Alert> alertKafkaTemplate(){
+    public KafkaTemplate<String, Alert> alertKafkaTemplate() {
         KafkaTemplate<String, Alert> kafkaTemplate = new KafkaTemplate<>(producerFactory());
         kafkaTemplate.setProducerListener(new LoggingProducerListener<>());
 

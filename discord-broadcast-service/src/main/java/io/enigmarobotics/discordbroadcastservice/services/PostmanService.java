@@ -4,7 +4,7 @@ import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.domain.models.Message;
 import io.enigmarobotics.discordbroadcastservice.services.web.DiscordClient;
 import io.enigmasolutions.broadcastmodels.TweetType;
-import io.enigmasolutions.dictionarymodels.CustomerConfig;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcastConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,12 +19,11 @@ import java.util.concurrent.Executors;
 @Service
 public class PostmanService {
 
-    @Value("${alert.discord.url}")
-    private String alertDiscordUrl;
-
+    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
     private final DiscordClient discordClient;
     private final DictionaryClientCache dictionaryClientService;
-    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
+    @Value("${alert.discord.url}")
+    private String alertDiscordUrl;
 
     @Autowired
     public PostmanService(
@@ -47,7 +46,7 @@ public class PostmanService {
         dictionaryClientService.getCustomersConfigs().forEach(customerConfig -> PROCESSING_EXECUTOR.execute(() -> {
             String url = getRandomWebhook(customerConfig.getCustomerDiscordBroadcast().getBaseWebhooks());
 
-            if(customerConfig.getTheme().getIsCustom()){
+            if (customerConfig.getTheme().getIsCustom()) {
                 setColors(message, customerConfig);
             }
 
@@ -61,7 +60,7 @@ public class PostmanService {
         dictionaryClientService.getCustomersConfigs().forEach(customerConfig -> PROCESSING_EXECUTOR.execute(() -> {
             String url = getRandomWebhook(customerConfig.getCustomerDiscordBroadcast().getLiveWebhooks());
 
-            if(customerConfig.getTheme().getIsCustom()){
+            if (customerConfig.getTheme().getIsCustom()) {
                 setColors(message, customerConfig);
             }
 
@@ -70,25 +69,25 @@ public class PostmanService {
         }));
     }
 
-    private String getRandomWebhook(List<String> webhooks){
+    private String getRandomWebhook(List<String> webhooks) {
         Random rand = new Random();
 
-        if(webhooks.size() > 0){
+        if (webhooks.size() > 0) {
             return webhooks.get(rand.nextInt(webhooks.size()));
         }
 
         return null;
     }
 
-    private void setColors(Message message, CustomerConfig customerConfig){
+    private void setColors(Message message, CustomerDiscordBroadcastConfig customerDiscordBroadcastConfig) {
         Embed mainEmbed = message.getEmbeds().get(0);
 
-        if (mainEmbed.getTitle().equals(String.valueOf(TweetType.TWEET))){
-            message.getEmbeds().forEach(embed -> embed.setColor(customerConfig.getTheme().getTweetColor()));
-        }else if (mainEmbed.getTitle().equals(String.valueOf(TweetType.RETWEET))){
-            message.getEmbeds().forEach(embed -> embed.setColor(customerConfig.getTheme().getRetweetColor()));
-        }else if(mainEmbed.getTitle().equals(String.valueOf(TweetType.REPLY))){
-            message.getEmbeds().forEach(embed -> embed.setColor(customerConfig.getTheme().getReplyColor()));
+        if (mainEmbed.getTitle().equals(String.valueOf(TweetType.TWEET))) {
+            message.getEmbeds().forEach(embed -> embed.setColor(customerDiscordBroadcastConfig.getTheme().getTweetColor()));
+        } else if (mainEmbed.getTitle().equals(String.valueOf(TweetType.RETWEET))) {
+            message.getEmbeds().forEach(embed -> embed.setColor(customerDiscordBroadcastConfig.getTheme().getRetweetColor()));
+        } else if (mainEmbed.getTitle().equals(String.valueOf(TweetType.REPLY))) {
+            message.getEmbeds().forEach(embed -> embed.setColor(customerDiscordBroadcastConfig.getTheme().getReplyColor()));
         }
     }
 }

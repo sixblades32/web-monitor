@@ -9,12 +9,11 @@ import java.util.List;
 @Builder
 public class Embed {
 
+    public Author author;
+    public Image image;
+    public Footer footer;
     private String title;
     private String description;
     private int color;
     private List<Field> fields;
-
-    public Author author;
-    public Image image;
-    public Footer footer;
 }

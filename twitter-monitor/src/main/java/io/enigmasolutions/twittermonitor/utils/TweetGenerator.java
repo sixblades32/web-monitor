@@ -37,7 +37,7 @@ public class TweetGenerator {
                 .likesUrl(tweetResponse.getLikesUrl())
                 .retweetsUrl(tweetResponse.getRetweetsUrl());
 
-        if(tweetResponse.getText() != null) {
+        if (tweetResponse.getText() != null) {
             tweetBuilder.text(tweetResponse.getText().trim());
         }
 

@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerConfig {
+public class CustomerDiscordBroadcastConfig {
     private CustomerDiscordBroadcast customerDiscordBroadcast;
-    private CustomerDiscordGuild customerDiscordGuild;
     private CustomerTheme theme;
 }

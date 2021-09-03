@@ -1,8 +1,8 @@
 package io.enigmarobotics.discordbroadcastservice.utils;
 
 import io.enigmarobotics.discordbroadcastservice.domain.models.*;
-import io.enigmarobotics.discordbroadcastservice.domain.wrappers.*;
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.DiscordBroadcastRecognitionType;
+import io.enigmarobotics.discordbroadcastservice.domain.wrappers.DiscordBroadcastTweetType;
 import io.enigmasolutions.broadcastmodels.*;
 
 import java.util.ArrayList;
@@ -222,7 +222,7 @@ public class DiscordUtils {
         String title = "TWEET";
         Field repliedTweetField = null;
 
-        if (tweet.getType() == TweetType.REPLY){
+        if (tweet.getType() == TweetType.REPLY) {
             title = "REPLY";
 
             repliedTweetField = Field.builder()
@@ -269,7 +269,7 @@ public class DiscordUtils {
                         ") • [**Likes**](" + tweet.getLikesUrl() + ")")
                 .build();
 
-        if (repliedTweetField != null){
+        if (repliedTweetField != null) {
             fields.add(repliedTweetField);
         }
 

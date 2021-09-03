@@ -1,11 +1,10 @@
 package io.enigmarobotics.discordbroadcastservice.services;
 
 import io.enigmarobotics.discordbroadcastservice.services.web.DictionaryClient;
-import io.enigmasolutions.dictionarymodels.CustomerConfig;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcastConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,14 +20,13 @@ public class DictionaryClientCache {
     }
 
 
-
     @Cacheable(value = "customers")
-    public List<CustomerConfig> getCustomersConfigs(){
+    public List<CustomerDiscordBroadcastConfig> getCustomersConfigs() {
         return dictionaryClient.getCustomerConfig();
     }
 
     @CachePut(value = "customers")
-    public List<CustomerConfig> updateCustomers(){
+    public List<CustomerDiscordBroadcastConfig> updateCustomers() {
         return getCustomersConfigs();
     }
 }

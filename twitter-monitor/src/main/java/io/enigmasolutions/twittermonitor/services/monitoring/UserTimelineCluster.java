@@ -1,8 +1,5 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
-import io.enigmasolutions.twittermonitor.db.models.documents.Target;
-import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
-import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
@@ -80,13 +77,13 @@ public class UserTimelineCluster {
                 userTimelineMonitorForStop = userTimelineMonitor;
             }
         }
-        if(userTimelineMonitorForStop != null){
+        if (userTimelineMonitorForStop != null) {
             userTimelineMonitorForStop.stop();
             userTimelineMonitors.remove(userTimelineMonitorForStop);
         }
     }
 
-    public List<MonitorStatus> getMonitorStatus(){
+    public List<MonitorStatus> getMonitorStatus() {
         return userTimelineMonitors.stream().map(UserTimelineMonitor::getMonitorStatus).collect(Collectors.toList());
     }
 

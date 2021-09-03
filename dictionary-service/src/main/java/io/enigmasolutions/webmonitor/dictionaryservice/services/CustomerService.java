@@ -1,7 +1,7 @@
 package io.enigmasolutions.webmonitor.dictionaryservice.services;
 
-import io.enigmasolutions.dictionarymodels.CustomerConfig;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcastConfig;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
 import io.enigmasolutions.dictionarymodels.CustomerTheme;
 import io.enigmasolutions.webmonitor.dictionaryservice.db.repositories.CustomerRepository;
@@ -33,24 +33,11 @@ public class CustomerService {
                 });
     }
 
-    public Mono<List<CustomerDiscordBroadcast>> retrieveAllWebhooks() {
-        return customerRepository.findAll()
-                .flatMap(customer -> {
-                    CustomerDiscordBroadcast customerDiscordBroadcast = CustomerDiscordBroadcast.builder()
-                            .baseWebhooks(customer.getDiscordBroadcast().getBaseWebhooks())
-                            .liveWebhooks(customer.getDiscordBroadcast().getLiveWebhooks())
-                            .build();
-
-                    return Mono.just(customerDiscordBroadcast);
-                })
-                .collect(Collectors.toList());
-    }
-
     public Mono<CustomerTheme> retrieveCustomerTheme(String id) {
         return customerRepository.findById(id)
                 .flatMap(customer -> {
                     CustomerTheme customerTheme = CustomerTheme.builder()
-                            .hexColor(customer.getTheme().getHexColor())
+                            .generalColor(customer.getTheme().getGeneralColor())
                             .logoUrl(customer.getTheme().getLogoUrl())
                             .build();
 
@@ -58,30 +45,25 @@ public class CustomerService {
                 });
     }
 
-    public Mono<List<CustomerConfig>> retrieveAllCustomersConfigs() {
+    public Mono<List<CustomerDiscordBroadcastConfig>> retrieveAllCustomersDiscordBroadcastConfigs() {
         return customerRepository.findAll()
                 .flatMap(customer -> {
-                    CustomerConfig customerConfig = CustomerConfig.builder()
+                    CustomerDiscordBroadcastConfig customerDiscordBroadcastConfig = CustomerDiscordBroadcastConfig.builder()
                             .customerDiscordBroadcast(CustomerDiscordBroadcast.builder()
                                     .baseWebhooks(customer.getDiscordBroadcast().getBaseWebhooks())
                                     .liveWebhooks(customer.getDiscordBroadcast().getLiveWebhooks())
-                                    .build())
-                            .customerDiscordGuild(CustomerDiscordGuild.builder()
-                                    .guildId(customer.getDiscordGuild().getGuildId())
-                                    .moderatorsRoles(customer.getDiscordGuild().getModeratorsRoles())
-                                    .usersRoles(customer.getDiscordGuild().getUsersRoles())
                                     .build())
                             .theme(CustomerTheme.builder()
                                     .tweetColor(customer.getTheme().getTweetColor())
                                     .retweetColor(customer.getTheme().getRetweetColor())
                                     .replyColor(customer.getTheme().getReplyColor())
                                     .isCustom(customer.getTheme().getIsCustom())
-                                    .hexColor(customer.getTheme().getHexColor())
+                                    .generalColor(customer.getTheme().getGeneralColor())
                                     .logoUrl(customer.getTheme().getLogoUrl())
                                     .build())
                             .build();
 
-                    return Mono.just(customerConfig);
+                    return Mono.just(customerDiscordBroadcastConfig);
                 })
                 .collect(Collectors.toList());
     }

@@ -32,7 +32,7 @@ public class TweetResponseGeneratorForV2 {
 
                     users.forEach(user -> {
                         if (user.getId().equals(tweet.getUserId())) {
-                            if(users.size() > 1){
+                            if (users.size() > 1) {
                                 retweetUsers.remove(user);
                             }
 

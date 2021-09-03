@@ -1,11 +1,12 @@
 package io.enigmarobotics.discordbroadcastservice.services;
 
-import io.enigmasolutions.dictionarymodels.CustomerConfig;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcastConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 @Slf4j
 public class DictionaryClientCacheScheduler {
@@ -18,10 +19,10 @@ public class DictionaryClientCacheScheduler {
 
     @Scheduled(fixedRate = 15000)
     public void scheduleCacheUpdate() {
-        List<CustomerConfig> customerConfigs = dictionaryClientCache.updateCustomers();
+        List<CustomerDiscordBroadcastConfig> customerDiscordBroadcastConfigs = dictionaryClientCache.updateCustomers();
         log.info(
                 "Received {} CustomerDiscordBroadcast objects while updating webhooks cache",
-                customerConfigs.size()
+                customerDiscordBroadcastConfigs.size()
         );
     }
 }

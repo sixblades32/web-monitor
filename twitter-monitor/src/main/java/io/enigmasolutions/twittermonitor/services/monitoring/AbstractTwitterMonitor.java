@@ -27,24 +27,22 @@ import static io.enigmasolutions.twittermonitor.utils.TweetGenerator.generate;
 
 public abstract class AbstractTwitterMonitor {
 
+    protected final TwitterScraperRepository twitterScraperRepository;
+    protected final TwitterHelperService twitterHelperService;
     private final Timer timer = new Timer();
     private final ExecutorService mainThreadExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService processingExecutor = Executors.newCachedThreadPool();
-
     private final KafkaProducer kafkaProducer;
     private final int timelineDelay;
-    protected final TwitterScraperRepository twitterScraperRepository;
-    protected final TwitterHelperService twitterHelperService;
     private final Logger log;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
     private final List<ImageRecognitionProcessor> imageRecognitionProcessors;
 
     protected List<TwitterCustomClient> failedCustomClients = Collections.synchronizedList(new LinkedList<>());
-
+    protected List<TwitterCustomClient> twitterCustomClients;
     private Status status = Status.STOPPED;
     private Integer delay = null;
     private MultiValueMap<String, String> params;
-    protected List<TwitterCustomClient> twitterCustomClients;
 
     public AbstractTwitterMonitor(
             int timelineDelay,
