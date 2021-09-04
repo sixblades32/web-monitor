@@ -21,30 +21,23 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(
-            ServerHttpSecurity httpSecurity,
-            UnauthorizedAuthenticationEntryPoint authenticationEntryPoint
+    public SecurityWebFilterChain springSecurityFilterChain(
+            ServerHttpSecurity http,
+            UnauthorizedAuthenticationEntryPoint entryPoint
     ) {
-        return httpSecurity
+        http
                 .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint)
-                .and()
-                .csrf().disable()
-                .formLogin().disable()
-                .httpBasic().disable()
-                .authorizeExchange()
-                .pathMatchers(
-                        "/actuator/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/webjars/swagger-ui/**"
-                )
-                .permitAll()
-                .anyExchange().authenticated()
+                .authenticationEntryPoint(entryPoint)
                 .and()
                 .authenticationManager(authenticationManager)
-                .securityContextRepository(securityContextRepository)
-                .build();
+                .securityContextRepository(securityContextRepository).authorizeExchange()
+                .anyExchange().authenticated()
+                .and()
+                .httpBasic().disable()
+                .formLogin().disable()
+                .csrf().disable()
+                .logout().disable();
+
+        return http.build();
     }
 }

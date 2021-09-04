@@ -1,12 +1,16 @@
 package io.enigmasolutions.webmonitor.webbroadcastservice.services.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.enigmasolutions.webmonitor.webbroadcastservice.models.Timeline;
+import io.enigmasolutions.webmonitor.webbroadcastservice.models.broadcast.Broadcast;
+import io.enigmasolutions.webmonitor.webbroadcastservice.models.external.Timeline;
 import io.enigmasolutions.webmonitor.webbroadcastservice.services.BroadcastService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
 
-import static io.enigmasolutions.webmonitor.webbroadcastservice.utils.DataWrapperUtil.wrapData;
+import java.nio.charset.StandardCharsets;
+
+import static io.enigmasolutions.webmonitor.webbroadcastservice.utils.DataWrapperUtil.wrapBroadcast;
 
 @Slf4j
 public class AbstractConsumerService<T> {
@@ -22,7 +26,15 @@ public class AbstractConsumerService<T> {
     }
 
     public void consume(ConsumerRecord<String, String> record) throws JsonProcessingException {
-        String wrappedData = wrapData(timeline, record.timestamp(), record.value(), tClass);
-        broadcastService.tryEmitNext(wrappedData);
+        Header clientIdHeader = record.headers().lastHeader("Customer-Id");
+        String clientId = clientIdHeader != null ? new String(clientIdHeader.value(), StandardCharsets.UTF_8) : null;
+        Broadcast broadcast = wrapBroadcast(
+                timeline,
+                record.timestamp(),
+                record.value(),
+                clientId,
+                tClass
+        );
+        broadcastService.tryEmitNext(broadcast);
     }
 }

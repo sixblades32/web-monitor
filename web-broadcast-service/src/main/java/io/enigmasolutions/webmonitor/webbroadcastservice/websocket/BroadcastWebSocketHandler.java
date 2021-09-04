@@ -1,6 +1,8 @@
 package io.enigmasolutions.webmonitor.webbroadcastservice.websocket;
 
 import io.enigmasolutions.webmonitor.webbroadcastservice.services.BroadcastService;
+import io.jsonwebtoken.Claims;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -17,9 +19,18 @@ public class BroadcastWebSocketHandler implements WebSocketHandler {
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
-        return session.send(
-                broadcastService.broadcast()
-                        .map(session::textMessage)
-        );
+        return resolveUserClaims()
+                .map(claims -> claims.get("customer_id").toString())
+                .flatMap(customerId -> session.send(
+                        broadcastService
+                                .broadcast(customerId)
+                                .map(session::textMessage))
+                );
+    }
+
+    private Mono<Claims> resolveUserClaims() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(it -> it.getAuthentication().getCredentials())
+                .cast(Claims.class);
     }
 }
