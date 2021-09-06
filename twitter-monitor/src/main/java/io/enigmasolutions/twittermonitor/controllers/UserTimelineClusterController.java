@@ -30,12 +30,16 @@ public class UserTimelineClusterController {
         userTimelineCluster.stop(user.getScreenName());
     }
 
+    @PostMapping("/stop/all")
+    public void stopAll() {
+        userTimelineCluster.stop();
+    }
+
     @GetMapping("/status")
     public List<MonitorStatus> status() {
         return userTimelineCluster.getMonitorStatus();
     }
 
-    //
     @PostMapping("/restore")
     public void restore(@RequestBody UserTimelineClusterRestoreBody userTimelineClusterRestoreBody) {
         userTimelineCluster.restoreFailedClient(userTimelineClusterRestoreBody);

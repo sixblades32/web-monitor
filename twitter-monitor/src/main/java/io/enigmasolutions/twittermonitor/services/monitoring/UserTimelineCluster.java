@@ -9,6 +9,7 @@ import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -19,6 +20,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class UserTimelineCluster {
 
     private final TwitterScraperRepository twitterScraperRepository;
@@ -42,45 +44,54 @@ public class UserTimelineCluster {
     }
 
     public void start(String screenName) {
-        User user = null;
-
         try {
-            user = twitterHelperService.retrieveUser(screenName);
+            User user = twitterHelperService.retrieveUser(screenName);
+
+            UserTimelineMonitor userTimelineMonitor = new UserTimelineMonitor(twitterScraperRepository,
+                    twitterHelperService,
+                    kafkaProducer,
+                    plainTextRecognitionProcessors,
+                    imageRecognitionProcessors, user);
+
+            userTimelineMonitors.add(userTimelineMonitor);
+
+            userTimelineMonitor.start();
+
         } catch (HttpClientErrorException e) {
+
+            log.error(e.getMessage());
+
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new NoTwitterUserMatchesException();
             }
         }
-
-        UserTimelineMonitor userTimelineMonitor = new UserTimelineMonitor(twitterScraperRepository,
-                twitterHelperService,
-                kafkaProducer,
-                plainTextRecognitionProcessors,
-                imageRecognitionProcessors, user);
-
-        userTimelineMonitors.add(userTimelineMonitor);
-
-        userTimelineMonitor.start();
     }
 
     public void stop(String screenName) {
 
-        if (screenName.isBlank()) {
-            userTimelineMonitors.forEach(UserTimelineMonitor::stop);
-            return;
-        }
-
         UserTimelineMonitor userTimelineMonitorForStop = null;
 
-        for (UserTimelineMonitor userTimelineMonitor : userTimelineMonitors) {
-            if (userTimelineMonitor.getUser().getScreenName().toLowerCase(Locale.ROOT).equals(screenName.toLowerCase(Locale.ROOT))) {
-                userTimelineMonitorForStop = userTimelineMonitor;
-            }
-        }
+        String lowerCaseScreenName = screenName.toLowerCase(Locale.ROOT);
+
+        userTimelineMonitorForStop = userTimelineMonitors.stream()
+                .filter(userTimelineMonitor -> userTimelineMonitor.getUser()
+                        .getScreenName()
+                        .toLowerCase(Locale.ROOT)
+                        .equals(lowerCaseScreenName))
+                .findFirst()
+                .orElse(null);
+
         if (userTimelineMonitorForStop != null) {
             userTimelineMonitorForStop.stop();
             userTimelineMonitors.remove(userTimelineMonitorForStop);
+        }else{
+            throw new NoTwitterUserMatchesException();
         }
+    }
+
+    public void stop(){
+        userTimelineMonitors.forEach(UserTimelineMonitor::stop);
+        userTimelineMonitors.clear();
     }
 
     public List<MonitorStatus> getMonitorStatus() {
