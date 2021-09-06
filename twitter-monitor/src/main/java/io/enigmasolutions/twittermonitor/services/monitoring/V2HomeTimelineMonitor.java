@@ -36,7 +36,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                                  KafkaProducer kafkaProducer,
                                  List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
                                  List<ImageRecognitionProcessor> imageRecognitionProcessors) {
-        super(1006,
+        super(950,
                 twitterScraperRepository,
                 twitterHelperService,
                 kafkaProducer,
@@ -70,10 +70,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
             ArrayList<User> users = new ArrayList<>(globalObjects.getUsers().values());
 
             if (isTweetRelevant(tweets) && !isTweetInCache(tweets)){
-                log.info("Passed!");
                 tweetResponse = generateV2(tweets, users, TweetResponse.builder());
-            }else {
-                log.info("Not passed");
             }
         }
 
@@ -82,7 +79,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
 
     private Boolean isTweetInCache(ArrayList<Tweet> tweets) {
 
-        return tweets.stream().anyMatch(tweet -> twitterHelperService.isTweetInCache(tweet.getTweetId()));
+        return tweets.stream().anyMatch(tweet -> twitterHelperService.isTweetInV2Cache(tweet.getTweetId()));
     }
 
     private Boolean isTweetRelevant(ArrayList<Tweet> tweets) {
