@@ -64,15 +64,16 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                 .getV2BaseTimelineTweets(getParams(), TIMELINE_PATH)
                 .getBody();
 
-        log.info(String.valueOf(v2Response));
-
         if (v2Response != null && !v2Response.getGlobalObjects().getTweets().isEmpty()) {
             GlobalObjects globalObjects = v2Response.getGlobalObjects();
             ArrayList<Tweet> tweets = new ArrayList<>(globalObjects.getTweets().values());
             ArrayList<User> users = new ArrayList<>(globalObjects.getUsers().values());
 
             if (isTweetRelevant(tweets) && !isTweetInCache(tweets)){
+                log.info("Passed!");
                 tweetResponse = generateV2(tweets, users, TweetResponse.builder());
+            }else {
+                log.info("Not passed");
             }
         }
 
