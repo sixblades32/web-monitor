@@ -1,6 +1,8 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import io.enigmasolutions.twittermonitor.db.models.documents.UserTimelineProxy;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
+import io.enigmasolutions.twittermonitor.db.repositories.UserTimelineProxyRepository;
 import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.external.UserTimelineClusterRestoreBody;
@@ -24,19 +26,23 @@ import java.util.stream.Collectors;
 public class UserTimelineCluster {
 
     private final TwitterScraperRepository twitterScraperRepository;
+    private final UserTimelineProxyRepository userTimelineProxyRepository;
     private final TwitterHelperService twitterHelperService;
     private final KafkaProducer kafkaProducer;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
     private final List<ImageRecognitionProcessor> imageRecognitionProcessors;
 
     List<UserTimelineMonitor> userTimelineMonitors = new ArrayList<>();
+    List<UserTimelineProxy> userTimelineProxies = new ArrayList<>();
 
     public UserTimelineCluster(TwitterScraperRepository twitterScraperRepository,
+                               UserTimelineProxyRepository userTimelineProxyRepository,
                                TwitterHelperService twitterHelperService,
                                KafkaProducer kafkaProducer,
                                List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
                                List<ImageRecognitionProcessor> imageRecognitionProcessors) {
         this.twitterScraperRepository = twitterScraperRepository;
+        this.userTimelineProxyRepository = userTimelineProxyRepository;
         this.twitterHelperService = twitterHelperService;
         this.kafkaProducer = kafkaProducer;
         this.plainTextRecognitionProcessors = plainTextRecognitionProcessors;
@@ -45,6 +51,7 @@ public class UserTimelineCluster {
 
     public void start(String screenName) {
         try {
+
             User user = twitterHelperService.retrieveUser(screenName);
 
             UserTimelineMonitor userTimelineMonitor = new UserTimelineMonitor(twitterScraperRepository,
@@ -96,6 +103,10 @@ public class UserTimelineCluster {
 
     public List<MonitorStatus> getMonitorStatus() {
         return userTimelineMonitors.stream().map(UserTimelineMonitor::getMonitorStatus).collect(Collectors.toList());
+    }
+
+    public List<UserTimelineProxy> getProxyPull(){
+        return userTimelineProxyRepository.findAll();
     }
 
     public void restoreFailedClient(UserTimelineClusterRestoreBody userTimelineClusterRestoreBody) {

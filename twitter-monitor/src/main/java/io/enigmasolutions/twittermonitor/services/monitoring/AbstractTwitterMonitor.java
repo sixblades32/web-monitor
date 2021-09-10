@@ -134,7 +134,7 @@ public abstract class AbstractTwitterMonitor {
     protected void processErrorResponse(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
         if (exception.getStatusCode().value() < 500 && exception.getStatusCode().value() != 401) log.error(exception.toString());
 
-        if (exception.getStatusCode().value() == 401) log.debug(exception.toString());
+        if (exception.getStatusCode().value() == 401) log.error(exception.toString());
 
         if (exception.getStatusCode().value() >= 400 &&
                 exception.getStatusCode().value() < 500 &&

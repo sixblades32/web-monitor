@@ -36,7 +36,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                                  KafkaProducer kafkaProducer,
                                  List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
                                  List<ImageRecognitionProcessor> imageRecognitionProcessors) {
-        super(1006,
+        super(300,
                 twitterScraperRepository,
                 twitterHelperService,
                 kafkaProducer,
@@ -64,7 +64,8 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                 .getV2BaseTimelineTweets(getParams(), TIMELINE_PATH)
                 .getBody();
 
-        if (v2Response != null && !v2Response.getGlobalObjects().getTweets().isEmpty()) {
+        if (v2Response != null && v2Response.getGlobalObjects() != null && !v2Response.getGlobalObjects().getTweets().isEmpty()) {
+
             GlobalObjects globalObjects = v2Response.getGlobalObjects();
             ArrayList<Tweet> tweets = new ArrayList<>(globalObjects.getTweets().values());
             ArrayList<User> users = new ArrayList<>(globalObjects.getUsers().values());
