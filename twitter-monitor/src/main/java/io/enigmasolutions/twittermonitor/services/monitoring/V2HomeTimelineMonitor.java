@@ -36,7 +36,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                                  KafkaProducer kafkaProducer,
                                  List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
                                  List<ImageRecognitionProcessor> imageRecognitionProcessors) {
-        super(300,
+        super(250,
                 twitterScraperRepository,
                 twitterHelperService,
                 kafkaProducer,
@@ -132,7 +132,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
         invalidScrapers.forEach(scrapers::remove);
 
         List<TwitterCustomClient> clients = scrapers.stream()
-                .map(TwitterCustomClient::new)
+                .map(twitterScraper -> new TwitterCustomClient(twitterScraper, twitterScraper.getProxy()))
                 .collect(Collectors.toList());
 
         twitterCustomClients = Collections.synchronizedList(clients);
