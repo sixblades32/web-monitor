@@ -36,7 +36,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                                  KafkaProducer kafkaProducer,
                                  List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
                                  List<ImageRecognitionProcessor> imageRecognitionProcessors) {
-        super(250,
+        super(350,
                 twitterScraperRepository,
                 twitterHelperService,
                 kafkaProducer,
