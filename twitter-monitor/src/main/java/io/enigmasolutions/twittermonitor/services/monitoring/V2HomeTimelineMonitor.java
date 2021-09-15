@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
@@ -36,7 +37,7 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                                  KafkaProducer kafkaProducer,
                                  List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
                                  List<ImageRecognitionProcessor> imageRecognitionProcessors) {
-        super(350,
+        super(1006,
                 twitterScraperRepository,
                 twitterHelperService,
                 kafkaProducer,
@@ -70,7 +71,9 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
             ArrayList<Tweet> tweets = new ArrayList<>(globalObjects.getTweets().values());
             ArrayList<User> users = new ArrayList<>(globalObjects.getUsers().values());
 
-            if (isTweetRelevant(tweets) && !isTweetInCache(tweets)){
+            if (isTweetRelevant(tweets) && !isTweetInCache(tweets)) {
+                System.out.println(isTweetInCache(tweets));
+                System.out.println(isTweetRelevant(tweets));
                 tweetResponse = generateV2(tweets, users, TweetResponse.builder());
             }
         }
@@ -132,7 +135,15 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
         invalidScrapers.forEach(scrapers::remove);
 
         List<TwitterCustomClient> clients = scrapers.stream()
-                .map(twitterScraper -> new TwitterCustomClient(twitterScraper, twitterScraper.getProxy()))
+                .map(twitterScraper -> {
+                    RestTemplateProxy restTemplateProxy = RestTemplateProxy.builder()
+                            .host(twitterScraper.getProxy().getHost())
+                            .port(twitterScraper.getProxy().getPort())
+                            .login(twitterScraper.getProxy().getLogin())
+                            .password(twitterScraper.getProxy().getPassword())
+                            .build();
+                    return new TwitterCustomClient(twitterScraper, restTemplateProxy);
+                })
                 .collect(Collectors.toList());
 
         twitterCustomClients = Collections.synchronizedList(clients);

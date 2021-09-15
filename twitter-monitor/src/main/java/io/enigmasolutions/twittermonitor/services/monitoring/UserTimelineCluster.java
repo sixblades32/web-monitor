@@ -1,8 +1,10 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
-import io.enigmasolutions.twittermonitor.db.models.documents.UserTimelineProxy;
+import io.enigmasolutions.twittermonitor.db.models.documents.Target;
+import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
+import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
-import io.enigmasolutions.twittermonitor.db.repositories.UserTimelineProxyRepository;
+import io.enigmasolutions.twittermonitor.db.repositories.RestTemplateProxyRepository;
 import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.external.UserTimelineClusterRestoreBody;
@@ -12,6 +14,8 @@ import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionPr
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -26,43 +30,61 @@ import java.util.stream.Collectors;
 public class UserTimelineCluster {
 
     private final TwitterScraperRepository twitterScraperRepository;
-    private final UserTimelineProxyRepository userTimelineProxyRepository;
+    private final RestTemplateProxyRepository restTemplateProxyRepository;
+    private final TargetRepository targetRepository;
     private final TwitterHelperService twitterHelperService;
     private final KafkaProducer kafkaProducer;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
     private final List<ImageRecognitionProcessor> imageRecognitionProcessors;
 
     List<UserTimelineMonitor> userTimelineMonitors = new ArrayList<>();
-    List<UserTimelineProxy> userTimelineProxies = new ArrayList<>();
+    List<RestTemplateProxy> userTimelineProxies = new ArrayList<>();
+    List<RestTemplateProxy> proxiesInUse = new ArrayList<>();
 
     public UserTimelineCluster(TwitterScraperRepository twitterScraperRepository,
-                               UserTimelineProxyRepository userTimelineProxyRepository,
+                               RestTemplateProxyRepository restTemplateProxyRepository,
+                               TargetRepository targetRepository,
                                TwitterHelperService twitterHelperService,
                                KafkaProducer kafkaProducer,
                                List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
                                List<ImageRecognitionProcessor> imageRecognitionProcessors) {
         this.twitterScraperRepository = twitterScraperRepository;
-        this.userTimelineProxyRepository = userTimelineProxyRepository;
+        this.restTemplateProxyRepository = restTemplateProxyRepository;
+        this.targetRepository = targetRepository;
         this.twitterHelperService = twitterHelperService;
         this.kafkaProducer = kafkaProducer;
         this.plainTextRecognitionProcessors = plainTextRecognitionProcessors;
         this.imageRecognitionProcessors = imageRecognitionProcessors;
     }
 
-    public void start(String screenName) {
+    public void start() {
         try {
+            userTimelineProxies = getProxyPull();
+            List<Target> targets = getTargets();
 
-            User user = twitterHelperService.retrieveUser(screenName);
+            if (userTimelineProxies.size() < targets.size()) {
+                log.info("Only {} out of {} targets will be loaded, cause not enough number of proxies", userTimelineProxies.size(), targets.size());
+                targets = targets.subList(0, userTimelineProxies.size());
+            }
 
-            UserTimelineMonitor userTimelineMonitor = new UserTimelineMonitor(twitterScraperRepository,
-                    twitterHelperService,
-                    kafkaProducer,
-                    plainTextRecognitionProcessors,
-                    imageRecognitionProcessors, user);
+            targets.forEach(target -> {
+                User user = new User();
+                user.setScreenName(target.getUsername());
+                user.setId(target.getIdentifier());
 
-            userTimelineMonitors.add(userTimelineMonitor);
+                RestTemplateProxy proxy = getAvailableProxy();
 
-            userTimelineMonitor.start();
+                UserTimelineMonitor userTimelineMonitor = new UserTimelineMonitor(twitterScraperRepository,
+                        twitterHelperService,
+                        kafkaProducer,
+                        plainTextRecognitionProcessors,
+                        imageRecognitionProcessors, user, proxy);
+
+                userTimelineMonitors.add(userTimelineMonitor);
+
+                userTimelineMonitor.start();
+            });
+
 
         } catch (HttpClientErrorException e) {
 
@@ -76,7 +98,7 @@ public class UserTimelineCluster {
 
     public void stop(String screenName) {
 
-        UserTimelineMonitor userTimelineMonitorForStop = null;
+        UserTimelineMonitor userTimelineMonitorForStop;
 
         String lowerCaseScreenName = screenName.toLowerCase(Locale.ROOT);
 
@@ -91,22 +113,49 @@ public class UserTimelineCluster {
         if (userTimelineMonitorForStop != null) {
             userTimelineMonitorForStop.stop();
             userTimelineMonitors.remove(userTimelineMonitorForStop);
-        }else{
+        } else {
             throw new NoTwitterUserMatchesException();
         }
     }
 
-    public void stop(){
+    public void stop() {
         userTimelineMonitors.forEach(UserTimelineMonitor::stop);
+        proxiesInUse.clear();
         userTimelineMonitors.clear();
+    }
+
+    public RestTemplateProxy getAvailableProxy() {
+        RestTemplateProxy availableProxy = null;
+        if (!userTimelineProxies.isEmpty()) {
+            List<RestTemplateProxy> availableProxies = userTimelineProxies
+                    .stream()
+                    .filter(proxy -> !proxiesInUse.contains(proxy))
+                    .collect(Collectors.toList());
+            if (!availableProxies.isEmpty()) {
+                availableProxy = availableProxies.get(0);
+                proxiesInUse.add(availableProxy);
+            }
+        }
+
+        return availableProxy;
     }
 
     public List<MonitorStatus> getMonitorStatus() {
         return userTimelineMonitors.stream().map(UserTimelineMonitor::getMonitorStatus).collect(Collectors.toList());
     }
 
-    public List<UserTimelineProxy> getProxyPull(){
-        return userTimelineProxyRepository.findAll();
+    public List<Target> getTargets() {
+        return targetRepository.findAll();
+    }
+
+    @Cacheable(value = "proxies")
+    public List<RestTemplateProxy> getProxyPull() {
+        return restTemplateProxyRepository.findAll();
+    }
+
+    @CachePut(value = "proxies")
+    public List<RestTemplateProxy> updateProxyPull() {
+        return getProxyPull();
     }
 
     public void restoreFailedClient(UserTimelineClusterRestoreBody userTimelineClusterRestoreBody) {

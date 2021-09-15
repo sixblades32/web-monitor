@@ -1,6 +1,7 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
@@ -24,13 +25,14 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
     private static final String TIMELINE_PATH = "statuses/user_timeline.json";
 
     private final User user;
+    private final RestTemplateProxy proxy;
 
     public UserTimelineMonitor(
             TwitterScraperRepository twitterScraperRepository,
             TwitterHelperService twitterHelperService,
             KafkaProducer kafkaProducer,
             List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
-            List<ImageRecognitionProcessor> imageRecognitionProcessors, User user
+            List<ImageRecognitionProcessor> imageRecognitionProcessors, User user, RestTemplateProxy proxy
     ) {
         super(
                 700,
@@ -42,6 +44,7 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
                 log);
 
         this.user = user;
+        this.proxy = proxy;
     }
 
     public void start() {
@@ -78,6 +81,24 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
         }
     }
 
+    protected TweetResponse getTweetResponse(
+            MultiValueMap<String, String> params,
+            String timelinePath,
+            TwitterCustomClient twitterCustomClient
+    ) {
+        TweetResponse tweetResponse = null;
+
+        TweetResponse[] tweetResponseArray = twitterCustomClient
+                .getProxiedBaseApiTimelineTweets(params, timelinePath)
+                .getBody();
+
+        if (tweetResponseArray != null && tweetResponseArray.length > 0) {
+            tweetResponse = tweetResponseArray[0];
+        }
+
+        return tweetResponse;
+    }
+
     @Override
     protected MultiValueMap<String, String> generateParams() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -93,7 +114,7 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
     @Override
     protected void prepareClients(List<TwitterScraper> scrapers) {
         this.twitterCustomClients = scrapers.stream()
-                .map(TwitterCustomClient::new)
+                .map(scraper -> new TwitterCustomClient(scraper, proxy))
                 .collect(Collectors.toList());
 
         twitterCustomClients = Collections.synchronizedList(twitterCustomClients);
@@ -101,5 +122,9 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
 
     public User getUser() {
         return user;
+    }
+
+    public RestTemplateProxy getProxy() {
+        return proxy;
     }
 }

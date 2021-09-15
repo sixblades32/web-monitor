@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.web;
 
+import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.models.references.Proxy;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
@@ -29,14 +30,14 @@ public class TwitterCustomClient {
     private static final String GRAPHQL_API_PATH = "https://twitter.com/i/api/graphql/wmAsSZ-tfs22k90iIA7X1w/UserTweetsAndReplies";
     private static final String V2_BASE_API_PATH = "https://twitter.com/i/api/2/";
     private final RestTemplate restTemplate = new RestTemplate();
-    private final RestTemplate V2RestTemplate = new RestTemplate();
+    private final RestTemplate proxiedRestTemplate = new RestTemplate();
     private final TwitterScraper twitterScraper;
 
     public TwitterCustomClient(TwitterScraper twitterScraper) {
         this.twitterScraper = twitterScraper;
     }
 
-    public TwitterCustomClient(TwitterScraper twitterScraper, Proxy proxy){
+    public TwitterCustomClient(TwitterScraper twitterScraper, RestTemplateProxy proxy) {
         this.twitterScraper = twitterScraper;
 
         String host = proxy.getHost();
@@ -59,13 +60,21 @@ public class TwitterCustomClient {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setHttpClient(httpClient);
 
-        V2RestTemplate.setRequestFactory(factory);
+        proxiedRestTemplate.setRequestFactory(factory);
     }
+
+
 
     public ResponseEntity<TweetResponse[]> getBaseApiTimelineTweets(MultiValueMap<String, String> params, String timelinePath) {
         MultiValueMap<String, String> tweetDeckAuth = generateAuthData();
 
         return getResponseEntity(params, tweetDeckAuth, timelinePath);
+    }
+
+    public ResponseEntity<TweetResponse[]> getProxiedBaseApiTimelineTweets(MultiValueMap<String, String> params, String timelinePath) {
+        MultiValueMap<String, String> tweetDeckAuth = generateAuthData();
+
+        return getProxiedResponseEntity(params, tweetDeckAuth, timelinePath);
     }
 
     public ResponseEntity<GraphQLResponse> getGraphQLApiTimelineTweets(MultiValueMap<String, String> params) {
@@ -102,12 +111,22 @@ public class TwitterCustomClient {
         );
     }
 
+    private ResponseEntity<TweetResponse[]> getProxiedResponseEntity(
+            MultiValueMap<String, String> params,
+            MultiValueMap<String, String> tweetDeckAuth,
+            String path) {
+        return proxiedRestTemplate.exchange(
+                generateRequestEntity(params, tweetDeckAuth, path, BASE_API_PATH),
+                TweetResponse[].class
+        );
+    }
+
     private ResponseEntity<V2Response> getV2ResponseEntity(
             MultiValueMap<String, String> params,
             MultiValueMap<String, String> tweetDeckAuth,
             String path
     ) {
-        return V2RestTemplate.exchange(
+        return proxiedRestTemplate.exchange(
                 generateRequestEntity(params, tweetDeckAuth, path, V2_BASE_API_PATH),
                 V2Response.class
         );

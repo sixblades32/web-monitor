@@ -21,8 +21,8 @@ public class UserTimelineClusterController {
     }
 
     @PostMapping("/start")
-    public void start(@RequestBody UserStartForm user) {
-        userTimelineCluster.start(user.getScreenName());
+    public void start() {
+        userTimelineCluster.start();
     }
 
     @PostMapping("/stop")

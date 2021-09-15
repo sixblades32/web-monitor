@@ -10,8 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "user-timeline-proxy")
-public class UserTimelineProxy {
+@Document(collection = "user-timeline-proxies")
+public class RestTemplateProxy {
     private String host;
     private String port;
     private String login;

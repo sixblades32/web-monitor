@@ -7,6 +7,7 @@ import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerReposito
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.common.FollowsList;
 import io.enigmasolutions.twittermonitor.services.web.TwitterRegularClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -20,6 +21,7 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TwitterHelperService {
 
     private final List<String> liveReleaseTargetsIds = new LinkedList<>();
