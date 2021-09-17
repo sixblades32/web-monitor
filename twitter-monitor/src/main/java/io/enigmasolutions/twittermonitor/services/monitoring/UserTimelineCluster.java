@@ -96,28 +96,6 @@ public class UserTimelineCluster {
         }
     }
 
-    public void stop(String screenName) {
-
-        UserTimelineMonitor userTimelineMonitorForStop;
-
-        String lowerCaseScreenName = screenName.toLowerCase(Locale.ROOT);
-
-        userTimelineMonitorForStop = userTimelineMonitors.stream()
-                .filter(userTimelineMonitor -> userTimelineMonitor.getUser()
-                        .getScreenName()
-                        .toLowerCase(Locale.ROOT)
-                        .equals(lowerCaseScreenName))
-                .findFirst()
-                .orElse(null);
-
-        if (userTimelineMonitorForStop != null) {
-            userTimelineMonitorForStop.stop();
-            userTimelineMonitors.remove(userTimelineMonitorForStop);
-        } else {
-            throw new NoTwitterUserMatchesException();
-        }
-    }
-
     public void stop() {
         userTimelineMonitors.forEach(UserTimelineMonitor::stop);
         proxiesInUse.clear();
