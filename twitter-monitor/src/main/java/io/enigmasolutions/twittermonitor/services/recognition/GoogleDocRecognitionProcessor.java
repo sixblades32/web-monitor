@@ -39,7 +39,6 @@ public class GoogleDocRecognitionProcessor extends PlainTextRecognitionProcessor
 
     private String retrieveDocumentId(String sourceUrl) {
 
-        System.out.println(sourceUrl);
         String regex = "[-\\w]{25,}";
 
         Pattern pattern = Pattern.compile(regex);
