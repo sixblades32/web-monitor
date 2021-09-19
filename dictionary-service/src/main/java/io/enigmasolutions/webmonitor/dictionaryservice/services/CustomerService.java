@@ -33,6 +33,21 @@ public class CustomerService {
                 });
     }
 
+    public Mono<List<CustomerDiscordGuild>> retrieveAllCustomersGuildDetails() {
+        return customerRepository.findAll()
+                .flatMap(customer -> {
+                    CustomerDiscordGuild customerDiscordGuild = CustomerDiscordGuild.builder()
+                            .customerId(customer.getId())
+                            .guildId(customer.getDiscordGuild().getGuildId())
+                            .moderatorsRoles(customer.getDiscordGuild().getModeratorsRoles())
+                            .usersRoles(customer.getDiscordGuild().getUsersRoles())
+                            .build();
+
+                    return Mono.just(customerDiscordGuild);
+                })
+                .collect(Collectors.toList());
+    }
+
     public Mono<CustomerTheme> retrieveCustomerTheme(String id) {
         return customerRepository.findById(id)
                 .flatMap(customer -> {
@@ -44,6 +59,8 @@ public class CustomerService {
                     return Mono.just(customerTheme);
                 });
     }
+
+
 
     public Mono<List<CustomerDiscordBroadcastConfig>> retrieveAllCustomersDiscordBroadcastConfigs() {
         return customerRepository.findAll()

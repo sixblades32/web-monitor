@@ -30,10 +30,17 @@ public class CustomerController {
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
+    @GetMapping("/guilds/all")
+    public Mono<List<CustomerDiscordGuild>> getAllCustomerGuildDetails() {
+        return customerService.retrieveAllCustomersGuildDetails();
+    }
+
     @GetMapping("/discord/broadcast/configs/all")
     public Mono<List<CustomerDiscordBroadcastConfig>> getAllCustomersDiscordBroadcastConfigs() {
         return customerService.retrieveAllCustomersDiscordBroadcastConfigs();
     }
+
+
 
     @GetMapping("/{id}/theme")
     public Mono<CustomerTheme> getCustomerTheme(@PathVariable String id) {
