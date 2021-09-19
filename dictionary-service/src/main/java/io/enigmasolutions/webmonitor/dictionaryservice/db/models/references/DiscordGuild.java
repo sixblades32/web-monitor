@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DiscordGuild {
     private String guildId;
+    private String channelId;
     private List<String> usersRoles;
     private List<String> moderatorsRoles;
 }

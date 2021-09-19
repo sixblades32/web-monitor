@@ -22,7 +22,7 @@ public class KafkaProducer {
         this.staffMessageKafkaTemplate = staffMessageKafkaTemplate;
     }
 
-    public void sendStaffMessage(Staff staffMessage, String customerId){
+    public void sendStaffMessage(Staff staffMessage, String customerId) {
         ProducerRecord<String, Staff> producerRecord = new ProducerRecord<String, Staff>(staffTopic, staffMessage);
         producerRecord.headers().add(header, customerId.getBytes(StandardCharsets.UTF_8));
         staffMessageKafkaTemplate.send(producerRecord);

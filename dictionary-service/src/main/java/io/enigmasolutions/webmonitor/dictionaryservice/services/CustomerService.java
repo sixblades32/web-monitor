@@ -38,6 +38,7 @@ public class CustomerService {
                 .flatMap(customer -> {
                     CustomerDiscordGuild customerDiscordGuild = CustomerDiscordGuild.builder()
                             .customerId(customer.getId())
+                            .channelId(customer.getDiscordGuild().getChannelId())
                             .guildId(customer.getDiscordGuild().getGuildId())
                             .moderatorsRoles(customer.getDiscordGuild().getModeratorsRoles())
                             .usersRoles(customer.getDiscordGuild().getUsersRoles())
@@ -59,7 +60,6 @@ public class CustomerService {
                     return Mono.just(customerTheme);
                 });
     }
-
 
 
     public Mono<List<CustomerDiscordBroadcastConfig>> retrieveAllCustomersDiscordBroadcastConfigs() {

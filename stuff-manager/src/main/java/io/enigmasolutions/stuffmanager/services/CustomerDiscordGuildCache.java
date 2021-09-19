@@ -17,7 +17,6 @@ public class CustomerDiscordGuildCache {
         this.dictionaryClient = dictionaryClient;
     }
 
-
     @Cacheable(value = "customers")
     public List<CustomerDiscordGuild> getCustomers() {
         return dictionaryClient.getCustomerDiscordGuilds();

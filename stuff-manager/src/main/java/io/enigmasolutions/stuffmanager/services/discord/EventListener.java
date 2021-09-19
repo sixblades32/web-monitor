@@ -33,13 +33,13 @@ public class EventListener {
     @Autowired
     EventListener(AccessChecker accessChecker,
                   KafkaProducer kafkaProducer,
-                  UrlExtractor urlExtractor){
+                  UrlExtractor urlExtractor) {
         this.accessChecker = accessChecker;
         this.kafkaProducer = kafkaProducer;
         this.urlExtractor = urlExtractor;
     }
 
-    public Mono<Void> login(){
+    public Mono<Void> login() {
 
         DiscordClient discordClient = DiscordClient.create(token);
 
@@ -62,7 +62,8 @@ public class EventListener {
 
                     Staff staffMessage = generateStaffMessage(message);
 
-                   if(customerDiscordGuild.getGuildId() != null) kafkaProducer.sendStaffMessage(staffMessage, customerDiscordGuild.getCustomerId());
+                    if (customerDiscordGuild != null)
+                        kafkaProducer.sendStaffMessage(staffMessage, customerDiscordGuild.getCustomerId());
                 }
 
                 return Mono.empty();
@@ -74,11 +75,11 @@ public class EventListener {
         return login;
     }
 
-    private Staff generateStaffMessage(Message message){
+    private Staff generateStaffMessage(Message message) {
 
         DiscordUser discordUser = null;
 
-        if(message.getAuthor().isPresent()){
+        if (message.getAuthor().isPresent()) {
             discordUser = DiscordUser.builder()
                     .icon(message.getAuthor().get().getAvatarUrl())
                     .name(message.getAuthor().get().getUsername())
@@ -90,8 +91,8 @@ public class EventListener {
 
         String content = message.getContent();
 
-        if(!detectedUrls.isEmpty()){
-            for(String url:detectedUrls){
+        if (!detectedUrls.isEmpty()) {
+            for (String url : detectedUrls) {
                 content = content.replace(url, "");
             }
         }

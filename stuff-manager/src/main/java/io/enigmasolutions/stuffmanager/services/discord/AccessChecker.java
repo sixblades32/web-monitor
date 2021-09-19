@@ -20,21 +20,22 @@ public class AccessChecker {
         this.customerDiscordGuildCache = customerDiscordGuildCache;
     }
 
-    public CustomerDiscordGuild getRequiredCustomer(Message message){
+    public CustomerDiscordGuild getRequiredCustomer(Message message) {
 
         CustomerDiscordGuild requiredCustomer = null;
 
         String guildId = message.getData().guildId().get().asString();
+        String channelId = message.getChannelId().asString();
 
         List<String> userRoles = message.getData().member().get().roles().stream().map(Id::asString).collect(Collectors.toList());
 
         List<CustomerDiscordGuild> customers = customerDiscordGuildCache.getCustomers();
 
         List<CustomerDiscordGuild> filteredCustomersList = customers.stream().filter(customerDiscordGuild ->
-            customerDiscordGuild.getGuildId().equals(guildId) && customerDiscordGuild.getModeratorsRoles().stream().anyMatch(userRoles::contains)
+                customerDiscordGuild.getGuildId().equals(guildId) && customerDiscordGuild.getChannelId().equals(channelId) && customerDiscordGuild.getModeratorsRoles().stream().anyMatch(userRoles::contains)
         ).collect(Collectors.toList());
 
-        if(!filteredCustomersList.isEmpty()){
+        if (!filteredCustomersList.isEmpty()) {
             requiredCustomer = filteredCustomersList.get(0);
         }
 

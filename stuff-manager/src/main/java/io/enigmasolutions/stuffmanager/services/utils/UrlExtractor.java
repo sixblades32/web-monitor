@@ -11,8 +11,7 @@ import java.util.regex.Pattern;
 public class UrlExtractor {
 
     public List<String> extractURL(
-            String str)
-    {
+            String str) {
 
         List<String> list
                 = new ArrayList<>();
