@@ -21,7 +21,7 @@ public class CustomerDiscordGuildCacheScheduler {
     public void scheduleCacheUpdate() {
         List<CustomerDiscordGuild> customerDiscordBroadcastConfigs = customerDiscordGuildCache.updateCustomers();
         log.info(
-                "Received {} CustomerDiscordBroadcastConfig objects while updating customer's configs cache",
+                "Received {} CustomerDiscordGuild objects while updating customer's cache",
                 customerDiscordBroadcastConfigs.size()
         );
     }

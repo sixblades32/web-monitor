@@ -6,26 +6,37 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
-import discord4j.discordjson.possible.Possible;
+import io.enigmasolutions.broadcastmodels.DiscordUser;
+import io.enigmasolutions.broadcastmodels.Staff;
+import io.enigmasolutions.broadcastmodels.StaffType;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
+import io.enigmasolutions.stuffmanager.services.kafka.KafkaProducer;
+import io.enigmasolutions.stuffmanager.services.utils.UrlExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
+import java.util.List;
 
 @Service
 @Slf4j
 public class EventListener {
 
-    private AccessChecker accessChecker;
+    private final AccessChecker accessChecker;
+    private final UrlExtractor urlExtractor;
+    private final KafkaProducer kafkaProducer;
     @Value("${discord.token}")
     public String token;
 
     @Autowired
-    EventListener(AccessChecker accessChecker){
+    EventListener(AccessChecker accessChecker,
+                  KafkaProducer kafkaProducer,
+                  UrlExtractor urlExtractor){
         this.accessChecker = accessChecker;
+        this.kafkaProducer = kafkaProducer;
+        this.urlExtractor = urlExtractor;
     }
 
     public Mono<Void> login(){
@@ -33,7 +44,7 @@ public class EventListener {
         DiscordClient discordClient = DiscordClient.create(token);
 
         Mono<Void> login = discordClient.withGateway((GatewayDiscordClient gateway) -> {
-            // ReadyEvent example
+
             Mono<Void> printOnLogin = gateway.on(ReadyEvent.class, event ->
                     Mono.fromRunnable(() -> {
                         final User self = event.getSelf();
@@ -41,16 +52,17 @@ public class EventListener {
                     }))
                     .then();
 
-            // MessageCreateEvent example
             Mono<Void> handlePingCommand = gateway.on(MessageCreateEvent.class, event -> {
-
-                Possible<Boolean> possibleBot = event.getMessage().getData().author().bot();
 
                 Message message = event.getMessage();
 
-                if (!accessChecker.isBot(possibleBot)) {
-                    return message.getChannel()
-                            .flatMap(channel -> channel.createMessage("pong!"));
+                if (message.getAuthor().isPresent() && !message.getAuthor().get().isBot()) {
+
+                    CustomerDiscordGuild customerDiscordGuild = accessChecker.getRequiredCustomer(message);
+
+                    Staff staffMessage = generateStaffMessage(message);
+
+                   if(customerDiscordGuild.getGuildId() != null) kafkaProducer.sendStaffMessage(staffMessage, customerDiscordGuild.getCustomerId());
                 }
 
                 return Mono.empty();
@@ -60,5 +72,36 @@ public class EventListener {
         });
 
         return login;
+    }
+
+    private Staff generateStaffMessage(Message message){
+
+        DiscordUser discordUser = null;
+
+        if(message.getAuthor().isPresent()){
+            discordUser = DiscordUser.builder()
+                    .icon(message.getAuthor().get().getAvatarUrl())
+                    .name(message.getAuthor().get().getUsername())
+                    .tag(message.getAuthor().get().getTag())
+                    .build();
+        }
+
+        List<String> detectedUrls = urlExtractor.extractURL(message.getContent());
+
+        String content = message.getContent();
+
+        if(!detectedUrls.isEmpty()){
+            for(String url:detectedUrls){
+                content = content.replace(url, "");
+            }
+        }
+
+        return Staff.builder()
+                .type(StaffType.PLAIN)
+                .text(content)
+                .discordUser(discordUser)
+                .detectedUrls(detectedUrls)
+                .build();
+
     }
 }

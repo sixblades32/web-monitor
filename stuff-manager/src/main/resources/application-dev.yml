@@ -11,3 +11,4 @@ kafka:
   bootstrap-servers: localhost:9092
   producer:
     twitter-staff-broadcast: twitter-staff-broadcast
+    header: Customer-Id

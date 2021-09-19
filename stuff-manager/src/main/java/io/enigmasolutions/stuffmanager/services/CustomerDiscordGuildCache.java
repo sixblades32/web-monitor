@@ -18,14 +18,13 @@ public class CustomerDiscordGuildCache {
     }
 
 
-    @Cacheable(value = "guilds")
-    public List<CustomerDiscordGuild> getCustomersConfigs() {
-        System.out.println(dictionaryClient.getCustomerDiscordGuilds());
+    @Cacheable(value = "customers")
+    public List<CustomerDiscordGuild> getCustomers() {
         return dictionaryClient.getCustomerDiscordGuilds();
     }
 
-    @CachePut(value = "guilds")
+    @CachePut(value = "customers")
     public List<CustomerDiscordGuild> updateCustomers() {
-        return getCustomersConfigs();
+        return getCustomers();
     }
 }
