@@ -1,4 +1,4 @@
-package io.enigmasolutions.webmonitor.webbroadcastservice.models;
+package io.enigmasolutions.webmonitor.webbroadcastservice.models.external;
 
 import lombok.Builder;
 import lombok.Data;
