@@ -43,7 +43,7 @@ public class KafkaProducer {
         recognitionKafkaTemplate.send(kafkaProuderPropertiesConfig.getTweetRecognitionLiveReleaseTopic(), recognition);
     }
 
-    public void sentAlertBroadcast(Alert alert){
+    public void sentAlertBroadcast(Alert alert) {
         alertKafkaTemplate.send(kafkaProuderPropertiesConfig.getTwitterMonitorAlertTopic(), alert);
     }
 }

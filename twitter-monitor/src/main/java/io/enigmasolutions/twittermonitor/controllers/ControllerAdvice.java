@@ -1,9 +1,6 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
-import io.enigmasolutions.twittermonitor.exceptions.MonitorRunningException;
-import io.enigmasolutions.twittermonitor.exceptions.NoTargetMatchesException;
-import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
-import io.enigmasolutions.twittermonitor.exceptions.TargetAlreadyAddedException;
+import io.enigmasolutions.twittermonitor.exceptions.*;
 import io.enigmasolutions.twittermonitor.models.external.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

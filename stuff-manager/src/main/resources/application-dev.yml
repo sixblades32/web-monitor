@@ -1,0 +1,14 @@
+server:
+  port: 8025
+
+discord:
+  token: NzY0NTQ0MzY2MDY0MzA0MTQ5.X4HzbQ.23NoCYQ2Wc5PwzgCD-RcJ6utRZo
+
+dictionary-service:
+  url: http://localhost:8015/api/dictionary
+
+kafka:
+  bootstrap-servers: localhost:9092
+  producer:
+    twitter-staff-broadcast: twitter-staff-broadcast
+    header: Customer-Id

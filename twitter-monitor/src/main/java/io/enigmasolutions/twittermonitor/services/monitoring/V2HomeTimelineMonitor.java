@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,15 +65,30 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                 .getV2BaseTimelineTweets(getParams(), TIMELINE_PATH)
                 .getBody();
 
-        if (v2Response != null && !v2Response.getGlobalObjects().getTweets().isEmpty()) {
+        if (v2Response != null && v2Response.getGlobalObjects() != null && !v2Response.getGlobalObjects().getTweets().isEmpty()) {
+
             GlobalObjects globalObjects = v2Response.getGlobalObjects();
             ArrayList<Tweet> tweets = new ArrayList<>(globalObjects.getTweets().values());
             ArrayList<User> users = new ArrayList<>(globalObjects.getUsers().values());
 
-            tweetResponse = generateV2(tweets, users, TweetResponse.builder());
+            if (isTweetRelevant(tweets) && !isTweetInCache(tweets)) {
+                System.out.println(isTweetInCache(tweets));
+                System.out.println(isTweetRelevant(tweets));
+                tweetResponse = generateV2(tweets, users, TweetResponse.builder());
+            }
         }
 
         return tweetResponse;
+    }
+
+    private Boolean isTweetInCache(ArrayList<Tweet> tweets) {
+
+        return tweets.stream().anyMatch(tweet -> twitterHelperService.isTweetInV2Cache(tweet.getTweetId()));
+    }
+
+    private Boolean isTweetRelevant(ArrayList<Tweet> tweets) {
+
+        return tweets.stream().anyMatch(tweet -> new Date().getTime() - Date.parse(tweet.getCreatedAt()) <= 25000);
     }
 
     @Override
@@ -106,11 +123,10 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
     protected void prepareClients(List<TwitterScraper> scrapers) {
 
         List<TwitterScraper> invalidScrapers = new ArrayList<>();
-        log.info("Preparing started");
 
-        for(TwitterScraper twitterScraper: scrapers){
+        for (TwitterScraper twitterScraper : scrapers) {
             String scraperTwitterId = twitterScraper.getTwitterUser().getTwitterId();
-            if(scraperTwitterId.equals("1371445090401542147") || scraperTwitterId.equals("1377556119808249859") || scraperTwitterId.equals("1376524710616432648")){
+            if (scraperTwitterId.equals("1371445090401542147") || scraperTwitterId.equals("1377556119808249859") || scraperTwitterId.equals("1376524710616432648")) {
                 invalidScrapers.add(twitterScraper);
                 log.info(scraperTwitterId + " scraper not loaded in Twitter Custom Clients Pool!");
             }
@@ -119,7 +135,15 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
         invalidScrapers.forEach(scrapers::remove);
 
         List<TwitterCustomClient> clients = scrapers.stream()
-                .map(TwitterCustomClient::new)
+                .map(twitterScraper -> {
+                    RestTemplateProxy restTemplateProxy = RestTemplateProxy.builder()
+                            .host(twitterScraper.getProxy().getHost())
+                            .port(twitterScraper.getProxy().getPort())
+                            .login(twitterScraper.getProxy().getLogin())
+                            .password(twitterScraper.getProxy().getPassword())
+                            .build();
+                    return new TwitterCustomClient(twitterScraper, restTemplateProxy);
+                })
                 .collect(Collectors.toList());
 
         twitterCustomClients = Collections.synchronizedList(clients);

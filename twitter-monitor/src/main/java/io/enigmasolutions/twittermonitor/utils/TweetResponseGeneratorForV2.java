@@ -14,6 +14,8 @@ public class TweetResponseGeneratorForV2 {
     public static TweetResponse generateV2(ArrayList<Tweet> tweets, ArrayList<User> users, TweetResponse.TweetResponseBuilder tweetResponseBuilder) {
         if (tweets.size() > 1) {
             tweets.forEach(tweet -> {
+                if (tweet == null) return;
+
                 ArrayList<Tweet> retweetTweets = new ArrayList<>(tweets);
                 ArrayList<User> retweetUsers = new ArrayList<>(users);
 
@@ -30,13 +32,15 @@ public class TweetResponseGeneratorForV2 {
 
                     users.forEach(user -> {
                         if (user.getId().equals(tweet.getUserId())) {
-                            retweetUsers.remove(user);
+                            if (users.size() > 1) {
+                                retweetUsers.remove(user);
+                            }
 
                             tweetResponseBuilder.user(user);
                         }
                     });
 
-                    if (tweet.getIsQuoteStatus()) {
+                    if (tweet.isQuoteStatus()) {
                         retweetTweets.remove(tweet);
 
                         tweetResponseBuilder.quotedStatus(generateV2(retweetTweets, retweetUsers, TweetResponse.builder()));
@@ -49,7 +53,7 @@ public class TweetResponseGeneratorForV2 {
                     }
                 }
             });
-        } else if (!tweets.isEmpty()) {
+        } else if (!tweets.isEmpty() && !users.isEmpty()) {
             Tweet tweet = tweets.get(0);
             User user = users.get(0);
 

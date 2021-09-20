@@ -12,6 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerDiscordGuild {
+    private String customerId;
+    private String channelId;
     private String guildId;
     private List<String> usersRoles;
     private List<String> moderatorsRoles;

@@ -1,6 +1,7 @@
 package io.enigmasolutions.webmonitor.dictionaryservice.services;
 
 import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcastConfig;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
 import io.enigmasolutions.dictionarymodels.CustomerTheme;
 import io.enigmasolutions.webmonitor.dictionaryservice.db.repositories.CustomerRepository;
@@ -32,15 +33,18 @@ public class CustomerService {
                 });
     }
 
-    public Mono<List<CustomerDiscordBroadcast>> retrieveAllWebhooks() {
+    public Mono<List<CustomerDiscordGuild>> retrieveAllCustomersGuildDetails() {
         return customerRepository.findAll()
                 .flatMap(customer -> {
-                    CustomerDiscordBroadcast customerDiscordBroadcast = CustomerDiscordBroadcast.builder()
-                            .baseWebhooks(customer.getDiscordBroadcast().getBaseWebhooks())
-                            .liveWebhooks(customer.getDiscordBroadcast().getLiveWebhooks())
+                    CustomerDiscordGuild customerDiscordGuild = CustomerDiscordGuild.builder()
+                            .customerId(customer.getId())
+                            .channelId(customer.getDiscordGuild().getChannelId())
+                            .guildId(customer.getDiscordGuild().getGuildId())
+                            .moderatorsRoles(customer.getDiscordGuild().getModeratorsRoles())
+                            .usersRoles(customer.getDiscordGuild().getUsersRoles())
                             .build();
 
-                    return Mono.just(customerDiscordBroadcast);
+                    return Mono.just(customerDiscordGuild);
                 })
                 .collect(Collectors.toList());
     }
@@ -49,11 +53,35 @@ public class CustomerService {
         return customerRepository.findById(id)
                 .flatMap(customer -> {
                     CustomerTheme customerTheme = CustomerTheme.builder()
-                            .hexColor(customer.getTheme().getHexColor())
+                            .generalColor(customer.getTheme().getGeneralColor())
                             .logoUrl(customer.getTheme().getLogoUrl())
                             .build();
 
                     return Mono.just(customerTheme);
                 });
+    }
+
+
+    public Mono<List<CustomerDiscordBroadcastConfig>> retrieveAllCustomersDiscordBroadcastConfigs() {
+        return customerRepository.findAll()
+                .flatMap(customer -> {
+                    CustomerDiscordBroadcastConfig customerDiscordBroadcastConfig = CustomerDiscordBroadcastConfig.builder()
+                            .customerDiscordBroadcast(CustomerDiscordBroadcast.builder()
+                                    .baseWebhooks(customer.getDiscordBroadcast().getBaseWebhooks())
+                                    .liveWebhooks(customer.getDiscordBroadcast().getLiveWebhooks())
+                                    .build())
+                            .theme(CustomerTheme.builder()
+                                    .tweetColor(customer.getTheme().getTweetColor())
+                                    .retweetColor(customer.getTheme().getRetweetColor())
+                                    .replyColor(customer.getTheme().getReplyColor())
+                                    .isCustom(customer.getTheme().getIsCustom())
+                                    .generalColor(customer.getTheme().getGeneralColor())
+                                    .logoUrl(customer.getTheme().getLogoUrl())
+                                    .build())
+                            .build();
+
+                    return Mono.just(customerDiscordBroadcastConfig);
+                })
+                .collect(Collectors.toList());
     }
 }

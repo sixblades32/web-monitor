@@ -1,8 +1,8 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
-import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
@@ -11,33 +11,28 @@ import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionPr
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
 public class UserTimelineMonitor extends AbstractTwitterMonitor {
 
     private static final String TIMELINE_PATH = "statuses/user_timeline.json";
 
-    private final TwitterHelperService twitterHelperService;
-
-    private User user;
+    private final User user;
+    private final RestTemplateProxy proxy;
 
     public UserTimelineMonitor(
             TwitterScraperRepository twitterScraperRepository,
             TwitterHelperService twitterHelperService,
             KafkaProducer kafkaProducer,
             List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
-            List<ImageRecognitionProcessor> imageRecognitionProcessors
+            List<ImageRecognitionProcessor> imageRecognitionProcessors, User user, RestTemplateProxy proxy
     ) {
         super(
                 700,
@@ -47,25 +42,26 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
                 plainTextRecognitionProcessors,
                 imageRecognitionProcessors,
                 log);
-        this.twitterHelperService = twitterHelperService;
+
+        this.user = user;
+        this.proxy = proxy;
     }
 
-    public void start(String screenName) {
-        try {
-            user = twitterHelperService.retrieveUser(screenName);
-        } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new NoTwitterUserMatchesException();
-            }
-        }
-
+    public void start() {
         log.info("Current monitor user is: {}", user);
 
         super.start();
     }
 
+    public void stop() {
+        super.stop();
+
+        log.info("User: {}", user);
+    }
+
+
     @Override
-    public MonitorStatus getMonitorStatus(){
+    public MonitorStatus getMonitorStatus() {
         return MonitorStatus.builder()
                 .status(super.getStatus())
                 .user(user)
@@ -85,6 +81,24 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
         }
     }
 
+    protected TweetResponse getTweetResponse(
+            MultiValueMap<String, String> params,
+            String timelinePath,
+            TwitterCustomClient twitterCustomClient
+    ) {
+        TweetResponse tweetResponse = null;
+
+        TweetResponse[] tweetResponseArray = twitterCustomClient
+                .getProxiedBaseApiTimelineTweets(params, timelinePath)
+                .getBody();
+
+        if (tweetResponseArray != null && tweetResponseArray.length > 0) {
+            tweetResponse = tweetResponseArray[0];
+        }
+
+        return tweetResponse;
+    }
+
     @Override
     protected MultiValueMap<String, String> generateParams() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -100,9 +114,17 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
     @Override
     protected void prepareClients(List<TwitterScraper> scrapers) {
         this.twitterCustomClients = scrapers.stream()
-                .map(TwitterCustomClient::new)
+                .map(scraper -> new TwitterCustomClient(scraper, proxy))
                 .collect(Collectors.toList());
 
         twitterCustomClients = Collections.synchronizedList(twitterCustomClients);
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public RestTemplateProxy getProxy() {
+        return proxy;
     }
 }

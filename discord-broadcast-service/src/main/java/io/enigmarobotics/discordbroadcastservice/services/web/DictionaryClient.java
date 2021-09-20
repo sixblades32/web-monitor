@@ -1,6 +1,6 @@
 package io.enigmarobotics.discordbroadcastservice.services.web;
 
-import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcastConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -19,12 +19,12 @@ public class DictionaryClient {
                 .build();
     }
 
-    public List<CustomerDiscordBroadcast> getWebhooks() {
+    public List<CustomerDiscordBroadcastConfig> getCustomerConfig() {
         return webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/customers/all/webhooks")
+                .uri(uriBuilder -> uriBuilder.path("/customers/discord/broadcast/configs/all")
                         .build())
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<CustomerDiscordBroadcast>>() {
+                .bodyToMono(new ParameterizedTypeReference<List<CustomerDiscordBroadcastConfig>>() {
                 })
                 .block();
     }

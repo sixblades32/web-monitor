@@ -1,6 +1,6 @@
 package io.enigmasolutions.webmonitor.dictionaryservice.controllers;
 
-import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcast;
+import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcastConfig;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
 import io.enigmasolutions.dictionarymodels.CustomerTheme;
 import io.enigmasolutions.webmonitor.dictionaryservice.services.CustomerService;
@@ -30,10 +30,17 @@ public class CustomerController {
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
-    @GetMapping("/all/webhooks")
-    public Mono<List<CustomerDiscordBroadcast>> getAllWebhooks() {
-        return customerService.retrieveAllWebhooks();
+    @GetMapping("/guilds/all")
+    public Mono<List<CustomerDiscordGuild>> getAllCustomerGuildDetails() {
+        return customerService.retrieveAllCustomersGuildDetails();
     }
+
+    @GetMapping("/discord/broadcast/configs/all")
+    public Mono<List<CustomerDiscordBroadcastConfig>> getAllCustomersDiscordBroadcastConfigs() {
+        return customerService.retrieveAllCustomersDiscordBroadcastConfigs();
+    }
+
+
 
     @GetMapping("/{id}/theme")
     public Mono<CustomerTheme> getCustomerTheme(@PathVariable String id) {

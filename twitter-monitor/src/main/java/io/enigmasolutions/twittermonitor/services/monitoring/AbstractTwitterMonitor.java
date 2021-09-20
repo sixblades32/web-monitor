@@ -27,24 +27,22 @@ import static io.enigmasolutions.twittermonitor.utils.TweetGenerator.generate;
 
 public abstract class AbstractTwitterMonitor {
 
+    protected final TwitterScraperRepository twitterScraperRepository;
+    protected final TwitterHelperService twitterHelperService;
     private final Timer timer = new Timer();
     private final ExecutorService mainThreadExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService processingExecutor = Executors.newCachedThreadPool();
-
     private final KafkaProducer kafkaProducer;
     private final int timelineDelay;
-    protected final TwitterScraperRepository twitterScraperRepository;
-    private final TwitterHelperService twitterHelperService;
     private final Logger log;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
     private final List<ImageRecognitionProcessor> imageRecognitionProcessors;
 
     protected List<TwitterCustomClient> failedCustomClients = Collections.synchronizedList(new LinkedList<>());
-
+    protected List<TwitterCustomClient> twitterCustomClients;
     private Status status = Status.STOPPED;
     private Integer delay = null;
     private MultiValueMap<String, String> params;
-    protected List<TwitterCustomClient> twitterCustomClients;
 
     public AbstractTwitterMonitor(
             int timelineDelay,
@@ -64,7 +62,7 @@ public abstract class AbstractTwitterMonitor {
         this.log = log;
     }
 
-    public Status getStatus(){
+    public Status getStatus() {
         return status;
     }
 
@@ -123,7 +121,7 @@ public abstract class AbstractTwitterMonitor {
     protected void processTweetResponse(TweetResponse tweetResponse) {
         if (tweetResponse == null) return;
 
-        if (isTweetRelevant(tweetResponse) && !twitterHelperService.isInTweetCache(tweetResponse.getTweetId())) {
+        if (isTweetRelevant(tweetResponse) && !twitterHelperService.isTweetInCache(tweetResponse.getTweetId())) {
             Tweet tweet = generate(tweetResponse);
 
             log.info("Received tweet for processing: {}", tweet);
@@ -134,7 +132,9 @@ public abstract class AbstractTwitterMonitor {
     }
 
     protected void processErrorResponse(HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
-        if (exception.getStatusCode().value() < 500) log.error(exception.toString());
+        if (exception.getStatusCode().value() < 500 && exception.getStatusCode().value() != 401) log.error(exception.toString());
+
+        if (exception.getStatusCode().value() == 401) log.error(exception.toString());
 
         if (exception.getStatusCode().value() >= 400 &&
                 exception.getStatusCode().value() < 500 &&
@@ -178,19 +178,20 @@ public abstract class AbstractTwitterMonitor {
     }
 
     public void restoreFailedClient(TwitterCustomClient twitterCustomClient) {
-        if(failedCustomClients.isEmpty()) throw new NoTargetMatchesException();
+        if (failedCustomClients.isEmpty()) throw new NoTargetMatchesException();
 
-        if(twitterCustomClient.getTwitterScraper().getCredentials() == null) twitterCustomClient = getFullFailedClient(twitterCustomClient
-                .getTwitterScraper()
-                .getTwitterUser()
-                .getTwitterId());
+        if (twitterCustomClient.getTwitterScraper().getCredentials() == null)
+            twitterCustomClient = getFullFailedClient(twitterCustomClient
+                    .getTwitterScraper()
+                    .getTwitterUser()
+                    .getTwitterId());
 
         failedCustomClients.remove(twitterCustomClient);
         twitterCustomClients.add(twitterCustomClient);
         log.info("Scraper " + twitterCustomClient.getTwitterScraper().getId() + " successfully restored!");
     }
 
-    private TwitterCustomClient getFullFailedClient(String twitterId){
+    private TwitterCustomClient getFullFailedClient(String twitterId) {
         TwitterCustomClient fullCustomClient = null;
 
         for (TwitterCustomClient failedCustomClient : failedCustomClients) {

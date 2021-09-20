@@ -39,7 +39,7 @@ public class Tweet {
     @JsonProperty("retweeted_status_id_str")
     private String retweetedStatusId;
     @JsonProperty("is_quote_status")
-    private Boolean isQuoteStatus;
+    private boolean isQuoteStatus;
     @JsonProperty("quoted_status_permalink")
     private QuotedStatusPermalink quotedStatusPermalink;
 
@@ -53,5 +53,11 @@ public class Tweet {
         }
 
         return type;
+    }
+
+    public String getText() {
+        if (retweetedStatusId != null) text = "";
+
+        return text;
     }
 }
