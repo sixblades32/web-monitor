@@ -42,14 +42,27 @@ public class TweetConsumerService {
     public void consumeBaseTopic(Tweet tweet) {
         log.info("Received base tweet message {}", tweet);
 
+        Message message = generateTweetMessage(tweet);
+
         PROCESSING_EXECUTOR.execute(() -> {
-            Message message = generateTweetMessage(tweet);
             postmanService.processBase(message);
         });
+
         PROCESSING_EXECUTOR.execute(() -> {
-            Message videoMessage = generateVideoMessage(tweet);
+            postmanService.processStaffBase(message);
+        });
+
+        Message videoMessage = generateVideoMessage(tweet);
+
+        PROCESSING_EXECUTOR.execute(() -> {
             if (videoMessage != null) {
                 postmanService.processBase(videoMessage);
+            }
+        });
+
+        PROCESSING_EXECUTOR.execute(() -> {
+            if (videoMessage != null) {
+                postmanService.processStaffBase(videoMessage);
             }
         });
     }

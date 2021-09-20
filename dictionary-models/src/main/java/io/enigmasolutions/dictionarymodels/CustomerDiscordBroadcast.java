@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CustomerDiscordBroadcast {
     private List<String> baseWebhooks;
+    private List<String> staffBaseWebhooks;
     private List<String> liveWebhooks;
 }
 

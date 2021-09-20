@@ -68,6 +68,27 @@ public class PostmanService {
         }));
     }
 
+    public void processStaffBase(Message message){
+        dictionaryClientService.getCustomersConfigs().forEach(customerConfig -> PROCESSING_EXECUTOR.execute(() -> {
+            try {
+                Message localMessage = objectMapper.readValue(objectMapper.writeValueAsString(message), Message.class);
+
+                String url = getRandomWebhook(customerConfig.getCustomerDiscordBroadcast().getStaffBaseWebhooks());
+
+                if(url == null) return;
+
+                if (customerConfig.getTheme().getIsCustom() && localMessage != null) {
+                    setColors(localMessage, customerConfig);
+                }
+
+                discordClient.sendEmbed(url, localMessage);
+                log.info("Tweet embed sent to customer's" + " staff base webhook. (" + url + ")");
+            } catch (JsonProcessingException e) {
+                log.error(e.getMessage());
+            }
+        }));
+    }
+
     public void processLive(Message message) {
 
         dictionaryClientService.getCustomersConfigs().forEach(customerConfig -> PROCESSING_EXECUTOR.execute(() -> {
