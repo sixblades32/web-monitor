@@ -9,6 +9,7 @@ import io.enigmasolutions.stuffmanager.services.CustomerDiscordGuildCache;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,9 +21,7 @@ public class AccessChecker {
         this.customerDiscordGuildCache = customerDiscordGuildCache;
     }
 
-    public CustomerDiscordGuild getRequiredCustomer(Message message) {
-
-        CustomerDiscordGuild requiredCustomer = null;
+    public Optional<CustomerDiscordGuild> getRequiredCustomer(Message message) {
 
         String guildId = message.getData().guildId().get().asString();
         String channelId = message.getChannelId().asString();
@@ -31,13 +30,9 @@ public class AccessChecker {
 
         List<CustomerDiscordGuild> customers = customerDiscordGuildCache.getCustomers();
 
-        List<CustomerDiscordGuild> filteredCustomersList = customers.stream().filter(customerDiscordGuild ->
+        Optional<CustomerDiscordGuild> requiredCustomer = customers.stream().filter(customerDiscordGuild ->
                 customerDiscordGuild.getGuildId().equals(guildId) && customerDiscordGuild.getChannelId().equals(channelId) && customerDiscordGuild.getModeratorsRoles().stream().anyMatch(userRoles::contains)
-        ).collect(Collectors.toList());
-
-        if (!filteredCustomersList.isEmpty()) {
-            requiredCustomer = filteredCustomersList.get(0);
-        }
+        ).findFirst();
 
         return requiredCustomer;
     }

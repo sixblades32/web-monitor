@@ -2,13 +2,13 @@ server:
   port: 8025
 
 discord:
-  token: NzY0NTQ0MzY2MDY0MzA0MTQ5.X4HzbQ.23NoCYQ2Wc5PwzgCD-RcJ6utRZo
+  token: ${DISCORD_BOT_TOKEN}
 
 dictionary-service:
   url: ${DICTIONARY_SERVICE_URL}
 
 kafka:
-  bootstrap-servers: localhost:9092
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
   producer:
     twitter-staff-broadcast: twitter-staff-broadcast
     header: Customer-Id

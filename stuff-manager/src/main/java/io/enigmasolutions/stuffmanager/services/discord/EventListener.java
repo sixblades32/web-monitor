@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -58,12 +59,11 @@ public class EventListener {
 
                 if (message.getAuthor().isPresent() && !message.getAuthor().get().isBot()) {
 
-                    CustomerDiscordGuild customerDiscordGuild = accessChecker.getRequiredCustomer(message);
+                    Optional<CustomerDiscordGuild> customerDiscordGuild = accessChecker.getRequiredCustomer(message);
 
                     Staff staffMessage = generateStaffMessage(message);
 
-                    if (customerDiscordGuild != null)
-                        kafkaProducer.sendStaffMessage(staffMessage, customerDiscordGuild.getCustomerId());
+                    customerDiscordGuild.ifPresent(discordGuild -> kafkaProducer.sendStaffMessage(staffMessage, discordGuild.getCustomerId()));
                 }
 
                 return Mono.empty();
