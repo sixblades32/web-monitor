@@ -1,4 +1,4 @@
-package io.enigmasolutions.stuffmanager.configuration;
+package io.enigmasolutions.staffmanager.configuration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;

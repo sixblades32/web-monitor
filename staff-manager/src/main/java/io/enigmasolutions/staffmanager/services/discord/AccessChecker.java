@@ -1,11 +1,9 @@
-package io.enigmasolutions.stuffmanager.services.discord;
+package io.enigmasolutions.staffmanager.services.discord;
 
-import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Message;
 import discord4j.discordjson.Id;
-import discord4j.discordjson.possible.Possible;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
-import io.enigmasolutions.stuffmanager.services.CustomerDiscordGuildCache;
+import io.enigmasolutions.staffmanager.services.CustomerDiscordGuildCache;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

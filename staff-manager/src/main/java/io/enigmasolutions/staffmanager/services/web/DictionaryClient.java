@@ -1,4 +1,4 @@
-package io.enigmasolutions.stuffmanager.services.web;
+package io.enigmasolutions.staffmanager.services.web;
 
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
 import org.springframework.beans.factory.annotation.Value;

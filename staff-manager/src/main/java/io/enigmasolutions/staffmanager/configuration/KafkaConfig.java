@@ -1,4 +1,4 @@
-package io.enigmasolutions.stuffmanager.configuration;
+package io.enigmasolutions.staffmanager.configuration;
 
 import io.enigmasolutions.broadcastmodels.Staff;
 import org.apache.kafka.clients.producer.ProducerConfig;

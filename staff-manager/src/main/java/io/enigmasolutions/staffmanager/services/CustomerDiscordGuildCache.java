@@ -1,7 +1,7 @@
-package io.enigmasolutions.stuffmanager.services;
+package io.enigmasolutions.staffmanager.services;
 
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
-import io.enigmasolutions.stuffmanager.services.web.DictionaryClient;
+import io.enigmasolutions.staffmanager.services.web.DictionaryClient;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package io.enigmasolutions.stuffmanager.services;
+package io.enigmasolutions.staffmanager.services;
 
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
 import lombok.extern.slf4j.Slf4j;

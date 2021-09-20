@@ -1,4 +1,4 @@
-package io.enigmasolutions.stuffmanager.services.utils;
+package io.enigmasolutions.staffmanager.services.utils;
 
 import org.springframework.stereotype.Component;
 
