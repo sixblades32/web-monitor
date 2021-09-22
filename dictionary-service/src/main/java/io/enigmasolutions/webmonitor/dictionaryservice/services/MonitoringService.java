@@ -23,6 +23,8 @@ public class MonitoringService {
                     DefaultMonitoringTarget defaultMonitoringTarget = DefaultMonitoringTarget.builder()
                             .identifier(monitoringTarget.getIdentifier())
                             .username(monitoringTarget.getUsername())
+                            .image(monitoringTarget.getImage())
+                            .name(monitoringTarget.getName())
                             .build();
 
                     return Mono.just(defaultMonitoringTarget);

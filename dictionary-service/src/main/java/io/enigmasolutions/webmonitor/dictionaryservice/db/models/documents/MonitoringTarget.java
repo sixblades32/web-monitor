@@ -17,4 +17,6 @@ public class MonitoringTarget {
     private String id;
     private String username;
     private String identifier;
+    private String image;
+    private String name;
 }
