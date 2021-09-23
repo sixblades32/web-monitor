@@ -55,7 +55,8 @@ public class WebSecurityConfig {
     public CorsWebFilter corsConfiguration() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.addAllowedOrigin("*");
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("*");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
