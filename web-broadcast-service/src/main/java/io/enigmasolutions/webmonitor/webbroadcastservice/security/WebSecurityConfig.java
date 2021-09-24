@@ -31,6 +31,14 @@ public class WebSecurityConfig {
                 .and()
                 .authenticationManager(authenticationManager)
                 .securityContextRepository(securityContextRepository).authorizeExchange()
+                .pathMatchers(
+                        "/actuator/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/webjars/swagger-ui/**"
+                )
+                .permitAll()
                 .anyExchange().authenticated()
                 .and()
                 .httpBasic().disable()
