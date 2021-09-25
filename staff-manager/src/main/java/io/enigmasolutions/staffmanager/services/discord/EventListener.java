@@ -83,12 +83,6 @@ public class EventListener {
 
         String content = message.getContent();
 
-        if (!detectedUrls.isEmpty()) {
-            for (String url : detectedUrls) {
-                content = content.replace(url, "");
-            }
-        }
-
         return Staff.builder()
                 .type(StaffType.PLAIN)
                 .text(content)
