@@ -21,8 +21,7 @@ public class RecognitionConsumerService extends AbstractConsumerService<Recognit
     }
 
     @Override
-    @KafkaListener(topics = "${kafka.recognition-consumer.topic}",
-            groupId = "${kafka.recognition-consumer.group-id}")
+    @KafkaListener(topics = "${kafka.recognition-consumer.topic}")
     public void consume(ConsumerRecord<String, String> record) {
         try {
             super.consume(record);

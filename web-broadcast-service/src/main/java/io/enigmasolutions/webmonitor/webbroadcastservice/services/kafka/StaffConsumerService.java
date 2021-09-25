@@ -21,8 +21,7 @@ public class StaffConsumerService extends AbstractConsumerService<Staff> {
     }
 
     @Override
-    @KafkaListener(topics = "${kafka.staff-consumer.topic}",
-            groupId = "${kafka.staff-consumer.group-id}")
+    @KafkaListener(topics = "${kafka.staff-consumer.topic}")
     public void consume(ConsumerRecord<String, String> record) {
         try {
             super.consume(record);
