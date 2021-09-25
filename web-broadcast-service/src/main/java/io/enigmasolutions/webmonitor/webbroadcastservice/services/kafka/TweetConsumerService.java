@@ -21,7 +21,8 @@ public class TweetConsumerService extends AbstractConsumerService<Tweet> {
     }
 
     @Override
-    @KafkaListener(topics = "${kafka.tweet-consumer.topic}")
+    @KafkaListener(topics = "${kafka.tweet-consumer.topic}",
+            groupId = "#{\"web-broadcast-\" + T(java.util.UUID).randomUUID().toString()}")
     public void consume(ConsumerRecord<String, String> record) {
         try {
             super.consume(record);
