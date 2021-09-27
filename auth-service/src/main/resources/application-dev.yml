@@ -58,4 +58,4 @@ discord:
     token: Bot NzY3NDE5NDMxMzU3MzgyNjU2.X4xpCg.TTHtJEwsTv8ZlKQjJUVRFt1zBHI
 
 dictionary-service:
-  url: http://localhost:8015/dictionary
+  url: http://localhost:8015/api/dictionary

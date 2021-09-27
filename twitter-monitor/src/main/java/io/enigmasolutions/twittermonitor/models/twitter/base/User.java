@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Locale;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -25,5 +27,9 @@ public class User {
 
     public String getUserUrl() {
         return "https://twitter.com/" + screenName;
+    }
+
+    public String getScreenName() {
+        return screenName.toLowerCase(Locale.ROOT);
     }
 }

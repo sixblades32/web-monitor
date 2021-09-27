@@ -7,6 +7,7 @@ import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerReposito
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.common.FollowsList;
 import io.enigmasolutions.twittermonitor.services.web.TwitterRegularClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -20,16 +21,20 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TwitterHelperService {
 
-    private final List<String> advancedTargetIds = new LinkedList<>();
+    private final List<String> liveReleaseTargetsIds = new LinkedList<>();
+    private final List<String> liveReleaseTargetsScreenNames = new LinkedList<>();
     private final List<String> tweetsCache = new LinkedList<>();
+    private final List<String> v2TweetsCache = new LinkedList<>();
+    private final List<String> graphQLTweetsCache = new LinkedList<>();
 
     private final TwitterConsumerRepository twitterConsumerRepository;
     private final TargetRepository targetRepository;
 
     private List<TwitterRegularClient> twitterRegularClients;
-    private List<String> commonTargetIds;
+    private List<String> baseTargetsIds;
 
     @Autowired
     public TwitterHelperService(TwitterConsumerRepository twitterClientRepository, TargetRepository targetRepository) {
@@ -46,7 +51,7 @@ public class TwitterHelperService {
     private void initTargets() {
         List<Target> targets = targetRepository.findAll();
 
-        commonTargetIds = targets.stream()
+        baseTargetsIds = targets.stream()
                 .map(Target::getIdentifier)
                 .collect(Collectors.toList());
     }
@@ -59,12 +64,12 @@ public class TwitterHelperService {
                 .collect(Collectors.toList());
     }
 
-    public Boolean checkCommonPass(String id) {
-        return commonTargetIds.contains(id);
+    public Boolean checkBasePass(String id) {
+        return baseTargetsIds.contains(id);
     }
 
     public Boolean checkLiveReleasePass(String id) {
-        return advancedTargetIds.contains(id);
+        return liveReleaseTargetsIds.contains(id);
     }
 
     public User retrieveUser(String screenName) {
@@ -98,33 +103,57 @@ public class TwitterHelperService {
         return client;
     }
 
-    public Boolean isInTweetCache(String id) {
+    public Boolean isTweetInCache(String id) {
         if (tweetsCache.contains(id)) {
             return true;
         } else {
             tweetsCache.add(id);
-            removeFromCache(id);
+            removeFromCache(id, tweetsCache);
             return false;
         }
     }
 
-    public void removeFromCache(String id) {
+    public Boolean isTweetInV2Cache(String id) {
+        if (v2TweetsCache.contains(id)) {
+            return true;
+        } else {
+            v2TweetsCache.add(id);
+            removeFromCache(id, v2TweetsCache);
+            return false;
+        }
+    }
+
+    public Boolean isTweetInGraphQLCache(String id) {
+        if (graphQLTweetsCache.contains(id)) {
+            return true;
+        } else {
+            graphQLTweetsCache.add(id);
+            removeFromCache(id, graphQLTweetsCache);
+            return false;
+        }
+    }
+
+    public void removeFromCache(String id, List<String> cache) {
         Timer timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                tweetsCache.remove(id);
+                cache.remove(id);
             }
         };
 
         timer.schedule(timerTask, 60000);
     }
 
-    public List<String> getAdvancedTargetIds() {
-        return advancedTargetIds;
+    public List<String> getLiveReleaseTargetsIds() {
+        return liveReleaseTargetsIds;
     }
 
-    public List<String> getCommonTargetIds() {
-        return commonTargetIds;
+    public List<String> getLiveReleaseTargetsScreenNames() {
+        return liveReleaseTargetsScreenNames;
+    }
+
+    public List<String> getBaseTargetsIds() {
+        return baseTargetsIds;
     }
 }

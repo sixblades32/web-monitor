@@ -1,14 +1,20 @@
 package io.enigmarobotics.discordbroadcastservice.domain.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
-public class Message {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Message{
 
     private String content;
     private List<Embed> embeds;
+
+
 }

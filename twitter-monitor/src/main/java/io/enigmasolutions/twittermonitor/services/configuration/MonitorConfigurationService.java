@@ -6,6 +6,9 @@ import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
+import io.enigmasolutions.twittermonitor.exceptions.NoTargetMatchesException;
+import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
+import io.enigmasolutions.twittermonitor.exceptions.TargetAlreadyAddedException;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
@@ -75,8 +78,17 @@ public class MonitorConfigurationService {
 
     @Transactional
     public void createGlobalTarget(UserStartForm body) {
+        User user;
 
-        User user = twitterHelperService.retrieveUser(body.getScreenName());
+        try {
+            user = twitterHelperService.retrieveUser(body.getScreenName());
+        } catch (Exception e) {
+            throw new NoTwitterUserMatchesException();
+        }
+
+        if (twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+            throw new TargetAlreadyAddedException();
+        }
 
         Target target = Target.builder()
                 .username(user.getScreenName().toLowerCase())
@@ -84,35 +96,63 @@ public class MonitorConfigurationService {
                 .build();
 
         targetRepository.insert(target);
-        twitterHelperService.getCommonTargetIds().add(user.getId());
+        twitterHelperService.getBaseTargetsIds().add(user.getId());
     }
 
     @Transactional
     public void deleteGlobalTarget(UserStartForm body) {
+        User user;
 
-        User user = twitterHelperService.retrieveUser(body.getScreenName());
+        try {
+            user = twitterHelperService.retrieveUser(body.getScreenName());
+        } catch (Exception e) {
+            throw new NoTwitterUserMatchesException();
+        }
+
+        if (!twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+            throw new NoTargetMatchesException();
+        }
 
         targetRepository.deleteTargetByIdentifier(user.getId());
-        twitterHelperService.getCommonTargetIds().remove(user.getId());
+        twitterHelperService.getBaseTargetsIds().remove(user.getId());
     }
 
     public List<String> getTemporaryTargets() {
 
-        return twitterHelperService.getAdvancedTargetIds();
+        return twitterHelperService.getLiveReleaseTargetsScreenNames();
     }
 
     public void createTemporaryTarget(UserStartForm body) {
+        User user;
 
-        User user = twitterHelperService.retrieveUser(body.getScreenName());
+        try {
+            user = twitterHelperService.retrieveUser(body.getScreenName());
+        } catch (Exception e) {
+            throw new NoTwitterUserMatchesException();
+        }
 
-        twitterHelperService.getAdvancedTargetIds().add(user.getId());
+        if (twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
+            throw new TargetAlreadyAddedException();
+        }
+
+        twitterHelperService.getLiveReleaseTargetsIds().add(user.getId());
+        twitterHelperService.getLiveReleaseTargetsScreenNames().add(user.getScreenName());
     }
 
     public void deleteTemporaryTarget(UserStartForm body) {
+        User user;
 
-        User user = twitterHelperService.retrieveUser(body.getScreenName());
+        try {
+            user = twitterHelperService.retrieveUser(body.getScreenName());
+        } catch (Exception e) {
+            throw new NoTwitterUserMatchesException();
+        }
 
-        twitterHelperService.getAdvancedTargetIds().remove(user.getId());
+        if (!twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
+            throw new NoTargetMatchesException();
+        }
+
+        twitterHelperService.getLiveReleaseTargetsIds().remove(user.getId());
+        twitterHelperService.getLiveReleaseTargetsScreenNames().remove(user.getScreenName());
     }
-
 }

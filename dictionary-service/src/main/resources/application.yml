@@ -1,0 +1,15 @@
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      database: dictionary-service
+  webflux:
+    base-path: /api/dictionary
+
+server:
+  port: 8015
+
+management:
+  server:
+    port: 9015
+    base-path: /manage

@@ -19,7 +19,7 @@ discord:
       alert: 16023551
 
 dictionary-service:
-  url: http://localhost:8015
+  url: http://localhost:8015/api/dictionary
 
 kafka:
   bootstrap-servers: localhost:9092

@@ -1,0 +1,8 @@
+security:
+  jwt:
+    header: Authorization
+    prefix: Bearer
+    secret: jwt-secret
+
+dictionary-service:
+  url: http://localhost:8015/api/dictionary

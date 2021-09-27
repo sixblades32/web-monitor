@@ -1,0 +1,20 @@
+spring:
+  webflux:
+    base-path: /api/details
+
+server:
+  port: 8045
+
+management:
+  server:
+    port: 9045
+    base-path: /manage
+
+security:
+  jwt:
+    header: Authorization
+    prefix: Bearer
+    secret: ${SECURITY_JWT_SECRET}
+
+dictionary-service:
+  url: ${DICTIONARY_SERVICE_URL}

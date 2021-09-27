@@ -2,6 +2,7 @@ package io.enigmasolutions.webmonitor.dictionaryservice.db.models.documents;
 
 import io.enigmasolutions.webmonitor.dictionaryservice.db.models.references.DiscordBroadcast;
 import io.enigmasolutions.webmonitor.dictionaryservice.db.models.references.DiscordGuild;
+import io.enigmasolutions.webmonitor.dictionaryservice.db.models.references.Theme;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,4 +22,5 @@ public class Customer {
     private String comment;
     private DiscordBroadcast discordBroadcast;
     private DiscordGuild discordGuild;
+    private Theme theme;
 }

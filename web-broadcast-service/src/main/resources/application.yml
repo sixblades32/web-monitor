@@ -8,18 +8,14 @@ management:
 
 security:
   jwt:
-    header: Authorization
-    prefix: Bearer
+    query-param: token
     secret: ${SECURITY_JWT_SECRET}
 
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
   tweet-consumer:
-    group-id: web-broadcast-tweet-group
     topic: twitter-tweet-broadcast-base
   recognition-consumer:
-    group-id: web-broadcast-recognition-group
     topic: twitter-tweet-recognition-broadcast-base
   staff-consumer:
-    group-id: web-broadcast-staff-group
     topic: twitter-staff-broadcast

@@ -2,24 +2,33 @@ package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
+import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
+import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLResponse;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.GraphQLTweet;
 import io.enigmasolutions.twittermonitor.models.twitter.graphql.QueryStringData;
+import io.enigmasolutions.twittermonitor.models.twitter.graphql.TweetLegacy;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static io.enigmasolutions.twittermonitor.utils.TweetResponseGenerator.generate;
+import static io.enigmasolutions.twittermonitor.utils.TweetResponseGeneratorForGraphQL.generate;
 
 @Slf4j
 @Component
@@ -48,11 +57,25 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
     }
 
     public void start(String screenName) {
-        user = twitterHelperService.retrieveUser(screenName);
+        try {
+            user = twitterHelperService.retrieveUser(screenName);
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new NoTwitterUserMatchesException();
+            }
+        }
 
         log.info("Current monitor user is: {}", user);
 
         super.start();
+    }
+
+    @Override
+    public MonitorStatus getMonitorStatus() {
+        return MonitorStatus.builder()
+                .status(super.getStatus())
+                .user(user)
+                .build();
     }
 
     @Override
@@ -74,8 +97,14 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                 .getGraphQLApiTimelineTweets(getParams())
                 .getBody();
 
-        if (graphQlDataResponse != null) {
-            tweetResponse = generate(graphQlDataResponse.getData()
+        if (graphQlDataResponse != null && !graphQlDataResponse.getData()
+                .getUser()
+                .getResult()
+                .getTimeline()
+                .getNestedTimeline()
+                .getInstructions().isEmpty()) {
+
+            GraphQLTweet tweet = graphQlDataResponse.getData()
                     .getUser()
                     .getResult()
                     .getTimeline()
@@ -84,10 +113,17 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                     .getEntries().get(0)
                     .getContent()
                     .getItemContent()
-                    .getTweet());
+                    .getTweet();
+
+            if (isTweetRelevant(tweet.getLegacy()) && !twitterHelperService.isTweetInGraphQLCache(tweet.getRestId()))
+                tweetResponse = generate(tweet);
         }
 
         return tweetResponse;
+    }
+
+    private Boolean isTweetRelevant(TweetLegacy tweet) {
+        return new Date().getTime() - Date.parse(tweet.getCreatedAt()) <= 25000;
     }
 
     @Override
@@ -114,8 +150,6 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        //TODO: нужно что-то придумать с этим, т.к. будет НПЕ
-
         try {
             variables = objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
@@ -125,5 +159,14 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
         params.add("variables", variables);
 
         return params;
+    }
+
+    @Override
+    protected void prepareClients(List<TwitterScraper> scrapers) {
+        this.twitterCustomClients = scrapers.stream()
+                .map(TwitterCustomClient::new)
+                .collect(Collectors.toList());
+
+        twitterCustomClients = Collections.synchronizedList(twitterCustomClients);
     }
 }

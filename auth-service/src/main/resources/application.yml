@@ -1,4 +1,11 @@
 spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      database: auth-service
+      auto-index-creation: true
+  session:
+    store-type: mongodb
   security:
     oauth2:
       client:
@@ -12,7 +19,7 @@ spring:
               - identify
               - email
               - guilds.join
-            redirect-uri: "https://enigmamonitors.io/api/auth/guest/login/oauth2/code/discord"
+            redirect-uri: "https://enigmamonitors.io/api/auth/guests/login/oauth2/code/discord"
             client-name: Enigma Monitors
         provider:
           discord:
@@ -20,10 +27,6 @@ spring:
             tokenUri: https://discordapp.com/api/oauth2/token
             userInfoUri: https://discordapp.com/api/users/@me
             usernameAttribute: id
-  redis:
-    url: ${REDIS_URL}
-  session:
-    store-type: redis
 
 server:
   port: 8010
@@ -57,4 +60,6 @@ security:
 discord:
   bot:
     token: ${DISCORD_BOT_TOKEN}
-  trusted-guild: 688446328761614440
+
+dictionary-service:
+  url: ${DICTIONARY_SERVICE_URL}
