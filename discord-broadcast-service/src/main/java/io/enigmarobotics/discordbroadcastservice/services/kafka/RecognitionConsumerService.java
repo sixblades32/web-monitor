@@ -37,9 +37,14 @@ public class RecognitionConsumerService {
     public void consumeBaseTopic(Recognition recognition) {
         log.info("Received base recognition message {}", recognition);
 
+        Message message = generateRecognitionMessage(recognition);
+
         PROCESSING_EXECUTOR.execute(() -> {
-            Message message = generateRecognitionMessage(recognition);
             postmanService.processBase(message);
+        });
+
+        PROCESSING_EXECUTOR.execute(() -> {
+            postmanService.processStaffBase(message);
         });
     }
 

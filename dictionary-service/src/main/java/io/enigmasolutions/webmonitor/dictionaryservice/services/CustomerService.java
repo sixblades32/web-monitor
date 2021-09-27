@@ -68,6 +68,7 @@ public class CustomerService {
                     CustomerDiscordBroadcastConfig customerDiscordBroadcastConfig = CustomerDiscordBroadcastConfig.builder()
                             .customerDiscordBroadcast(CustomerDiscordBroadcast.builder()
                                     .baseWebhooks(customer.getDiscordBroadcast().getBaseWebhooks())
+                                    .staffBaseWebhooks(customer.getDiscordBroadcast().getStaffBaseWebhooks())
                                     .liveWebhooks(customer.getDiscordBroadcast().getLiveWebhooks())
                                     .build())
                             .theme(CustomerTheme.builder()
