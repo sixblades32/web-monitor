@@ -4,6 +4,7 @@ import io.enigmasolutions.broadcastmodels.*;
 import io.enigmasolutions.twittermonitor.models.twitter.base.Entity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.ExtendedEntity;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
+import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +30,7 @@ public class TweetGenerator {
     private static Tweet buildTweet(TweetResponse tweetResponse, List<Media> media, List<String> detectedUrls) {
         Tweet.TweetBuilder tweetBuilder = Tweet.builder()
                 .type(tweetResponse.getType())
-                .user(buildTweetUser(tweetResponse))
+                .user(buildTweetUser(tweetResponse.getUser()))
                 .tweetUrl(tweetResponse.getTweetUrl())
                 .media(media)
                 .detectedUrls(detectedUrls)
@@ -54,7 +55,7 @@ public class TweetGenerator {
 
     public static BriefTweet buildBriefTweet(TweetResponse tweetResponse) {
         return BriefTweet.builder()
-                .user(buildTweetUser(tweetResponse))
+                .user(buildTweetUser(tweetResponse.getUser()))
                 .tweetUrl(tweetResponse.getTweetUrl())
                 .build();
     }
@@ -99,13 +100,16 @@ public class TweetGenerator {
                 .collect(Collectors.toList());
     }
 
-    private static TwitterUser buildTweetUser(TweetResponse tweetResponse) {
+    public static TwitterUser buildTweetUser(User user) {
         return TwitterUser.builder()
-                .name(tweetResponse.getUser().getName())
-                .icon(tweetResponse.getUser().getUserImage())
-                .login(tweetResponse.getUser().getScreenName())
-                .url(tweetResponse.getUser().getUserUrl())
-                .id(tweetResponse.getUser().getId())
+                .name(user.getName())
+                .icon(user.getUserImage())
+                .login(user.getScreenName())
+                .url(user.getUserUrl())
+                .statusUrl(user.getUrl())
+                .description(user.getDescription())
+                .location(user.getLocation())
+                .id(user.getId())
                 .build();
     }
 
