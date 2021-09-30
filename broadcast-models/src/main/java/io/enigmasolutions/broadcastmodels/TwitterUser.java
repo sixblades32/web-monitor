@@ -16,4 +16,7 @@ public class TwitterUser {
     private String login;
     private String url;
     private String id;
+    private String location;
+    private String description;
+    private String statusUrl;
 }

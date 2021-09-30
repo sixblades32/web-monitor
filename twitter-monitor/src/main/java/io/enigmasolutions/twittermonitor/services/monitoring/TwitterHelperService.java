@@ -27,6 +27,7 @@ public class TwitterHelperService {
     private final List<String> liveReleaseTargetsIds = new LinkedList<>();
     private final List<String> liveReleaseTargetsScreenNames = new LinkedList<>();
     private final List<String> tweetsCache = new LinkedList<>();
+    private final List<User> userInfosCache = new LinkedList<>();
     private final List<String> v2TweetsCache = new LinkedList<>();
     private final List<String> graphQLTweetsCache = new LinkedList<>();
 
@@ -103,6 +104,16 @@ public class TwitterHelperService {
         return client;
     }
 
+    public Boolean isUserInfoInCache(User user){
+        if(userInfosCache.stream().anyMatch(cachedUser -> cachedUser.isInfoEqual(user))){
+            return true;
+        }else{
+            userInfosCache.add(user);
+            removeFromUserInfosCache(user);
+            return false;
+        }
+    }
+
     public Boolean isTweetInCache(String id) {
         if (tweetsCache.contains(id)) {
             return true;
@@ -143,6 +154,18 @@ public class TwitterHelperService {
         };
 
         timer.schedule(timerTask, 60000);
+    }
+
+    public void removeFromUserInfosCache(User user) {
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                userInfosCache.remove(user);
+            }
+        };
+
+        timer.schedule(timerTask, 15000);
     }
 
     public List<String> getLiveReleaseTargetsIds() {

@@ -33,9 +33,16 @@ kafka:
   recognition-consumer-base:
     group-id: discord-broadcast-recognition-base-group
     topic: twitter-tweet-recognition-broadcast-base
-  recognition-consumer-live=release:
+  recognition-consumer-live-release:
     group-id: discord-broadcast-recognition-live-release-group
     topic: twitter-tweet-recognition-broadcast-live-release
   alert-consumer:
     group-id: discord-broadcast-alert-group
     topic: twitter-monitor-alert-broadcast
+  user-updates-consumer-base:
+    group-id: discord-broadcast-user-updates-base-group
+    topic: twitter-user-updates-broadcast-base
+  user-updates-consumer-live-release:
+    group-id: discord-broadcast-user-updates-live-release-group
+    topic: twitter-user-updates-broadcast-live-release
+

@@ -31,8 +31,8 @@ public abstract class AbstractTwitterMonitor {
     protected final TwitterHelperService twitterHelperService;
     private final Timer timer = new Timer();
     private final ExecutorService mainThreadExecutor = Executors.newSingleThreadExecutor();
-    private final ExecutorService processingExecutor = Executors.newCachedThreadPool();
-    private final KafkaProducer kafkaProducer;
+    protected final ExecutorService processingExecutor = Executors.newCachedThreadPool();
+    protected final KafkaProducer kafkaProducer;
     private final int timelineDelay;
     private final Logger log;
     private final List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors;
@@ -337,37 +337,37 @@ public abstract class AbstractTwitterMonitor {
     }
 
     private void processCommonTarget(Tweet tweet) {
-        if (isCommonTargetValid(tweet)) {
+        if (isCommonTargetValid(tweet.getUser())) {
             kafkaProducer.sendTweetToBaseBroadcast(tweet);
         }
     }
 
     private void processLiveReleaseTarget(Tweet tweet) {
-        if (isLiveReleaseTargetValid(tweet)) {
-            kafkaProducer.sendTweetLiveReleaseBroadcast(tweet);
+        if (isLiveReleaseTargetValid(tweet.getUser())) {
+            kafkaProducer.sendTweetToLiveReleaseBroadcast(tweet);
         }
     }
 
     private void processCommonTargetRecognition(Tweet tweet, Recognition recognition) {
-        if (isCommonTargetValid(tweet)) {
-            kafkaProducer.sendTweetToBaseBroadcastRecognition(recognition);
+        if (isCommonTargetValid(tweet.getUser())) {
+            kafkaProducer.sendRecognitionToBaseBroadcast(recognition);
         }
     }
 
     private void processLiveReleaseTargetRecognition(Tweet tweet, Recognition recognition) {
-        if (isLiveReleaseTargetValid(tweet)) {
-            kafkaProducer.sendTweetLiveReleaseRecognition(recognition);
+        if (isLiveReleaseTargetValid(tweet.getUser())) {
+            kafkaProducer.sendRecognitionToLiveReleaseBroadcast(recognition);
         }
     }
 
-    private Boolean isCommonTargetValid(Tweet tweet) {
-        String targetId = tweet.getUser().getId();
+    protected Boolean isCommonTargetValid(TwitterUser user) {
+        String targetId = user.getId();
 
         return twitterHelperService.checkBasePass(targetId);
     }
 
-    private Boolean isLiveReleaseTargetValid(Tweet tweet) {
-        String targetId = tweet.getUser().getId();
+    protected Boolean isLiveReleaseTargetValid(TwitterUser user) {
+        String targetId = user.getId();
 
         return twitterHelperService.checkLiveReleasePass(targetId);
     }

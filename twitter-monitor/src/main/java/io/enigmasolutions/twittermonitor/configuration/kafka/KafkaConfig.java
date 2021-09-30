@@ -3,6 +3,7 @@ package io.enigmasolutions.twittermonitor.configuration.kafka;
 import io.enigmasolutions.broadcastmodels.Alert;
 import io.enigmasolutions.broadcastmodels.Recognition;
 import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.TwitterUser;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -48,6 +50,14 @@ public class KafkaConfig {
     @Bean
     public KafkaTemplate<String, Recognition> recognitionKafkaTemplate() {
         KafkaTemplate<String, Recognition> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+        kafkaTemplate.setProducerListener(new LoggingProducerListener<>());
+
+        return kafkaTemplate;
+    }
+
+    @Bean
+    public KafkaTemplate<String, List<TwitterUser>> userUpdatesKafkaTemplate() {
+        KafkaTemplate<String, List<TwitterUser>> kafkaTemplate = new KafkaTemplate<>(producerFactory());
         kafkaTemplate.setProducerListener(new LoggingProducerListener<>());
 
         return kafkaTemplate;

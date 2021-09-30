@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import io.enigmasolutions.broadcastmodels.TwitterUser;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
@@ -10,11 +11,13 @@ import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
+import io.enigmasolutions.twittermonitor.utils.TweetGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +27,7 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
 
     private static final String TIMELINE_PATH = "statuses/user_timeline.json";
 
-    private final User user;
+    private User user;
     private final RestTemplateProxy proxy;
 
     public UserTimelineMonitor(
@@ -75,9 +78,53 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
 
         try {
             TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH, currentClient);
+
             processTweetResponse(tweetResponse);
         } catch (HttpClientErrorException exception) {
             processErrorResponse(exception, currentClient);
+        }
+    }
+
+    @Override
+    protected void processTweetResponse(TweetResponse tweetResponse) {
+        super.processingExecutor.execute(() -> super.processTweetResponse(tweetResponse));
+        super.processingExecutor.execute(() -> processUser(tweetResponse));
+    }
+
+    private void processUser(TweetResponse tweetResponse){
+        if (tweetResponse == null) return;
+
+        User currentUser = tweetResponse.getUser();
+
+        if(user.getDescription() == null) user = currentUser;
+
+        if(!user.isInfoEqual(currentUser)){
+
+            if(super.twitterHelperService.isUserInfoInCache(currentUser)) return;
+
+            TwitterUser twitterUser = TweetGenerator.buildTweetUser(user);
+            user = currentUser;
+            TwitterUser updatedTwitterUser = TweetGenerator.buildTweetUser(user);
+
+            List<TwitterUser> userUpdates = new ArrayList<>();
+
+            userUpdates.add(twitterUser);
+            userUpdates.add(updatedTwitterUser);
+
+            super.processingExecutor.execute(() -> processCommonTargetUpdates(userUpdates));
+            super.processingExecutor.execute(() -> processLiveReleaseTargetUpdates(userUpdates));
+        }
+    }
+
+    private void processCommonTargetUpdates(List<TwitterUser> userUpdates) {
+        if (super.isCommonTargetValid(userUpdates.get(0))) {
+            super.kafkaProducer.sendUserUpdatesToBaseBroadcast(userUpdates);
+        }
+    }
+
+    private void processLiveReleaseTargetUpdates(List<TwitterUser> userUpdates) {
+        if (super.isLiveReleaseTargetValid(userUpdates.get(0))) {
+            super.kafkaProducer.sendUserUpdatesToLiveReleaseBroadcast(userUpdates);
         }
     }
 
