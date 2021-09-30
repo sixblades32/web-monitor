@@ -61,7 +61,7 @@ public class PostmanService {
                 }
 
                 discordClient.sendEmbed(url, localMessage);
-                log.info("Tweet embed sent to customer's" + " base webhook. (" + url + ")");
+                log.info("Twitter embed sent to customer's" + " base webhook. (" + url + ")");
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
             }
@@ -82,7 +82,7 @@ public class PostmanService {
                 }
 
                 discordClient.sendEmbed(url, localMessage);
-                log.info("Tweet embed sent to customer's" + " staff base webhook. (" + url + ")");
+                log.info("Twitter embed sent to customer's" + " staff base webhook. (" + url + ")");
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
             }
@@ -102,7 +102,7 @@ public class PostmanService {
                 }
 
                 discordClient.sendEmbed(url, localMessage);
-                log.info("Tweet embed sent to customer's" + " live release webhook. (" + url + ")");
+                log.info("Twitter embed sent to customer's" + " live release webhook. (" + url + ")");
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
             }
