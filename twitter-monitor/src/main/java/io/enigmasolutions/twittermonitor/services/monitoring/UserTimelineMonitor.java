@@ -1,8 +1,8 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.broadcastmodels.TwitterUser;
-import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
+import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.models.twitter.base.TweetResponse;
@@ -12,30 +12,29 @@ import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionPr
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import io.enigmasolutions.twittermonitor.utils.TweetGenerator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Slf4j
 public class UserTimelineMonitor extends AbstractTwitterMonitor {
 
     private static final String TIMELINE_PATH = "statuses/user_timeline.json";
-
-    private User user;
     private final RestTemplateProxy proxy;
+    private User user;
 
     public UserTimelineMonitor(
             TwitterScraperRepository twitterScraperRepository,
             TwitterHelperService twitterHelperService,
             KafkaProducer kafkaProducer,
             List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
-            List<ImageRecognitionProcessor> imageRecognitionProcessors, User user, RestTemplateProxy proxy
+            List<ImageRecognitionProcessor> imageRecognitionProcessors, User user,
+            RestTemplateProxy proxy
     ) {
         super(
                 700,
@@ -77,7 +76,8 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
         TwitterCustomClient currentClient = refreshClient();
 
         try {
-            TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH, currentClient);
+            TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH,
+                    currentClient);
 
             processTweetResponse(tweetResponse);
         } catch (HttpClientErrorException exception) {
@@ -91,16 +91,22 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
         super.processingExecutor.execute(() -> processUser(tweetResponse));
     }
 
-    private void processUser(TweetResponse tweetResponse){
-        if (tweetResponse == null) return;
+    private void processUser(TweetResponse tweetResponse) {
+        if (tweetResponse == null) {
+            return;
+        }
 
         User currentUser = tweetResponse.getUser();
 
-        if(user.getDescription() == null) user = currentUser;
+        if (user.getDescription() == null) {
+            user = currentUser;
+        }
 
-        if(!user.isInfoEqual(currentUser)){
+        if (!user.isInfoEqual(currentUser)) {
 
-            if(super.twitterHelperService.isUserInfoInCache(currentUser)) return;
+            if (super.twitterHelperService.isUserInfoInCache(currentUser)) {
+                return;
+            }
 
             TwitterUser twitterUser = TweetGenerator.buildTweetUser(user);
             user = currentUser;

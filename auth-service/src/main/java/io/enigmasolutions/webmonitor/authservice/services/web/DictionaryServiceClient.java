@@ -8,22 +8,22 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Component
 public class DictionaryServiceClient {
 
-    private final WebClient webClient;
+  private final WebClient webClient;
 
-    public DictionaryServiceClient(
-            @Value("${dictionary-service.url}") String dictionaryServiceUrl
-    ) {
-        this.webClient = WebClient.builder()
-                .baseUrl(dictionaryServiceUrl)
-                .build();
-    }
+  public DictionaryServiceClient(
+      @Value("${dictionary-service.url}") String dictionaryServiceUrl
+  ) {
+    this.webClient = WebClient.builder()
+        .baseUrl(dictionaryServiceUrl)
+        .build();
+  }
 
-    public CustomerDiscordGuild retrieveCustomerDiscordGuild(String customerId) {
-        return webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/customers/{id}/guild")
-                        .build(customerId))
-                .retrieve()
-                .bodyToMono(CustomerDiscordGuild.class)
-                .block();
-    }
+  public CustomerDiscordGuild retrieveCustomerDiscordGuild(String customerId) {
+    return webClient.get()
+        .uri(uriBuilder -> uriBuilder.path("/customers/{id}/guild")
+            .build(customerId))
+        .retrieve()
+        .bodyToMono(CustomerDiscordGuild.class)
+        .block();
+  }
 }

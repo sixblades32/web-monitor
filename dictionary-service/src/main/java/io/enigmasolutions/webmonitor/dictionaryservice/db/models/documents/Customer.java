@@ -16,11 +16,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection = "customers")
 public class Customer {
-    @Id
-    private String id;
-    private String name;
-    private String comment;
-    private DiscordBroadcast discordBroadcast;
-    private DiscordGuild discordGuild;
-    private Theme theme;
+
+  @Id
+  private String id;
+  private String name;
+  private String comment;
+  private DiscordBroadcast discordBroadcast;
+  private DiscordGuild discordGuild;
+  private Theme theme;
 }

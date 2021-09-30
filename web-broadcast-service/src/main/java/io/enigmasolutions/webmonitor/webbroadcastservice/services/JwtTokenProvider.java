@@ -12,16 +12,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtTokenProvider {
 
-    private final JwtConfig jwtConfig;
+  private final JwtConfig jwtConfig;
 
-    @Autowired
-    public JwtTokenProvider(JwtConfig jwtConfig) {
-        this.jwtConfig = jwtConfig;
-    }
+  @Autowired
+  public JwtTokenProvider(JwtConfig jwtConfig) {
+    this.jwtConfig = jwtConfig;
+  }
 
-    public Jws<Claims> validateToken(String authToken) {
-        return Jwts.parser()
-                .setSigningKey(jwtConfig.getSecret().getBytes())
-                .parseClaimsJws(authToken);
-    }
+  public Jws<Claims> validateToken(String authToken) {
+    return Jwts.parser()
+        .setSigningKey(jwtConfig.getSecret().getBytes())
+        .parseClaimsJws(authToken);
+  }
 }

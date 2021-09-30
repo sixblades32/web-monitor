@@ -11,15 +11,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class StaffManagerApplication {
 
-    private static EventListener eventListener;
+  private static EventListener eventListener;
 
-    StaffManagerApplication(EventListener eventListener) {
-        StaffManagerApplication.eventListener = eventListener;
-    }
+  StaffManagerApplication(EventListener eventListener) {
+    StaffManagerApplication.eventListener = eventListener;
+  }
 
-    public static void main(String[] args) {
-        SpringApplication.run(StaffManagerApplication.class, args);
-        eventListener.login().block();
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(StaffManagerApplication.class, args);
+    eventListener.login().block();
+  }
 
 }

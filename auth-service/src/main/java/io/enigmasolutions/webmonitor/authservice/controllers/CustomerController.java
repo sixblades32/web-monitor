@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/customers")
 public class CustomerController {
 
-    private final CustomerService customerService;
+  private final CustomerService customerService;
 
-    @Autowired
-    public CustomerController(CustomerService customerService) {
-        this.customerService = customerService;
-    }
+  @Autowired
+  public CustomerController(CustomerService customerService) {
+    this.customerService = customerService;
+  }
 
-    @PutMapping("/users/token")
-    public JwtTokenDto refreshCustomerUserToken() {
-        return customerService.refreshJwtToken();
-    }
+  @PutMapping("/users/token")
+  public JwtTokenDto refreshCustomerUserToken() {
+    return customerService.refreshJwtToken();
+  }
 }

@@ -5,37 +5,41 @@ import io.enigmasolutions.twittermonitor.models.external.MonitorStatus;
 import io.enigmasolutions.twittermonitor.services.monitoring.HomeTimelineTwitterMonitor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/home-timeline")
 public class HomeTimelineMonitorController {
 
-    private final HomeTimelineTwitterMonitor homeTimelineMonitor;
+  private final HomeTimelineTwitterMonitor homeTimelineMonitor;
 
-    @Autowired
-    public HomeTimelineMonitorController(HomeTimelineTwitterMonitor homeTimelineMonitor) {
-        this.homeTimelineMonitor = homeTimelineMonitor;
-    }
+  @Autowired
+  public HomeTimelineMonitorController(HomeTimelineTwitterMonitor homeTimelineMonitor) {
+    this.homeTimelineMonitor = homeTimelineMonitor;
+  }
 
-    @PostMapping("/start")
-    public void start() {
-        homeTimelineMonitor.start();
-    }
+  @PostMapping("/start")
+  public void start() {
+    homeTimelineMonitor.start();
+  }
 
 
-    @PostMapping("/stop")
-    public void stop() {
-        homeTimelineMonitor.stop();
-    }
+  @PostMapping("/stop")
+  public void stop() {
+    homeTimelineMonitor.stop();
+  }
 
-    @GetMapping("/status")
-    public MonitorStatus status() {
-        return homeTimelineMonitor.getMonitorStatus();
-    }
+  @GetMapping("/status")
+  public MonitorStatus status() {
+    return homeTimelineMonitor.getMonitorStatus();
+  }
 
-    @PostMapping("/restore")
-    public void restore(@RequestBody TwitterScraper twitterScraper) {
-        homeTimelineMonitor.restoreFailedClient(new TwitterCustomClient(twitterScraper));
-    }
+  @PostMapping("/restore")
+  public void restore(@RequestBody TwitterScraper twitterScraper) {
+    homeTimelineMonitor.restoreFailedClient(new TwitterCustomClient(twitterScraper));
+  }
 }

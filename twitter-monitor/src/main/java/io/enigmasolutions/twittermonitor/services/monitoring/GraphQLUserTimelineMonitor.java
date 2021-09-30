@@ -1,5 +1,7 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import static io.enigmasolutions.twittermonitor.utils.TweetResponseGeneratorForGraphQL.generate;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
@@ -16,19 +18,16 @@ import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static io.enigmasolutions.twittermonitor.utils.TweetResponseGeneratorForGraphQL.generate;
 
 @Slf4j
 @Component
@@ -115,8 +114,10 @@ public class GraphQLUserTimelineMonitor extends AbstractTwitterMonitor {
                     .getItemContent()
                     .getTweet();
 
-            if (isTweetRelevant(tweet.getLegacy()) && !twitterHelperService.isTweetInGraphQLCache(tweet.getRestId()))
+            if (isTweetRelevant(tweet.getLegacy()) && !twitterHelperService.isTweetInGraphQLCache(
+                    tweet.getRestId())) {
                 tweetResponse = generate(tweet);
+            }
         }
 
         return tweetResponse;

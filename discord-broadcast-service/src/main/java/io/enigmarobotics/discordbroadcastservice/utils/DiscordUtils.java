@@ -1,10 +1,20 @@
 package io.enigmarobotics.discordbroadcastservice.utils;
 
-import io.enigmarobotics.discordbroadcastservice.domain.models.*;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Author;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Field;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Footer;
+import io.enigmarobotics.discordbroadcastservice.domain.models.Image;
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.DiscordBroadcastRecognitionType;
 import io.enigmarobotics.discordbroadcastservice.domain.wrappers.DiscordBroadcastTweetType;
-import io.enigmasolutions.broadcastmodels.*;
-
+import io.enigmasolutions.broadcastmodels.Alert;
+import io.enigmasolutions.broadcastmodels.Media;
+import io.enigmasolutions.broadcastmodels.MediaType;
+import io.enigmasolutions.broadcastmodels.Recognition;
+import io.enigmasolutions.broadcastmodels.RecognitionType;
+import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.TweetImage;
+import io.enigmasolutions.broadcastmodels.TweetType;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,435 +22,449 @@ import java.util.stream.Collectors;
 
 public class DiscordUtils {
 
-    private DiscordUtils() {
+  private DiscordUtils() {
 
+  }
+
+  public static List<Embed> generateTweetEmbed(Tweet tweet, int embedColor) {
+    String description;
+
+    if (!tweet.getText().equals("")) {
+      description =
+          "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+              tweet.getText().replaceAll("\\R", "\n> ");
+    } else {
+      description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n";
     }
 
-    public static List<Embed> generateTweetEmbed(Tweet tweet, int embedColor) {
-        String description;
+    List<Field> fields = new ArrayList<>();
+    List<Embed> embeds = new LinkedList<>();
+    Image image = null;
 
-        if (!tweet.getText().equals("")) {
-            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
-                    tweet.getText().replaceAll("\\R", "\n> ");
-        } else {
-            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n";
-        }
+    Author author = Author.builder()
+        .name(tweet.getUser().getLogin())
+        .url(tweet.getTweetUrl())
+        .iconUrl(tweet.getUser().getIcon())
+        .build();
 
-        List<Field> fields = new ArrayList<>();
-        List<Embed> embeds = new LinkedList<>();
-        Image image = null;
+    Footer footer = Footer.builder()
+        .text("TWEET — " + tweet.getUser().getLogin())
+        .build();
 
-        Author author = Author.builder()
-                .name(tweet.getUser().getLogin())
-                .url(tweet.getTweetUrl())
-                .iconUrl(tweet.getUser().getIcon())
-                .build();
+    List<Media> photos = tweet.getMedia().stream()
+        .filter(img -> img.getType().equals(MediaType.PHOTO))
+        .collect(Collectors.toList());
+    int photosSize = photos.size();
 
-        Footer footer = Footer.builder()
-                .text("TWEET — " + tweet.getUser().getLogin())
-                .build();
-
-        List<Media> photos = tweet.getMedia().stream()
-                .filter(img -> img.getType().equals(MediaType.PHOTO))
-                .collect(Collectors.toList());
-        int photosSize = photos.size();
-
-        if (photosSize > 0) {
-            image = Image.builder()
-                    .url(photos.get(0).getStatical())
-                    .build();
-        }
-
-        Field additionalInfoField = Field.builder()
-                .inline(false)
-                .name("**ADDITIONAL INFO**")
-                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() +
-                        ") • [**Likes**](" + tweet.getLikesUrl() + ")")
-                .build();
-
-        fields.add(additionalInfoField);
-
-        embeds.add(Embed.builder()
-                .author(author)
-                .footer(footer)
-                .title(String.valueOf(tweet.getType()))
-                .description(description)
-                .color(embedColor)
-                .fields(fields)
-                .image(image)
-                .build());
-
-        if (photosSize > 1) {
-            List<TweetImage> tweetImages = photos.subList(1, photosSize).stream()
-                    .map(photo -> {
-                        TweetImage.TweetImageBuilder builder = TweetImage.builder()
-                                .image(photo.getStatical())
-                                .userName(tweet.getUser().getLogin())
-                                .userId(tweet.getUser().getId())
-                                .tweetType(tweet.getType());
-                        if (tweet.getRetweeted() != null) {
-                            builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
-                        }
-
-                        return builder.build();
-                    }).collect(Collectors.toList());
-
-            tweetImages.forEach(tweetImage -> {
-                Embed imageEmbed = generateTweetImageEmbed(tweetImage, embedColor);
-
-                embeds.add(imageEmbed);
-            });
-        }
-
-        return embeds;
-
+    if (photosSize > 0) {
+      image = Image.builder()
+          .url(photos.get(0).getStatical())
+          .build();
     }
 
-    public static Embed generateRetweetEmbed(Tweet tweet, int embedColor) {
-        String description;
-        Image image = null;
+    Field additionalInfoField = Field.builder()
+        .inline(false)
+        .name("**ADDITIONAL INFO**")
+        .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**]("
+            + tweet.getFollowsUrl() +
+            ") • [**Likes**](" + tweet.getLikesUrl() + ")")
+        .build();
 
-        if (!tweet.getText().equals("")) {
-            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
-                    tweet.getText().replaceAll("\\R", "\n> ");
-        } else {
-            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n";
-        }
+    fields.add(additionalInfoField);
 
-        List<Field> fields = new ArrayList<>();
+    embeds.add(Embed.builder()
+        .author(author)
+        .footer(footer)
+        .title(String.valueOf(tweet.getType()))
+        .description(description)
+        .color(embedColor)
+        .fields(fields)
+        .image(image)
+        .build());
 
-        Author author = Author.builder()
-                .name(tweet.getUser().getLogin())
-                .url(tweet.getTweetUrl())
-                .iconUrl(tweet.getUser().getIcon())
-                .build();
+    if (photosSize > 1) {
+      List<TweetImage> tweetImages = photos.subList(1, photosSize).stream()
+          .map(photo -> {
+            TweetImage.TweetImageBuilder builder = TweetImage.builder()
+                .image(photo.getStatical())
+                .userName(tweet.getUser().getLogin())
+                .userId(tweet.getUser().getId())
+                .tweetType(tweet.getType());
+            if (tweet.getRetweeted() != null) {
+              builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
+            }
 
-        Tweet retweeted = tweet.getRetweeted();
+            return builder.build();
+          }).collect(Collectors.toList());
 
-        Footer footer = Footer.builder()
-                .text("RETWEET  —  @" + tweet.getUser().getLogin() + " --> " + "@" + retweeted.getUser().getLogin())
-                .build();
+      tweetImages.forEach(tweetImage -> {
+        Embed imageEmbed = generateTweetImageEmbed(tweetImage, embedColor);
 
-        List<Media> photos = tweet.getMedia().stream()
-                .filter(img -> img.getType().equals(MediaType.PHOTO))
-                .collect(Collectors.toList());
-        int photosSize = photos.size();
-
-        if (photosSize > 0) {
-            image = Image.builder()
-                    .url(photos.get(0).getStatical())
-                    .build();
-        }
-
-        Field additionalInfoField = Field.builder()
-                .inline(false)
-                .name("**ADDITIONAL INFO**")
-                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() +
-                        ") • [**Likes**](" + tweet.getLikesUrl() + ")")
-                .build();
-
-        Field tweetField = Field.builder()
-                .inline(false)
-                .name("TWEET")
-                .value("**[©" + retweeted.getUser().getLogin() + "](" + retweeted.getTweetUrl() + ")**")
-                .build();
-
-        fields.add(tweetField);
-        fields.add(additionalInfoField);
-
-        return Embed.builder()
-                .author(author)
-                .footer(footer)
-                .title(String.valueOf(tweet.getType()))
-                .description(description)
-                .color(embedColor)
-                .fields(fields)
-                .image(image)
-                .build();
+        embeds.add(imageEmbed);
+      });
     }
 
-    public static Embed generateReplyEmbed(Tweet tweet, int embedColor) {
-        String description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
-                tweet.getText().replaceAll("\\R", "\n> ");
-        List<Field> fields = new ArrayList<>();
-        Image image = null;
+    return embeds;
 
-        Author author = Author.builder()
-                .name(tweet.getUser().getLogin())
-                .url(tweet.getTweetUrl())
-                .iconUrl(tweet.getUser().getIcon())
-                .build();
+  }
 
-        Footer footer = Footer.builder()
-                .text("REPLY  —  @" + tweet.getUser().getLogin() + " --> " + "@" +
-                        tweet.getReplied().getUser().getLogin())
-                .build();
+  public static Embed generateRetweetEmbed(Tweet tweet, int embedColor) {
+    String description;
+    Image image = null;
 
-        List<Media> photos = tweet.getMedia().stream()
-                .filter(img -> img.getType().equals(MediaType.PHOTO))
-                .collect(Collectors.toList());
-        int photosSize = photos.size();
-
-        if (photosSize > 0) {
-            image = Image.builder()
-                    .url(photos.get(0).getStatical())
-                    .build();
-        }
-
-        Field additionalInfoField = Field.builder()
-                .inline(false)
-                .name("**ADDITIONAL INFO**")
-                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() +
-                        ") • [**Likes**](" + tweet.getLikesUrl() + ")")
-                .build();
-
-        Field tweetField = Field.builder()
-                .inline(false)
-                .name("TWEET")
-                .value("**[©" + tweet.getReplied().getUser().getLogin() + "](" + tweet.getReplied().getTweetUrl() + ")**")
-                .build();
-
-        fields.add(tweetField);
-        fields.add(additionalInfoField);
-
-        return Embed.builder()
-                .author(author)
-                .footer(footer)
-                .title(String.valueOf(tweet.getType()))
-                .description(description)
-                .color(embedColor)
-                .fields(fields)
-                .image(image)
-                .build();
+    if (!tweet.getText().equals("")) {
+      description =
+          "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+              tweet.getText().replaceAll("\\R", "\n> ");
+    } else {
+      description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n";
     }
 
-    public static List<Embed> generateTweetFromRetweetEmbed(Tweet tweet, String retweetedBy, int embedColor) {
-        List<Field> fields = new ArrayList<>();
-        List<Embed> embeds = new LinkedList<>();
+    List<Field> fields = new ArrayList<>();
 
-        String description;
-        String title = "TWEET";
-        Field repliedTweetField = null;
+    Author author = Author.builder()
+        .name(tweet.getUser().getLogin())
+        .url(tweet.getTweetUrl())
+        .iconUrl(tweet.getUser().getIcon())
+        .build();
 
-        if (tweet.getType() == TweetType.REPLY) {
-            title = "REPLY";
+    Tweet retweeted = tweet.getRetweeted();
 
-            repliedTweetField = Field.builder()
-                    .inline(false)
-                    .name("TWEET")
-                    .value("**[©" + tweet.getReplied().getUser().getLogin() + "](" + tweet.getReplied().getTweetUrl() + ")**")
-                    .build();
-        }
+    Footer footer = Footer.builder()
+        .text("RETWEET  —  @" + tweet.getUser().getLogin() + " --> " + "@" + retweeted.getUser()
+            .getLogin())
+        .build();
 
-        if (!tweet.getText().equals("")) {
-            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
-                    tweet.getText().replaceAll("\\R", "\n> ");
-        } else {
-            description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n";
-        }
+    List<Media> photos = tweet.getMedia().stream()
+        .filter(img -> img.getType().equals(MediaType.PHOTO))
+        .collect(Collectors.toList());
+    int photosSize = photos.size();
 
-        Image image = null;
-
-        Author author = Author.builder()
-                .name(tweet.getUser().getLogin())
-                .url(tweet.getTweetUrl())
-                .iconUrl(tweet.getUser().getIcon())
-                .build();
-
-        Footer footer = Footer.builder()
-                .text("RETWEET  —  @" + retweetedBy + " --> " + "@" + tweet.getUser().getLogin())
-                .build();
-
-        List<Media> photos = tweet.getMedia().stream()
-                .filter(img -> img.getType().equals(MediaType.PHOTO))
-                .collect(Collectors.toList());
-        int photosSize = photos.size();
-
-        if (photosSize > 0) {
-            image = Image.builder()
-                    .url(photos.get(0).getStatical())
-                    .build();
-        }
-
-        Field additionalInfoField = Field.builder()
-                .inline(false)
-                .name("**ADDITIONAL INFO**")
-                .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**](" + tweet.getFollowsUrl() +
-                        ") • [**Likes**](" + tweet.getLikesUrl() + ")")
-                .build();
-
-        if (repliedTweetField != null) {
-            fields.add(repliedTweetField);
-        }
-
-        fields.add(additionalInfoField);
-
-        embeds.add(Embed.builder()
-                .author(author)
-                .footer(footer)
-                .title(title)
-                .description(description)
-                .color(embedColor)
-                .fields(fields)
-                .image(image)
-                .build());
-
-        if (photosSize > 1) {
-            List<TweetImage> tweetImages = photos.subList(1, photosSize).stream()
-                    .map(photo -> {
-                        TweetImage.TweetImageBuilder builder = TweetImage.builder()
-                                .image(photo.getStatical())
-                                .userName(tweet.getUser().getLogin())
-                                .userId(tweet.getUser().getId())
-                                .tweetType(tweet.getType());
-
-                        if (tweet.getRetweeted() != null) {
-                            builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
-                        }
-
-                        return builder.build();
-                    }).collect(Collectors.toList());
-
-            tweetImages.forEach(tweetImage -> {
-                Embed imageEmbed = generateTweetImageEmbed(tweetImage, embedColor);
-
-                embeds.add(imageEmbed);
-            });
-        }
-
-        return embeds;
+    if (photosSize > 0) {
+      image = Image.builder()
+          .url(photos.get(0).getStatical())
+          .build();
     }
 
-    public static Embed generateTweetImageEmbed(TweetImage tweetImage, int embedColor) {
+    Field additionalInfoField = Field.builder()
+        .inline(false)
+        .name("**ADDITIONAL INFO**")
+        .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**]("
+            + tweet.getFollowsUrl() +
+            ") • [**Likes**](" + tweet.getLikesUrl() + ")")
+        .build();
 
-        Footer footer = Footer.builder()
-                .text("image from TWEET  —  @" + tweetImage.getUserName())
-                .build();
+    Field tweetField = Field.builder()
+        .inline(false)
+        .name("TWEET")
+        .value("**[©" + retweeted.getUser().getLogin() + "](" + retweeted.getTweetUrl() + ")**")
+        .build();
 
-        Image image = Image.builder()
-                .url(tweetImage.getImage())
-                .build();
+    fields.add(tweetField);
+    fields.add(additionalInfoField);
 
-        return Embed.builder()
-                .footer(footer)
-                .image(image)
-                .color(embedColor)
-                .build();
+    return Embed.builder()
+        .author(author)
+        .footer(footer)
+        .title(String.valueOf(tweet.getType()))
+        .description(description)
+        .color(embedColor)
+        .fields(fields)
+        .image(image)
+        .build();
+  }
+
+  public static Embed generateReplyEmbed(Tweet tweet, int embedColor) {
+    String description =
+        "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+            tweet.getText().replaceAll("\\R", "\n> ");
+    List<Field> fields = new ArrayList<>();
+    Image image = null;
+
+    Author author = Author.builder()
+        .name(tweet.getUser().getLogin())
+        .url(tweet.getTweetUrl())
+        .iconUrl(tweet.getUser().getIcon())
+        .build();
+
+    Footer footer = Footer.builder()
+        .text("REPLY  —  @" + tweet.getUser().getLogin() + " --> " + "@" +
+            tweet.getReplied().getUser().getLogin())
+        .build();
+
+    List<Media> photos = tweet.getMedia().stream()
+        .filter(img -> img.getType().equals(MediaType.PHOTO))
+        .collect(Collectors.toList());
+    int photosSize = photos.size();
+
+    if (photosSize > 0) {
+      image = Image.builder()
+          .url(photos.get(0).getStatical())
+          .build();
     }
 
-    public static Embed generateRetweetImageEmbed(TweetImage tweetImage, int embedColor) {
-        Footer footer = Footer.builder()
-                .text("image from RETWEET  —  @" + tweetImage.getUserName() + " --> " + "@"
-                        + tweetImage.getRetweetedFrom())
-                .build();
+    Field additionalInfoField = Field.builder()
+        .inline(false)
+        .name("**ADDITIONAL INFO**")
+        .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**]("
+            + tweet.getFollowsUrl() +
+            ") • [**Likes**](" + tweet.getLikesUrl() + ")")
+        .build();
 
-        Image image = Image.builder()
-                .url(tweetImage.getImage())
-                .build();
+    Field tweetField = Field.builder()
+        .inline(false)
+        .name("TWEET")
+        .value("**[©" + tweet.getReplied().getUser().getLogin() + "](" + tweet.getReplied()
+            .getTweetUrl() + ")**")
+        .build();
 
-        return Embed.builder()
-                .footer(footer)
-                .image(image)
-                .color(embedColor)
-                .build();
+    fields.add(tweetField);
+    fields.add(additionalInfoField);
 
+    return Embed.builder()
+        .author(author)
+        .footer(footer)
+        .title(String.valueOf(tweet.getType()))
+        .description(description)
+        .color(embedColor)
+        .fields(fields)
+        .image(image)
+        .build();
+  }
+
+  public static List<Embed> generateTweetFromRetweetEmbed(Tweet tweet, String retweetedBy,
+      int embedColor) {
+    List<Field> fields = new ArrayList<>();
+    List<Embed> embeds = new LinkedList<>();
+
+    String description;
+    String title = "TWEET";
+    Field repliedTweetField = null;
+
+    if (tweet.getType() == TweetType.REPLY) {
+      title = "REPLY";
+
+      repliedTweetField = Field.builder()
+          .inline(false)
+          .name("TWEET")
+          .value("**[©" + tweet.getReplied().getUser().getLogin() + "](" + tweet.getReplied()
+              .getTweetUrl() + ")**")
+          .build();
     }
 
-    public static Embed generateAlertEmbed(Alert alert, int embedColor) {
-        Footer footer = Footer.builder()
-                .text("Enigma Robotics")
-                .build();
-
-        Field validMonitorsField = Field.builder()
-                .inline(false)
-                .name("**Valid monitors count:**")
-                .value(alert.getValidMonitorsCount().toString())
-                .build();
-
-        Field failedMonitorsField = Field.builder()
-                .inline(false)
-                .name("**Failed monitors count:**")
-                .value(alert.getFailedMonitorsCount().toString())
-                .build();
-
-        Field newFailedMonitorsField = Field.builder()
-                .inline(false)
-                .name("**Found the new failed monitor:**")
-                .value(alert.getFailedMonitorId())
-                .build();
-
-        Field failedReasonField = Field.builder()
-                .inline(false)
-                .name("**Reason:**")
-                .value(alert.getReason())
-                .build();
-
-        List<Field> fields = new ArrayList<>();
-
-        fields.add(validMonitorsField);
-        fields.add(failedMonitorsField);
-        fields.add(newFailedMonitorsField);
-        fields.add(failedReasonField);
-
-
-        return Embed.builder()
-                .footer(footer)
-                .title("Alert System")
-                .color(embedColor)
-                .fields(fields)
-                .build();
+    if (!tweet.getText().equals("")) {
+      description =
+          "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n" + "> " +
+              tweet.getText().replaceAll("\\R", "\n> ");
+    } else {
+      description = "**[©" + tweet.getUser().getLogin() + "](" + tweet.getTweetUrl() + ")**\n";
     }
 
-    public static Embed generateTweetRecognitionEmbed(Recognition recognition, int embedColor) {
+    Image image = null;
 
-        DiscordBroadcastRecognitionType discordBroadcastRecognitionType = convertRecognitionType(recognition.getType());
+    Author author = Author.builder()
+        .name(tweet.getUser().getLogin())
+        .url(tweet.getTweetUrl())
+        .iconUrl(tweet.getUser().getIcon())
+        .build();
 
-        Footer footer = discordBroadcastRecognitionType.generateTweetRecognitionFooter(recognition);
-        String title = discordBroadcastRecognitionType.getTitle();
+    Footer footer = Footer.builder()
+        .text("RETWEET  —  @" + retweetedBy + " --> " + "@" + tweet.getUser().getLogin())
+        .build();
 
-        return Embed.builder()
-                .title(title)
-                .footer(footer)
-                .description(recognition.getResult())
-                .color(embedColor)
-                .build();
+    List<Media> photos = tweet.getMedia().stream()
+        .filter(img -> img.getType().equals(MediaType.PHOTO))
+        .collect(Collectors.toList());
+    int photosSize = photos.size();
+
+    if (photosSize > 0) {
+      image = Image.builder()
+          .url(photos.get(0).getStatical())
+          .build();
     }
 
-    public static Embed generateRetweetRecognitionEmbed(Recognition recognition, int embedColor) {
+    Field additionalInfoField = Field.builder()
+        .inline(false)
+        .name("**ADDITIONAL INFO**")
+        .value("[**Retweets**](" + tweet.getRetweetsUrl() + ") • [**Following**]("
+            + tweet.getFollowsUrl() +
+            ") • [**Likes**](" + tweet.getLikesUrl() + ")")
+        .build();
 
-        DiscordBroadcastRecognitionType discordBroadcastRecognitionType = convertRecognitionType(recognition.getType());
-
-        Footer footer = discordBroadcastRecognitionType.generateRetweetRecognitionFooter(recognition);
-        String title = discordBroadcastRecognitionType.getTitle();
-
-        return Embed.builder()
-                .title(title)
-                .footer(footer)
-                .description(recognition.getResult())
-                .color(embedColor)
-                .build();
+    if (repliedTweetField != null) {
+      fields.add(repliedTweetField);
     }
 
-    public static Embed generateReplyRecognitionEmbed(Recognition recognition, int embedColor) {
+    fields.add(additionalInfoField);
 
-        DiscordBroadcastRecognitionType discordBroadcastRecognitionType = convertRecognitionType(recognition.getType());
+    embeds.add(Embed.builder()
+        .author(author)
+        .footer(footer)
+        .title(title)
+        .description(description)
+        .color(embedColor)
+        .fields(fields)
+        .image(image)
+        .build());
 
-        Footer footer = discordBroadcastRecognitionType.generateReplyRecognitionFooter(recognition);
-        String title = discordBroadcastRecognitionType.getTitle();
+    if (photosSize > 1) {
+      List<TweetImage> tweetImages = photos.subList(1, photosSize).stream()
+          .map(photo -> {
+            TweetImage.TweetImageBuilder builder = TweetImage.builder()
+                .image(photo.getStatical())
+                .userName(tweet.getUser().getLogin())
+                .userId(tweet.getUser().getId())
+                .tweetType(tweet.getType());
 
-        return Embed.builder()
-                .title(title)
-                .footer(footer)
-                .description(recognition.getResult())
-                .color(embedColor)
-                .build();
+            if (tweet.getRetweeted() != null) {
+              builder.retweetedFrom(tweet.getRetweeted().getUser().getLogin());
+            }
+
+            return builder.build();
+          }).collect(Collectors.toList());
+
+      tweetImages.forEach(tweetImage -> {
+        Embed imageEmbed = generateTweetImageEmbed(tweetImage, embedColor);
+
+        embeds.add(imageEmbed);
+      });
     }
 
-    public static DiscordBroadcastRecognitionType convertRecognitionType(RecognitionType value) {
-        return DiscordBroadcastRecognitionType.values()[value.ordinal()];
-    }
+    return embeds;
+  }
 
-    public static DiscordBroadcastTweetType convertTweetType(TweetType value) {
-        return DiscordBroadcastTweetType.values()[value.ordinal()];
-    }
+  public static Embed generateTweetImageEmbed(TweetImage tweetImage, int embedColor) {
+
+    Footer footer = Footer.builder()
+        .text("image from TWEET  —  @" + tweetImage.getUserName())
+        .build();
+
+    Image image = Image.builder()
+        .url(tweetImage.getImage())
+        .build();
+
+    return Embed.builder()
+        .footer(footer)
+        .image(image)
+        .color(embedColor)
+        .build();
+  }
+
+  public static Embed generateRetweetImageEmbed(TweetImage tweetImage, int embedColor) {
+    Footer footer = Footer.builder()
+        .text("image from RETWEET  —  @" + tweetImage.getUserName() + " --> " + "@"
+            + tweetImage.getRetweetedFrom())
+        .build();
+
+    Image image = Image.builder()
+        .url(tweetImage.getImage())
+        .build();
+
+    return Embed.builder()
+        .footer(footer)
+        .image(image)
+        .color(embedColor)
+        .build();
+
+  }
+
+  public static Embed generateAlertEmbed(Alert alert, int embedColor) {
+    Footer footer = Footer.builder()
+        .text("Enigma Robotics")
+        .build();
+
+    Field validMonitorsField = Field.builder()
+        .inline(false)
+        .name("**Valid monitors count:**")
+        .value(alert.getValidMonitorsCount().toString())
+        .build();
+
+    Field failedMonitorsField = Field.builder()
+        .inline(false)
+        .name("**Failed monitors count:**")
+        .value(alert.getFailedMonitorsCount().toString())
+        .build();
+
+    Field newFailedMonitorsField = Field.builder()
+        .inline(false)
+        .name("**Found the new failed monitor:**")
+        .value(alert.getFailedMonitorId())
+        .build();
+
+    Field failedReasonField = Field.builder()
+        .inline(false)
+        .name("**Reason:**")
+        .value(alert.getReason())
+        .build();
+
+    List<Field> fields = new ArrayList<>();
+
+    fields.add(validMonitorsField);
+    fields.add(failedMonitorsField);
+    fields.add(newFailedMonitorsField);
+    fields.add(failedReasonField);
+
+    return Embed.builder()
+        .footer(footer)
+        .title("Alert System")
+        .color(embedColor)
+        .fields(fields)
+        .build();
+  }
+
+  public static Embed generateTweetRecognitionEmbed(Recognition recognition, int embedColor) {
+
+    DiscordBroadcastRecognitionType discordBroadcastRecognitionType = convertRecognitionType(
+        recognition.getType());
+
+    Footer footer = discordBroadcastRecognitionType.generateTweetRecognitionFooter(recognition);
+    String title = discordBroadcastRecognitionType.getTitle();
+
+    return Embed.builder()
+        .title(title)
+        .footer(footer)
+        .description(recognition.getResult())
+        .color(embedColor)
+        .build();
+  }
+
+  public static Embed generateRetweetRecognitionEmbed(Recognition recognition, int embedColor) {
+
+    DiscordBroadcastRecognitionType discordBroadcastRecognitionType = convertRecognitionType(
+        recognition.getType());
+
+    Footer footer = discordBroadcastRecognitionType.generateRetweetRecognitionFooter(recognition);
+    String title = discordBroadcastRecognitionType.getTitle();
+
+    return Embed.builder()
+        .title(title)
+        .footer(footer)
+        .description(recognition.getResult())
+        .color(embedColor)
+        .build();
+  }
+
+  public static Embed generateReplyRecognitionEmbed(Recognition recognition, int embedColor) {
+
+    DiscordBroadcastRecognitionType discordBroadcastRecognitionType = convertRecognitionType(
+        recognition.getType());
+
+    Footer footer = discordBroadcastRecognitionType.generateReplyRecognitionFooter(recognition);
+    String title = discordBroadcastRecognitionType.getTitle();
+
+    return Embed.builder()
+        .title(title)
+        .footer(footer)
+        .description(recognition.getResult())
+        .color(embedColor)
+        .build();
+  }
+
+  public static DiscordBroadcastRecognitionType convertRecognitionType(RecognitionType value) {
+    return DiscordBroadcastRecognitionType.values()[value.ordinal()];
+  }
+
+  public static DiscordBroadcastTweetType convertTweetType(TweetType value) {
+    return DiscordBroadcastTweetType.values()[value.ordinal()];
+  }
 }

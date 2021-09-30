@@ -1,5 +1,7 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import static io.enigmasolutions.twittermonitor.utils.TweetResponseGeneratorForV2.generateV2;
+
 import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
@@ -12,19 +14,16 @@ import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static io.enigmasolutions.twittermonitor.utils.TweetResponseGeneratorForV2.generateV2;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @Component
@@ -33,10 +32,10 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
     private static final String TIMELINE_PATH = "timeline/home.json";
 
     public V2HomeTimelineMonitor(TwitterScraperRepository twitterScraperRepository,
-                                 TwitterHelperService twitterHelperService,
-                                 KafkaProducer kafkaProducer,
-                                 List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
-                                 List<ImageRecognitionProcessor> imageRecognitionProcessors) {
+            TwitterHelperService twitterHelperService,
+            KafkaProducer kafkaProducer,
+            List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
+            List<ImageRecognitionProcessor> imageRecognitionProcessors) {
         super(1006,
                 twitterScraperRepository,
                 twitterHelperService,
@@ -65,7 +64,8 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
                 .getV2BaseTimelineTweets(getParams(), TIMELINE_PATH)
                 .getBody();
 
-        if (v2Response != null && v2Response.getGlobalObjects() != null && !v2Response.getGlobalObjects().getTweets().isEmpty()) {
+        if (v2Response != null && v2Response.getGlobalObjects() != null
+                && !v2Response.getGlobalObjects().getTweets().isEmpty()) {
 
             GlobalObjects globalObjects = v2Response.getGlobalObjects();
             ArrayList<Tweet> tweets = new ArrayList<>(globalObjects.getTweets().values());
@@ -83,12 +83,15 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
 
     private Boolean isTweetInCache(ArrayList<Tweet> tweets) {
 
-        return tweets.stream().anyMatch(tweet -> twitterHelperService.isTweetInV2Cache(tweet.getTweetId()));
+        return tweets.stream()
+                .anyMatch(tweet -> twitterHelperService.isTweetInV2Cache(tweet.getTweetId()));
     }
 
     private Boolean isTweetRelevant(ArrayList<Tweet> tweets) {
 
-        return tweets.stream().anyMatch(tweet -> new Date().getTime() - Date.parse(tweet.getCreatedAt()) <= 25000);
+        return tweets.stream()
+                .anyMatch(
+                        tweet -> new Date().getTime() - Date.parse(tweet.getCreatedAt()) <= 25000);
     }
 
     @Override
@@ -126,7 +129,8 @@ public class V2HomeTimelineMonitor extends AbstractTwitterMonitor {
 
         for (TwitterScraper twitterScraper : scrapers) {
             String scraperTwitterId = twitterScraper.getTwitterUser().getTwitterId();
-            if (scraperTwitterId.equals("1371445090401542147") || scraperTwitterId.equals("1377556119808249859") || scraperTwitterId.equals("1376524710616432648")) {
+            if (scraperTwitterId.equals("1371445090401542147") || scraperTwitterId.equals(
+                    "1377556119808249859") || scraperTwitterId.equals("1376524710616432648")) {
                 invalidScrapers.add(twitterScraper);
                 log.info(scraperTwitterId + " scraper not loaded in Twitter Custom Clients Pool!");
             }

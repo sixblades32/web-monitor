@@ -14,8 +14,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection = "twitter-consumers")
 public class TwitterConsumer {
-    @Id
-    private String id;
-    private Credentials credentials;
-    private String proxy;
+
+  @Id
+  private String id;
+  private Credentials credentials;
+  private String proxy;
 }

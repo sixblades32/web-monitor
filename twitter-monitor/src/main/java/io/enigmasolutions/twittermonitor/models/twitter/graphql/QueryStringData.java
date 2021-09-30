@@ -10,17 +10,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QueryStringData {
-    private String userId;
-    private int count;
-    private Boolean withHighlightedLabel;
-    private Boolean withTweetQuoteCount;
-    private Boolean includePromotedContent;
-    private Boolean withTweetResult;
-    private Boolean withCommunity;
-    private Boolean withReactions;
-    private Boolean withSuperFollowsTweetFields;
-    private Boolean withSuperFollowsUserFields;
-    private Boolean withUserResults;
-    private Boolean withVoice;
-    private Boolean withBirdwatchPivots;
+
+  private String userId;
+  private int count;
+  private Boolean withHighlightedLabel;
+  private Boolean withTweetQuoteCount;
+  private Boolean includePromotedContent;
+  private Boolean withTweetResult;
+  private Boolean withCommunity;
+  private Boolean withReactions;
+  private Boolean withSuperFollowsTweetFields;
+  private Boolean withSuperFollowsUserFields;
+  private Boolean withUserResults;
+  private Boolean withVoice;
+  private Boolean withBirdwatchPivots;
 }

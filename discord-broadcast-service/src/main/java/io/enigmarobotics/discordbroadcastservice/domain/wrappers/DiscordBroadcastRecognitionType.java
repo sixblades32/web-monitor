@@ -4,43 +4,46 @@ import io.enigmarobotics.discordbroadcastservice.domain.models.Footer;
 import io.enigmasolutions.broadcastmodels.Recognition;
 
 public enum DiscordBroadcastRecognitionType {
-    PASTEBIN {
-        @Override
-        public String toString() {
-            return "Pastebin";
-        }
-    },
-    GOOGLE_DOC {
-        @Override
-        public String toString() {
-            return "GoogleDoc";
-        }
-    },
-    OCR,
-    QR;
-
-    public String getTitle() {
-        return this + " Recognition Result: ";
+  PASTEBIN {
+    @Override
+    public String toString() {
+      return "Pastebin";
     }
-
-    public Footer generateTweetRecognitionFooter(Recognition recognition) {
-        return Footer.builder()
-                .text(this + " Recognition Result from TWEET  —  @" + recognition.getBriefTweet().getUser().getLogin())
-                .build();
+  },
+  GOOGLE_DOC {
+    @Override
+    public String toString() {
+      return "GoogleDoc";
     }
+  },
+  OCR,
+  QR;
 
-    public Footer generateRetweetRecognitionFooter(Recognition recognition) {
-        return Footer.builder()
-                .text(this + " Recognition from RETWEET  —  @" + recognition.getBriefTweet().getUser().getLogin() +
-                        " --> " + recognition.getNestedBriefTweet().getUser().getLogin())
-                .build();
-    }
+  public String getTitle() {
+    return this + " Recognition Result: ";
+  }
 
-    public Footer generateReplyRecognitionFooter(Recognition recognition) {
-        return Footer.builder()
-                .text(this + " Recognition from REPLY  —  @" + recognition.getBriefTweet().getUser().getLogin() +
-                        " --> " + recognition.getNestedBriefTweet().getUser().getLogin())
-                .build();
-    }
+  public Footer generateTweetRecognitionFooter(Recognition recognition) {
+    return Footer.builder()
+        .text(this + " Recognition Result from TWEET  —  @" + recognition.getBriefTweet().getUser()
+            .getLogin())
+        .build();
+  }
+
+  public Footer generateRetweetRecognitionFooter(Recognition recognition) {
+    return Footer.builder()
+        .text(this + " Recognition from RETWEET  —  @" + recognition.getBriefTweet().getUser()
+            .getLogin() +
+            " --> " + recognition.getNestedBriefTweet().getUser().getLogin())
+        .build();
+  }
+
+  public Footer generateReplyRecognitionFooter(Recognition recognition) {
+    return Footer.builder()
+        .text(this + " Recognition from REPLY  —  @" + recognition.getBriefTweet().getUser()
+            .getLogin() +
+            " --> " + recognition.getNestedBriefTweet().getUser().getLogin())
+        .build();
+  }
 
 }

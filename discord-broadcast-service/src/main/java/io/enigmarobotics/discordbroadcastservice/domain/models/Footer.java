@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Footer {
 
-    public String text;
+  public String text;
 }

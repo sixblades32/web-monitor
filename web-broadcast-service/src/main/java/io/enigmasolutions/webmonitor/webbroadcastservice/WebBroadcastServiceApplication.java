@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 public class WebBroadcastServiceApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(WebBroadcastServiceApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(WebBroadcastServiceApplication.class, args);
+  }
 
 }

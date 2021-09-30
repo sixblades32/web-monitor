@@ -11,39 +11,45 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GraphQLTweet {
-    private final String TWITTER_URL = "https://twitter.com/";
 
-    @JsonProperty("rest_id")
-    private String restId;
-    private Core core;
-    private TweetLegacy legacy;
-    @JsonProperty("quoted_status_result")
-    private RetweetedStatusResult quotedStatus;
+  private final String TWITTER_URL = "https://twitter.com/";
 
-    private String tweetUrl;
-    private String retweetsUrl;
-    private String likesUrl;
-    private String followsUrl;
+  @JsonProperty("rest_id")
+  private String restId;
+  private Core core;
+  private TweetLegacy legacy;
+  @JsonProperty("quoted_status_result")
+  private RetweetedStatusResult quotedStatus;
 
-    public String getTweetUrl() {
-        tweetUrl = TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId();
-        return tweetUrl;
-    }
+  private String tweetUrl;
+  private String retweetsUrl;
+  private String likesUrl;
+  private String followsUrl;
 
-    public String getRetweetsUrl() {
-        retweetsUrl = TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId() +
-                "/retweets";
-        return retweetsUrl;
-    }
+  public String getTweetUrl() {
+    tweetUrl =
+        TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId();
+    return tweetUrl;
+  }
 
-    public String getFollowsUrl() {
-        followsUrl = TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/followers";
-        return followsUrl;
-    }
+  public String getRetweetsUrl() {
+    retweetsUrl =
+        TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId()
+            +
+            "/retweets";
+    return retweetsUrl;
+  }
 
-    public String getLikesUrl() {
-        likesUrl = TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId() +
-                "/likes";
-        return likesUrl;
-    }
+  public String getFollowsUrl() {
+    followsUrl = TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/followers";
+    return followsUrl;
+  }
+
+  public String getLikesUrl() {
+    likesUrl =
+        TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId()
+            +
+            "/likes";
+    return likesUrl;
+  }
 }

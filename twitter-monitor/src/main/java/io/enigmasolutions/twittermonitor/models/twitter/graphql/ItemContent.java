@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class ItemContent {
-    private GraphQLTweet tweet;
+
+  private GraphQLTweet tweet;
 }

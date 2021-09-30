@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class Result {
-    private Timeline timeline;
+
+  private Timeline timeline;
 }

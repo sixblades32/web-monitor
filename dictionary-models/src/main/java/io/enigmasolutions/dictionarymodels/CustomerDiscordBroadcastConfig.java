@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerDiscordBroadcastConfig {
+
     private CustomerDiscordBroadcast customerDiscordBroadcast;
     private CustomerTheme theme;
 }

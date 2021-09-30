@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class VideoVariant {
-    private String url;
+
+  private String url;
 }

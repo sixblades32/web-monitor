@@ -1,5 +1,8 @@
 package io.enigmasolutions.webmonitor.authservice.security;
 
+import static io.enigmasolutions.webmonitor.authservice.security.OAuth2UserAgentUtils.withUserAgent;
+
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,10 +22,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
-import java.util.Objects;
-
-import static io.enigmasolutions.webmonitor.authservice.security.OAuth2UserAgentUtils.withUserAgent;
-
 @Order(2)
 @Configuration
 public class GuestSecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -33,15 +32,17 @@ public class GuestSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .antMatcher("/guests/**")
-                .csrf().disable()
-                .cors()
-                .and().authorizeRequests().anyRequest().authenticated()
-                .and().exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                .and().oauth2Login().authorizationEndpoint().baseUri("/guests/oauth2/authorization")
-                .and().loginProcessingUrl("/guests/login/oauth2/code/discord").defaultSuccessUrl(loginUrl, true)
-                .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
-                .and().userInfoEndpoint().userService(userService());
+            .antMatcher("/guests/**")
+            .csrf().disable()
+            .cors()
+            .and().authorizeRequests().anyRequest().authenticated()
+            .and().exceptionHandling()
+            .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            .and().oauth2Login().authorizationEndpoint().baseUri("/guests/oauth2/authorization")
+            .and().loginProcessingUrl("/guests/login/oauth2/code/discord")
+            .defaultSuccessUrl(loginUrl, true)
+            .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
+            .and().userInfoEndpoint().userService(userService());
     }
 
     @Bean

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BriefTweet {
-    private TwitterUser user;
-    private String tweetUrl;
+
+  private TwitterUser user;
+  private String tweetUrl;
 }

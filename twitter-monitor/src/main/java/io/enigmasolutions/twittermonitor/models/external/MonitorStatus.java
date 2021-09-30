@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MonitorStatus {
 
-    private Status status;
-    private User user;
+  private Status status;
+  private User user;
 }

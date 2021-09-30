@@ -17,10 +17,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection = "twitter-scrapers")
 public class TwitterScraper {
-    @Id
-    private String id;
-    private Credentials credentials;
-    private TwitterUser twitterUser;
-    private TweetDeckAuth tweetDeckAuth;
-    private Proxy proxy;
+
+  @Id
+  private String id;
+  private Credentials credentials;
+  private TwitterUser twitterUser;
+  private TweetDeckAuth tweetDeckAuth;
+  private Proxy proxy;
 }

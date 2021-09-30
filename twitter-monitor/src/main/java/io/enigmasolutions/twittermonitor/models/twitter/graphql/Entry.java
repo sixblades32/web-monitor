@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class Entry {
-    private Content content;
+
+  private Content content;
 }

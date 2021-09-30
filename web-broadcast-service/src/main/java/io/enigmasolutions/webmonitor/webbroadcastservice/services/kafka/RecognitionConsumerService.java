@@ -1,5 +1,7 @@
 package io.enigmasolutions.webmonitor.webbroadcastservice.services.kafka;
 
+import static io.enigmasolutions.webmonitor.webbroadcastservice.models.external.Timeline.RECOGNITION;
+
 import io.enigmasolutions.broadcastmodels.Recognition;
 import io.enigmasolutions.webmonitor.webbroadcastservice.models.external.Timeline;
 import io.enigmasolutions.webmonitor.webbroadcastservice.services.BroadcastService;
@@ -7,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
-import static io.enigmasolutions.webmonitor.webbroadcastservice.models.external.Timeline.RECOGNITION;
 
 @Slf4j
 @Service

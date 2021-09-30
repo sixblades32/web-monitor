@@ -10,21 +10,21 @@ import reactor.core.publisher.Mono;
 @Service
 public class CustomerService {
 
-    private final DictionaryClient dictionaryClient;
+  private final DictionaryClient dictionaryClient;
 
-    public CustomerService(DictionaryClient dictionaryClient) {
-        this.dictionaryClient = dictionaryClient;
-    }
+  public CustomerService(DictionaryClient dictionaryClient) {
+    this.dictionaryClient = dictionaryClient;
+  }
 
-    public Mono<CustomerTheme> retrieveCustomerTheme() {
-        return resolveUserClaims()
-                .map(claims -> claims.get("customer_id").toString())
-                .flatMap(dictionaryClient::getCustomerTheme);
-    }
+  public Mono<CustomerTheme> retrieveCustomerTheme() {
+    return resolveUserClaims()
+        .map(claims -> claims.get("customer_id").toString())
+        .flatMap(dictionaryClient::getCustomerTheme);
+  }
 
-    private Mono<Claims> resolveUserClaims() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(it -> it.getAuthentication().getCredentials())
-                .cast(Claims.class);
-    }
+  private Mono<Claims> resolveUserClaims() {
+    return ReactiveSecurityContextHolder.getContext()
+        .map(it -> it.getAuthentication().getCredentials())
+        .cast(Claims.class);
+  }
 }

@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class DataUser {
-    private Result result;
+
+  private Result result;
 }

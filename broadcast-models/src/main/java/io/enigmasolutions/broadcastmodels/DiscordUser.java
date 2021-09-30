@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DiscordUser {
-    private String name;
-    private String tag;
-    private String icon;
+
+  private String name;
+  private String tag;
+  private String icon;
 }

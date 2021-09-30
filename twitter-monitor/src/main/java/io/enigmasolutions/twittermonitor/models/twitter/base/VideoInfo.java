@@ -1,10 +1,10 @@
 package io.enigmasolutions.twittermonitor.models.twitter.base;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class VideoInfo {
-    private List<VideoVariant> variants;
+
+  private List<VideoVariant> variants;
 }

@@ -7,6 +7,6 @@ import lombok.Data;
 @Builder
 public class Broadcast {
 
-    private String customerId;
-    private String data;
+  private String customerId;
+  private String data;
 }

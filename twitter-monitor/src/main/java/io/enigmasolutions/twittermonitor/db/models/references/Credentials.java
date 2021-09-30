@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Credentials {
-    private String consumerKey;
-    private String consumerSecret;
-    private String token;
-    private String tokenSecret;
+
+  private String consumerKey;
+  private String consumerSecret;
+  private String token;
+  private String tokenSecret;
 }

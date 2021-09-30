@@ -12,40 +12,41 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
 @EnableReactiveMethodSecurity
 public class WebSecurityConfig {
 
-    private final ReactiveAuthenticationManager authenticationManager;
-    private final ServerSecurityContextRepository securityContextRepository;
+  private final ReactiveAuthenticationManager authenticationManager;
+  private final ServerSecurityContextRepository securityContextRepository;
 
-    public WebSecurityConfig(ReactiveAuthenticationManager authenticationManager, ServerSecurityContextRepository securityContextRepository) {
-        this.authenticationManager = authenticationManager;
-        this.securityContextRepository = securityContextRepository;
-    }
+  public WebSecurityConfig(ReactiveAuthenticationManager authenticationManager,
+      ServerSecurityContextRepository securityContextRepository) {
+    this.authenticationManager = authenticationManager;
+    this.securityContextRepository = securityContextRepository;
+  }
 
-    @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(
-            ServerHttpSecurity http,
-            UnauthorizedAuthenticationEntryPoint entryPoint
-    ) {
-        http
-                .exceptionHandling()
-                .authenticationEntryPoint(entryPoint)
-                .and()
-                .authenticationManager(authenticationManager)
-                .securityContextRepository(securityContextRepository).authorizeExchange()
-                .pathMatchers(
-                        "/actuator/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/webjars/swagger-ui/**"
-                )
-                .permitAll()
-                .anyExchange().authenticated()
-                .and()
-                .httpBasic().disable()
-                .formLogin().disable()
-                .csrf().disable()
-                .logout().disable();
+  @Bean
+  public SecurityWebFilterChain springSecurityFilterChain(
+      ServerHttpSecurity http,
+      UnauthorizedAuthenticationEntryPoint entryPoint
+  ) {
+    http
+        .exceptionHandling()
+        .authenticationEntryPoint(entryPoint)
+        .and()
+        .authenticationManager(authenticationManager)
+        .securityContextRepository(securityContextRepository).authorizeExchange()
+        .pathMatchers(
+            "/actuator/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/webjars/swagger-ui/**"
+        )
+        .permitAll()
+        .anyExchange().authenticated()
+        .and()
+        .httpBasic().disable()
+        .formLogin().disable()
+        .csrf().disable()
+        .logout().disable();
 
-        return http.build();
-    }
+    return http.build();
+  }
 }

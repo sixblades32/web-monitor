@@ -7,68 +7,68 @@ import io.enigmarobotics.discordbroadcastservice.domain.wrappers.DiscordBroadcas
 import io.enigmarobotics.discordbroadcastservice.services.PostmanService;
 import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
 import io.enigmasolutions.broadcastmodels.Recognition;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 @Service
 @Slf4j
 public class RecognitionConsumerService {
 
-    private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
+  private final static ExecutorService PROCESSING_EXECUTOR = Executors.newCachedThreadPool();
 
-    private final PostmanService postmanService;
-    private final DiscordEmbedColorConfig discordEmbedColorConfig;
+  private final PostmanService postmanService;
+  private final DiscordEmbedColorConfig discordEmbedColorConfig;
 
-    @Autowired
-    RecognitionConsumerService(PostmanService postmanService, DiscordEmbedColorConfig discordEmbedColorConfig) {
-        this.postmanService = postmanService;
-        this.discordEmbedColorConfig = discordEmbedColorConfig;
-    }
+  @Autowired
+  RecognitionConsumerService(PostmanService postmanService,
+      DiscordEmbedColorConfig discordEmbedColorConfig) {
+    this.postmanService = postmanService;
+    this.discordEmbedColorConfig = discordEmbedColorConfig;
+  }
 
-    @KafkaListener(topics = "${kafka.recognition-consumer-base.topic}",
-            groupId = "${kafka.recognition-consumer-base.group-id}",
-            containerFactory = "recognitionKafkaListenerContainerFactory")
-    public void consumeBaseTopic(Recognition recognition) {
-        log.info("Received base recognition message {}", recognition);
+  @KafkaListener(topics = "${kafka.recognition-consumer-base.topic}",
+      groupId = "${kafka.recognition-consumer-base.group-id}",
+      containerFactory = "recognitionKafkaListenerContainerFactory")
+  public void consumeBaseTopic(Recognition recognition) {
+    log.info("Received base recognition message {}", recognition);
 
-        Message message = generateRecognitionMessage(recognition);
+    Message message = generateRecognitionMessage(recognition);
 
-        PROCESSING_EXECUTOR.execute(() -> {
-            postmanService.processBase(message);
-        });
+    PROCESSING_EXECUTOR.execute(() -> {
+      postmanService.processBase(message);
+    });
 
-        PROCESSING_EXECUTOR.execute(() -> {
-            postmanService.processStaffBase(message);
-        });
-    }
+    PROCESSING_EXECUTOR.execute(() -> {
+      postmanService.processStaffBase(message);
+    });
+  }
 
-    @KafkaListener(topics = "${kafka.recognition-consumer-live-release.topic}",
-            groupId = "${kafka.recognition-consumer-live-release.group-id}",
-            containerFactory = "recognitionKafkaListenerContainerFactory")
-    public void consumeLiveReleaseTopic(Recognition recognition) {
-        log.info("Received live release recognition message {}", recognition);
+  @KafkaListener(topics = "${kafka.recognition-consumer-live-release.topic}",
+      groupId = "${kafka.recognition-consumer-live-release.group-id}",
+      containerFactory = "recognitionKafkaListenerContainerFactory")
+  public void consumeLiveReleaseTopic(Recognition recognition) {
+    log.info("Received live release recognition message {}", recognition);
 
-        PROCESSING_EXECUTOR.execute(() -> {
-            Message message = generateRecognitionMessage(recognition);
-            postmanService.processLive(message);
-        });
-    }
+    PROCESSING_EXECUTOR.execute(() -> {
+      Message message = generateRecognitionMessage(recognition);
+      postmanService.processLive(message);
+    });
+  }
 
-    private Message generateRecognitionMessage(Recognition recognition) {
+  private Message generateRecognitionMessage(Recognition recognition) {
 
-        DiscordBroadcastTweetType tweetType = DiscordUtils.convertTweetType(recognition.getTweetType());
+    DiscordBroadcastTweetType tweetType = DiscordUtils.convertTweetType(recognition.getTweetType());
 
-        List<Embed> embeds = tweetType.generateRecognitionEmbed(recognition, discordEmbedColorConfig);
+    List<Embed> embeds = tweetType.generateRecognitionEmbed(recognition, discordEmbedColorConfig);
 
-        return Message.builder()
-                .content("")
-                .embeds(embeds)
-                .build();
-    }
+    return Message.builder()
+        .content("")
+        .embeds(embeds)
+        .build();
+  }
 }

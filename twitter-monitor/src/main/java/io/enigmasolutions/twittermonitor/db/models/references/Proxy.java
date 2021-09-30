@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Proxy {
-    private String host;
-    private String port;
-    private String login;
-    private String password;
+
+  private String host;
+  private String port;
+  private String login;
+  private String password;
 }

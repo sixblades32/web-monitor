@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class Message<T> {
 
-    private Timeline timeline;
-    private String timestamp;
-    private T data;
+  private Timeline timeline;
+  private String timestamp;
+  private T data;
 }
