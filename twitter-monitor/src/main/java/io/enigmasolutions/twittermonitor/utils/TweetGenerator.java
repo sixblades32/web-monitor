@@ -15,9 +15,7 @@ import java.util.stream.Collectors;
 
 public class TweetGenerator {
 
-  private TweetGenerator() {
-
-  }
+  private TweetGenerator() {}
 
   public static Tweet generate(TweetResponse tweetResponse) {
     List<Media> media = retrieveMedia(tweetResponse);
@@ -30,17 +28,18 @@ public class TweetGenerator {
     return tweet;
   }
 
-  private static Tweet buildTweet(TweetResponse tweetResponse, List<Media> media,
-      List<String> detectedUrls) {
-    Tweet.TweetBuilder tweetBuilder = Tweet.builder()
-        .type(tweetResponse.getType())
-        .user(buildTweetUser(tweetResponse.getUser()))
-        .tweetUrl(tweetResponse.getTweetUrl())
-        .media(media)
-        .detectedUrls(detectedUrls)
-        .followsUrl(tweetResponse.getFollowsUrl())
-        .likesUrl(tweetResponse.getLikesUrl())
-        .retweetsUrl(tweetResponse.getRetweetsUrl());
+  private static Tweet buildTweet(
+      TweetResponse tweetResponse, List<Media> media, List<String> detectedUrls) {
+    Tweet.TweetBuilder tweetBuilder =
+        Tweet.builder()
+            .type(tweetResponse.getType())
+            .user(buildTweetUser(tweetResponse.getUser()))
+            .tweetUrl(tweetResponse.getTweetUrl())
+            .media(media)
+            .detectedUrls(detectedUrls)
+            .followsUrl(tweetResponse.getFollowsUrl())
+            .likesUrl(tweetResponse.getLikesUrl())
+            .retweetsUrl(tweetResponse.getRetweetsUrl());
 
     if (tweetResponse.getText() != null) {
       tweetBuilder.text(tweetResponse.getText().trim());
@@ -71,24 +70,24 @@ public class TweetGenerator {
     }
 
     return extendedEntities.getMedia().stream()
-        .map(media -> {
-          String tweetResponseText = tweetResponse.getText();
-          tweetResponse.setText(tweetResponseText.replace(media.getUrl(), ""));
+        .map(
+            media -> {
+              String tweetResponseText = tweetResponse.getText();
+              tweetResponse.setText(tweetResponseText.replace(media.getUrl(), ""));
 
-          Media.MediaBuilder mediaBuilder = Media.builder()
-              .type(MediaType.valueOf(media.getType().toUpperCase()))
-              .statical(media.getMediaUrl());
+              Media.MediaBuilder mediaBuilder =
+                  Media.builder()
+                      .type(MediaType.valueOf(media.getType().toUpperCase()))
+                      .statical(media.getMediaUrl());
 
-          if (media.getVideoInfo() != null) {
-            String url = media.getVideoInfo().getVariants()
-                .get(0)
-                .getUrl();
+              if (media.getVideoInfo() != null) {
+                String url = media.getVideoInfo().getVariants().get(0).getUrl();
 
-            mediaBuilder.animation(url);
-          }
+                mediaBuilder.animation(url);
+              }
 
-          return mediaBuilder.build();
-        })
+              return mediaBuilder.build();
+            })
         .collect(Collectors.toList());
   }
 
@@ -99,17 +98,19 @@ public class TweetGenerator {
     }
 
     return entity.getUrls().stream()
-        .map(url -> {
-          String tweetResponseText = tweetResponse.getText();
-          tweetResponse.setText(tweetResponseText.replace(url.getUrl(), url.getExpandedUrl()));
+        .map(
+            url -> {
+              String tweetResponseText = tweetResponse.getText();
+              tweetResponse.setText(tweetResponseText.replace(url.getUrl(), url.getExpandedUrl()));
 
-          return url.getExpandedUrl();
-        })
+              return url.getExpandedUrl();
+            })
         .collect(Collectors.toList());
   }
 
   public static TwitterUser buildTweetUser(User user) {
     return TwitterUser.builder()
+        .updateTypes(user.getUpdateTypes())
         .name(user.getName())
         .icon(user.getUserImage())
         .login(user.getScreenName())

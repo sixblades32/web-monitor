@@ -16,8 +16,10 @@ public class GraphQLTweet {
 
   @JsonProperty("rest_id")
   private String restId;
+
   private Core core;
   private TweetLegacy legacy;
+
   @JsonProperty("quoted_status_result")
   private RetweetedStatusResult quotedStatus;
 
@@ -34,9 +36,11 @@ public class GraphQLTweet {
 
   public String getRetweetsUrl() {
     retweetsUrl =
-        TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId()
-            +
-            "/retweets";
+        TWITTER_URL
+            + core.getUser().getLegacy().getScreenName()
+            + "/status/"
+            + legacy.getTweetId()
+            + "/retweets";
     return retweetsUrl;
   }
 
@@ -47,9 +51,11 @@ public class GraphQLTweet {
 
   public String getLikesUrl() {
     likesUrl =
-        TWITTER_URL + core.getUser().getLegacy().getScreenName() + "/status/" + legacy.getTweetId()
-            +
-            "/likes";
+        TWITTER_URL
+            + core.getUser().getLegacy().getScreenName()
+            + "/status/"
+            + legacy.getTweetId()
+            + "/likes";
     return likesUrl;
   }
 }

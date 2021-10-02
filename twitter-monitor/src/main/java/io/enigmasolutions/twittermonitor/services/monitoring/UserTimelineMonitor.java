@@ -24,160 +24,157 @@ import org.springframework.web.client.HttpClientErrorException;
 @Slf4j
 public class UserTimelineMonitor extends AbstractTwitterMonitor {
 
-    private static final String TIMELINE_PATH = "statuses/user_timeline.json";
-    private final RestTemplateProxy proxy;
-    private User user;
+  private static final String TIMELINE_PATH = "statuses/user_timeline.json";
+  private final RestTemplateProxy proxy;
+  private User user;
 
-    public UserTimelineMonitor(
-            TwitterScraperRepository twitterScraperRepository,
-            TwitterHelperService twitterHelperService,
-            KafkaProducer kafkaProducer,
-            List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
-            List<ImageRecognitionProcessor> imageRecognitionProcessors, User user,
-            RestTemplateProxy proxy
-    ) {
-        super(
-                700,
-                twitterScraperRepository,
-                twitterHelperService,
-                kafkaProducer,
-                plainTextRecognitionProcessors,
-                imageRecognitionProcessors,
-                log);
+  public UserTimelineMonitor(
+      TwitterScraperRepository twitterScraperRepository,
+      TwitterHelperService twitterHelperService,
+      KafkaProducer kafkaProducer,
+      List<PlainTextRecognitionProcessor> plainTextRecognitionProcessors,
+      List<ImageRecognitionProcessor> imageRecognitionProcessors,
+      User user,
+      RestTemplateProxy proxy) {
+    super(
+        700,
+        twitterScraperRepository,
+        twitterHelperService,
+        kafkaProducer,
+        plainTextRecognitionProcessors,
+        imageRecognitionProcessors,
+        log);
 
-        this.user = user;
-        this.proxy = proxy;
+    this.user = user;
+    this.proxy = proxy;
+  }
+
+  public void start() {
+    log.info("Current monitor user is: {}", user);
+
+    super.start();
+  }
+
+  public void stop() {
+    super.stop();
+
+    log.info("User: {}", user);
+  }
+
+  @Override
+  public MonitorStatus getMonitorStatus() {
+    return MonitorStatus.builder().status(super.getStatus()).user(user).build();
+  }
+
+  @Override
+  protected void executeTwitterMonitoring() {
+
+    TwitterCustomClient currentClient = refreshClient();
+
+    try {
+      TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH, currentClient);
+
+      processTweetResponse(tweetResponse);
+    } catch (HttpClientErrorException exception) {
+      processErrorResponse(exception, currentClient);
+    }
+  }
+
+  @Override
+  protected void processTweetResponse(TweetResponse tweetResponse) {
+    super.processingExecutor.execute(() -> super.processTweetResponse(tweetResponse));
+    super.processingExecutor.execute(() -> processUser(tweetResponse));
+  }
+
+  private void processUser(TweetResponse tweetResponse) {
+    if (tweetResponse == null) {
+      return;
     }
 
-    public void start() {
-        log.info("Current monitor user is: {}", user);
+    User currentUser = tweetResponse.getUser();
 
-        super.start();
+    if (user.getDescription() == null) {
+      user = currentUser;
     }
 
-    public void stop() {
-        super.stop();
+    if (!user.isInfoEqual(currentUser)) {
 
-        log.info("User: {}", user);
+      if (twitterHelperService.isUserInfoInCache(currentUser)) {
+        return;
+      }
+
+      twitterHelperService.isUserInfoInCache(user);
+      user.setUpdateTypes(currentUser);
+      TwitterUser twitterUser = TweetGenerator.buildTweetUser(user);
+
+      user = currentUser;
+      TwitterUser updatedTwitterUser = TweetGenerator.buildTweetUser(user);
+
+      List<TwitterUser> userUpdates = new ArrayList<>();
+
+      userUpdates.add(twitterUser);
+      userUpdates.add(updatedTwitterUser);
+
+      super.processingExecutor.execute(() -> processCommonTargetUpdates(userUpdates));
+      super.processingExecutor.execute(() -> processLiveReleaseTargetUpdates(userUpdates));
+    }
+  }
+
+  private void processCommonTargetUpdates(List<TwitterUser> userUpdates) {
+    if (super.isCommonTargetValid(userUpdates.get(0))) {
+      super.kafkaProducer.sendUserUpdatesToBaseBroadcast(userUpdates);
+    }
+  }
+
+  private void processLiveReleaseTargetUpdates(List<TwitterUser> userUpdates) {
+    if (super.isLiveReleaseTargetValid(userUpdates.get(0))) {
+      super.kafkaProducer.sendUserUpdatesToLiveReleaseBroadcast(userUpdates);
+    }
+  }
+
+  protected TweetResponse getTweetResponse(
+      MultiValueMap<String, String> params,
+      String timelinePath,
+      TwitterCustomClient twitterCustomClient) {
+    TweetResponse tweetResponse = null;
+
+    TweetResponse[] tweetResponseArray =
+        twitterCustomClient.getProxiedBaseApiTimelineTweets(params, timelinePath).getBody();
+
+    if (tweetResponseArray != null && tweetResponseArray.length > 0) {
+      tweetResponse = tweetResponseArray[0];
     }
 
+    return tweetResponse;
+  }
 
-    @Override
-    public MonitorStatus getMonitorStatus() {
-        return MonitorStatus.builder()
-                .status(super.getStatus())
-                .user(user)
-                .build();
-    }
+  @Override
+  protected MultiValueMap<String, String> generateParams() {
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+    params.add("user_id", user.getId());
+    params.add("tweet_mode", "extended");
+    params.add("count", "1");
+    params.add("include_entities", "1");
+    params.add("include_user_entities", "1");
 
-    @Override
-    protected void executeTwitterMonitoring() {
+    return params;
+  }
 
-        TwitterCustomClient currentClient = refreshClient();
+  @Override
+  protected void prepareClients(List<TwitterScraper> scrapers) {
+    this.twitterCustomClients =
+        scrapers.stream()
+            .map(scraper -> new TwitterCustomClient(scraper, proxy))
+            .collect(Collectors.toList());
 
-        try {
-            TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH,
-                    currentClient);
+    twitterCustomClients = Collections.synchronizedList(twitterCustomClients);
+  }
 
-            processTweetResponse(tweetResponse);
-        } catch (HttpClientErrorException exception) {
-            processErrorResponse(exception, currentClient);
-        }
-    }
+  public User getUser() {
+    return user;
+  }
 
-    @Override
-    protected void processTweetResponse(TweetResponse tweetResponse) {
-        super.processingExecutor.execute(() -> super.processTweetResponse(tweetResponse));
-        super.processingExecutor.execute(() -> processUser(tweetResponse));
-    }
-
-    private void processUser(TweetResponse tweetResponse) {
-        if (tweetResponse == null) {
-            return;
-        }
-
-        User currentUser = tweetResponse.getUser();
-
-        if (user.getDescription() == null) {
-            user = currentUser;
-        }
-
-        if (!user.isInfoEqual(currentUser)) {
-
-            if (super.twitterHelperService.isUserInfoInCache(currentUser)) {
-                return;
-            }
-
-            TwitterUser twitterUser = TweetGenerator.buildTweetUser(user);
-            user = currentUser;
-            TwitterUser updatedTwitterUser = TweetGenerator.buildTweetUser(user);
-
-            List<TwitterUser> userUpdates = new ArrayList<>();
-
-            userUpdates.add(twitterUser);
-            userUpdates.add(updatedTwitterUser);
-
-            super.processingExecutor.execute(() -> processCommonTargetUpdates(userUpdates));
-            super.processingExecutor.execute(() -> processLiveReleaseTargetUpdates(userUpdates));
-        }
-    }
-
-    private void processCommonTargetUpdates(List<TwitterUser> userUpdates) {
-        if (super.isCommonTargetValid(userUpdates.get(0))) {
-            super.kafkaProducer.sendUserUpdatesToBaseBroadcast(userUpdates);
-        }
-    }
-
-    private void processLiveReleaseTargetUpdates(List<TwitterUser> userUpdates) {
-        if (super.isLiveReleaseTargetValid(userUpdates.get(0))) {
-            super.kafkaProducer.sendUserUpdatesToLiveReleaseBroadcast(userUpdates);
-        }
-    }
-
-    protected TweetResponse getTweetResponse(
-            MultiValueMap<String, String> params,
-            String timelinePath,
-            TwitterCustomClient twitterCustomClient
-    ) {
-        TweetResponse tweetResponse = null;
-
-        TweetResponse[] tweetResponseArray = twitterCustomClient
-                .getProxiedBaseApiTimelineTweets(params, timelinePath)
-                .getBody();
-
-        if (tweetResponseArray != null && tweetResponseArray.length > 0) {
-            tweetResponse = tweetResponseArray[0];
-        }
-
-        return tweetResponse;
-    }
-
-    @Override
-    protected MultiValueMap<String, String> generateParams() {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("user_id", user.getId());
-        params.add("tweet_mode", "extended");
-        params.add("count", "1");
-        params.add("include_entities", "1");
-        params.add("include_user_entities", "1");
-
-        return params;
-    }
-
-    @Override
-    protected void prepareClients(List<TwitterScraper> scrapers) {
-        this.twitterCustomClients = scrapers.stream()
-                .map(scraper -> new TwitterCustomClient(scraper, proxy))
-                .collect(Collectors.toList());
-
-        twitterCustomClients = Collections.synchronizedList(twitterCustomClients);
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public RestTemplateProxy getProxy() {
-        return proxy;
-    }
+  public RestTemplateProxy getProxy() {
+    return proxy;
+  }
 }

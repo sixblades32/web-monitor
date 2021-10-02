@@ -17,6 +17,7 @@ discord:
       tweet: 5814783
       reply: 3460243
       alert: 16023551
+      user-updates: 13664492
 
 dictionary-service:
   url: http://localhost:8015/api/dictionary

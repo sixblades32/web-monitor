@@ -20,6 +20,7 @@ public class TweetResponse {
   private final String TWITTER_URL = "https://twitter.com/";
 
   private TweetType type;
+
   @JsonProperty("created_at")
   private String createdAt;
   @JsonProperty("id_str")
@@ -66,16 +67,14 @@ public class TweetResponse {
       return null;
     }
 
-    User user = User.builder()
-        .id(inReplyToUserId)
-        .screenName(inReplyToScreenName)
-        .userUrl(TWITTER_URL + inReplyToScreenName)
-        .build();
+    User user =
+        User.builder()
+            .id(inReplyToUserId)
+            .screenName(inReplyToScreenName)
+            .userUrl(TWITTER_URL + inReplyToScreenName)
+            .build();
 
-    return TweetResponse.builder()
-        .user(user)
-        .tweetId(inReplyToStatusId)
-        .build();
+    return TweetResponse.builder().user(user).tweetId(inReplyToStatusId).build();
   }
 
   public String getTweetUrl() {

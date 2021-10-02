@@ -13,6 +13,8 @@ import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
 import java.util.List;
+
+import io.enigmasolutions.twittermonitor.services.web.DictionaryClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,17 +26,19 @@ public class MonitorConfigurationService {
   private final TwitterConsumerRepository twitterConsumerRepository;
   private final TwitterScraperRepository twitterScraperRepository;
   private final TargetRepository targetRepository;
+  private final DictionaryClient dictionaryClient;
 
   @Autowired
   public MonitorConfigurationService(TwitterHelperService twitterHelperService,
       TwitterConsumerRepository twitterConsumerRepository,
       TwitterScraperRepository twitterScraperRepository,
-      TargetRepository targetRepository) {
+      TargetRepository targetRepository, DictionaryClient dictionaryClient) {
 
     this.twitterHelperService = twitterHelperService;
     this.twitterConsumerRepository = twitterConsumerRepository;
     this.twitterScraperRepository = twitterScraperRepository;
     this.targetRepository = targetRepository;
+    this.dictionaryClient = dictionaryClient;
   }
 
   public void createConsumer(TwitterConsumer consumer) {
@@ -95,6 +99,8 @@ public class MonitorConfigurationService {
         .build();
 
     targetRepository.insert(target);
+    dictionaryClient.createMonitoringTarget(user);
+
     twitterHelperService.getBaseTargetsIds().add(user.getId());
   }
 
@@ -113,6 +119,8 @@ public class MonitorConfigurationService {
     }
 
     targetRepository.deleteTargetByIdentifier(user.getId());
+    dictionaryClient.deleteMonitoringTarget(user.getId());
+
     twitterHelperService.getBaseTargetsIds().remove(user.getId());
   }
 
