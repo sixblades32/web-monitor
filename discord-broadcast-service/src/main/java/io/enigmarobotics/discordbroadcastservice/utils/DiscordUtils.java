@@ -554,7 +554,7 @@ public class DiscordUtils {
     fields.add(updatedInfoField.build());
 
     Footer footer =
-        Footer.builder().text("PROFILE DETAILS UPDATED -> @" + twitterUser.getLogin()).build();
+        Footer.builder().text("PROFILE DETAILS UPDATED --> @" + twitterUser.getLogin()).build();
 
     return Embed.builder()
         .author(author)

@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.web;
 
+import io.enigmasolutions.dictionarymodels.DefaultMonitoringTarget;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,20 +16,22 @@ public class DictionaryClient {
     this.webClient = WebClient.builder().baseUrl(dictionaryServiceUrl).build();
   }
 
-  public Mono<User> createMonitoringTarget(User user) {
+  public User createMonitoringTarget(DefaultMonitoringTarget defaultMonitoringTarget) {
     return webClient
         .post()
-        .uri(uriBuilder -> uriBuilder.path("/monitoring-targets").build())
-        .body(Mono.just(user), User.class)
+        .uri(uriBuilder -> uriBuilder.path("/monitoring/targets").build())
+        .body(Mono.just(defaultMonitoringTarget), DefaultMonitoringTarget.class)
         .retrieve()
-        .bodyToMono(User.class);
+        .bodyToMono(User.class)
+        .block();
   }
 
-  public Mono<User> deleteMonitoringTarget(String id) {
+  public User deleteMonitoringTarget(String id) {
     return webClient
         .delete()
-        .uri(uriBuilder -> uriBuilder.path("/monitoring-targets/" + id).build())
+        .uri(uriBuilder -> uriBuilder.path("/monitoring/targets/" + id).build())
         .retrieve()
-        .bodyToMono(User.class);
+        .bodyToMono(User.class)
+        .block();
   }
 }

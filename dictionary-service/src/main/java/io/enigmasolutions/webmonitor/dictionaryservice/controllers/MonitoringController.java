@@ -1,11 +1,11 @@
 package io.enigmasolutions.webmonitor.dictionaryservice.controllers;
 
 import io.enigmasolutions.dictionarymodels.DefaultMonitoringTarget;
+import io.enigmasolutions.webmonitor.dictionaryservice.db.models.documents.MonitoringTarget;
 import io.enigmasolutions.webmonitor.dictionaryservice.services.MonitoringService;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -21,5 +21,15 @@ public class MonitoringController {
   @GetMapping("/targets/default")
   public Mono<List<DefaultMonitoringTarget>> getDefaultTargets() {
     return monitoringService.getDefaultTargets();
+  }
+
+  @PostMapping("/targets")
+  public Mono<MonitoringTarget> createMonitoringTarget(@RequestBody DefaultMonitoringTarget defaultMonitoringTarget){
+    return monitoringService.createMonitoringTarget(defaultMonitoringTarget);
+  }
+
+  @DeleteMapping("/targets/{id}")
+  public Mono<MonitoringTarget> deleteMonitoringTarget(@PathVariable String id){
+    return monitoringService.deleteMonitoringTarget(id);
   }
 }

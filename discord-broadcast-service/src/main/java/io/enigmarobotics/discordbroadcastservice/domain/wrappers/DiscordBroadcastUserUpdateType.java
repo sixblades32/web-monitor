@@ -4,16 +4,16 @@ import io.enigmarobotics.discordbroadcastservice.configuration.DiscordEmbedColor
 import io.enigmarobotics.discordbroadcastservice.domain.models.Embed;
 import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
 import io.enigmasolutions.broadcastmodels.TwitterUser;
-import java.util.List;
+import io.enigmasolutions.broadcastmodels.UserUpdate;
 
 public enum DiscordBroadcastUserUpdateType {
   NAME {
     @Override
     public Embed generateUserUpdateEmbed(
-        List<TwitterUser> userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        UserUpdate userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
 
-      TwitterUser oldUserInfo = userUpdates.get(0);
-      TwitterUser updatedUserInfo = userUpdates.get(1);
+      TwitterUser oldUserInfo = userUpdates.getOld();
+      TwitterUser updatedUserInfo = userUpdates.getUpdated();
 
       return DiscordUtils.generateUserUpdatesEmbed(
           this.toString(),
@@ -26,10 +26,10 @@ public enum DiscordBroadcastUserUpdateType {
   LOCATION {
     @Override
     public Embed generateUserUpdateEmbed(
-        List<TwitterUser> userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        UserUpdate userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
 
-      TwitterUser oldUserInfo = userUpdates.get(0);
-      TwitterUser updatedUserInfo = userUpdates.get(1);
+      TwitterUser oldUserInfo = userUpdates.getOld();
+      TwitterUser updatedUserInfo = userUpdates.getUpdated();
 
       return DiscordUtils.generateUserUpdatesEmbed(
           this.toString(),
@@ -42,10 +42,10 @@ public enum DiscordBroadcastUserUpdateType {
   SCREEN_NAME {
     @Override
     public Embed generateUserUpdateEmbed(
-        List<TwitterUser> userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        UserUpdate userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
 
-      TwitterUser oldUserInfo = userUpdates.get(0);
-      TwitterUser updatedUserInfo = userUpdates.get(1);
+      TwitterUser oldUserInfo = userUpdates.getOld();
+      TwitterUser updatedUserInfo = userUpdates.getUpdated();
 
       return DiscordUtils.generateUserUpdatesEmbed(
           this.toString(),
@@ -63,10 +63,10 @@ public enum DiscordBroadcastUserUpdateType {
   DESCRIPTION {
     @Override
     public Embed generateUserUpdateEmbed(
-        List<TwitterUser> userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        UserUpdate userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
 
-      TwitterUser oldUserInfo = userUpdates.get(0);
-      TwitterUser updatedUserInfo = userUpdates.get(1);
+      TwitterUser oldUserInfo = userUpdates.getOld();
+      TwitterUser updatedUserInfo = userUpdates.getUpdated();
 
       return DiscordUtils.generateUserUpdatesEmbed(
           this.toString(),
@@ -79,10 +79,10 @@ public enum DiscordBroadcastUserUpdateType {
   URL {
     @Override
     public Embed generateUserUpdateEmbed(
-        List<TwitterUser> userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        UserUpdate userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
 
-      TwitterUser oldUserInfo = userUpdates.get(0);
-      TwitterUser updatedUserInfo = userUpdates.get(1);
+      TwitterUser oldUserInfo = userUpdates.getOld();
+      TwitterUser updatedUserInfo = userUpdates.getUpdated();
 
       return DiscordUtils.generateUserUpdatesEmbed(
           this.toString(),
@@ -95,10 +95,10 @@ public enum DiscordBroadcastUserUpdateType {
   IMAGE {
     @Override
     public Embed generateUserUpdateEmbed(
-        List<TwitterUser> userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
+        UserUpdate userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig) {
 
-      TwitterUser oldUserInfo = userUpdates.get(0);
-      TwitterUser updatedUserInfo = userUpdates.get(1);
+      TwitterUser oldUserInfo = userUpdates.getOld();
+      TwitterUser updatedUserInfo = userUpdates.getUpdated();
 
       return DiscordUtils.generateUserUpdatesEmbed(
           this.toString(),
@@ -110,5 +110,5 @@ public enum DiscordBroadcastUserUpdateType {
   };
 
   public abstract Embed generateUserUpdateEmbed(
-      List<TwitterUser> userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig);
+      UserUpdate userUpdates, DiscordEmbedColorConfig discordEmbedColorConfig);
 }

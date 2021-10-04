@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.enigmasolutions.broadcastmodels.UserUpdate;
 import io.enigmasolutions.broadcastmodels.UserUpdateType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class UserUpdatesConsumerService {
       topics = "${kafka.user-updates-consumer-base.topic}",
       groupId = "${kafka.user-updates-consumer-base.group-id}",
       containerFactory = "userUpdatesKafkaListenerContainerFactory")
-  public void consumeBase(List<TwitterUser> userUpdates) {
+  public void consumeBase(UserUpdate userUpdates) {
     log.info("Received base user info updates: {}", userUpdates);
 
     Message message = generateUserUpdateMessage(userUpdates);
@@ -59,7 +60,7 @@ public class UserUpdatesConsumerService {
       topics = "${kafka.user-updates-consumer-live-release.topic}",
       groupId = "${kafka.user-updates-consumer-live-release.group-id}",
       containerFactory = "userUpdatesKafkaListenerContainerFactory")
-  public void consumeLiveRelease(List<TwitterUser> userUpdates) {
+  public void consumeLiveRelease(UserUpdate userUpdates) {
     log.info("Received live release user info updates: {}", userUpdates);
 
     Message message = generateUserUpdateMessage(userUpdates);
@@ -70,10 +71,10 @@ public class UserUpdatesConsumerService {
         });
   }
 
-  private Message generateUserUpdateMessage(List<TwitterUser> userUpdates) {
+  private Message generateUserUpdateMessage(UserUpdate userUpdates) {
     List<Embed> embeds = new LinkedList<>();
 
-    for (UserUpdateType userUpdateType : userUpdates.get(0).getUpdateTypes()) {
+    for (UserUpdateType userUpdateType : userUpdates.getUpdateTypes()) {
       DiscordBroadcastUserUpdateType discordBroadcastUserUpdateType =
           DiscordUtils.convertUserUpdateType(userUpdateType);
       embeds.add(

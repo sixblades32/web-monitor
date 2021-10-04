@@ -1,12 +1,10 @@
 package io.enigmarobotics.discordbroadcastservice.configuration;
 
-import io.enigmasolutions.broadcastmodels.Alert;
-import io.enigmasolutions.broadcastmodels.Recognition;
-import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import io.enigmasolutions.broadcastmodels.TwitterUser;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -97,19 +95,19 @@ public class KafkaConfig {
   }
 
   @Bean
-  public ConsumerFactory<String, TwitterUser[]> userUpdatesConsumerFactory() {
+  public ConsumerFactory<String, UserUpdate> userUpdatesConsumerFactory() {
 
     Map<String, Object> props = generateProps(discordBroadcastRecognitionGroupId);
 
     return new DefaultKafkaConsumerFactory<>(
-        props, new StringDeserializer(), new JsonDeserializer<>(TwitterUser[].class, false));
+        props, new StringDeserializer(), new JsonDeserializer<>(UserUpdate.class, false));
   }
 
   @Bean
-  public ConcurrentKafkaListenerContainerFactory<String, TwitterUser[]>
+  public ConcurrentKafkaListenerContainerFactory<String, UserUpdate>
       userUpdatesKafkaListenerContainerFactory() {
 
-    ConcurrentKafkaListenerContainerFactory<String, TwitterUser[]> factory =
+    ConcurrentKafkaListenerContainerFactory<String, UserUpdate> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(userUpdatesConsumerFactory());
 

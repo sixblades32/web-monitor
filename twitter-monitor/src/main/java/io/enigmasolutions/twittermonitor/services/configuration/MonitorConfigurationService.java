@@ -1,5 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.configuration;
 
+import io.enigmasolutions.dictionarymodels.DefaultMonitoringTarget;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
@@ -29,10 +30,12 @@ public class MonitorConfigurationService {
   private final DictionaryClient dictionaryClient;
 
   @Autowired
-  public MonitorConfigurationService(TwitterHelperService twitterHelperService,
+  public MonitorConfigurationService(
+      TwitterHelperService twitterHelperService,
       TwitterConsumerRepository twitterConsumerRepository,
       TwitterScraperRepository twitterScraperRepository,
-      TargetRepository targetRepository, DictionaryClient dictionaryClient) {
+      TargetRepository targetRepository,
+      DictionaryClient dictionaryClient) {
 
     this.twitterHelperService = twitterHelperService;
     this.twitterConsumerRepository = twitterConsumerRepository;
@@ -93,13 +96,22 @@ public class MonitorConfigurationService {
       throw new TargetAlreadyAddedException();
     }
 
-    Target target = Target.builder()
-        .username(user.getScreenName().toLowerCase())
-        .identifier(user.getId())
-        .build();
+    Target target =
+        Target.builder()
+            .username(user.getScreenName().toLowerCase())
+            .identifier(user.getId())
+            .build();
+
+    DefaultMonitoringTarget defaultMonitoringTarget =
+        DefaultMonitoringTarget.builder()
+            .username(user.getScreenName())
+            .identifier(user.getId())
+            .image(user.getUserImage())
+            .name(user.getName())
+            .build();
 
     targetRepository.insert(target);
-    dictionaryClient.createMonitoringTarget(user);
+    dictionaryClient.createMonitoringTarget(defaultMonitoringTarget);
 
     twitterHelperService.getBaseTargetsIds().add(user.getId());
   }

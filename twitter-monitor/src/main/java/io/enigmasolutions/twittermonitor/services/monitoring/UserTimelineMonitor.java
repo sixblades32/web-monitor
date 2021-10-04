@@ -1,6 +1,8 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.broadcastmodels.TwitterUser;
+import io.enigmasolutions.broadcastmodels.UserUpdate;
+import io.enigmasolutions.broadcastmodels.UserUpdateType;
 import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
@@ -106,29 +108,32 @@ public class UserTimelineMonitor extends AbstractTwitterMonitor {
       twitterHelperService.isUserInfoInCache(user);
       user.setUpdateTypes(currentUser);
       TwitterUser twitterUser = TweetGenerator.buildTweetUser(user);
+      List<UserUpdateType> userUpdateTypes = user.getUpdateTypes();
 
       user = currentUser;
       TwitterUser updatedTwitterUser = TweetGenerator.buildTweetUser(user);
 
-      List<TwitterUser> userUpdates = new ArrayList<>();
+      UserUpdate userUpdate =
+          UserUpdate.builder()
+              .updateTypes(userUpdateTypes)
+              .old(twitterUser)
+              .updated(updatedTwitterUser)
+              .build();
 
-      userUpdates.add(twitterUser);
-      userUpdates.add(updatedTwitterUser);
-
-      super.processingExecutor.execute(() -> processCommonTargetUpdates(userUpdates));
-      super.processingExecutor.execute(() -> processLiveReleaseTargetUpdates(userUpdates));
+      super.processingExecutor.execute(() -> processCommonTargetUpdates(userUpdate));
+      super.processingExecutor.execute(() -> processLiveReleaseTargetUpdates(userUpdate));
     }
   }
 
-  private void processCommonTargetUpdates(List<TwitterUser> userUpdates) {
-    if (super.isCommonTargetValid(userUpdates.get(0))) {
-      super.kafkaProducer.sendUserUpdatesToBaseBroadcast(userUpdates);
+  private void processCommonTargetUpdates(UserUpdate userUpdate) {
+    if (super.isCommonTargetValid(userUpdate.getOld())) {
+      super.kafkaProducer.sendUserUpdatesToBaseBroadcast(userUpdate);
     }
   }
 
-  private void processLiveReleaseTargetUpdates(List<TwitterUser> userUpdates) {
-    if (super.isLiveReleaseTargetValid(userUpdates.get(0))) {
-      super.kafkaProducer.sendUserUpdatesToLiveReleaseBroadcast(userUpdates);
+  private void processLiveReleaseTargetUpdates(UserUpdate userUpdate) {
+    if (super.isLiveReleaseTargetValid(userUpdate.getOld())) {
+      super.kafkaProducer.sendUserUpdatesToLiveReleaseBroadcast(userUpdate);
     }
   }
 

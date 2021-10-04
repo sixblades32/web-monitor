@@ -24,6 +24,9 @@ kafka:
     user-updates-live-release-topic: twitter-user-updates-broadcast-live-release
     twitter-monitor-alert-topic: twitter-monitor-alert-broadcast
 
+dictionary-service:
+  url: ${DICTIONARY_SERVICE_URL}
+
 aws:
   rekognition:
     access-key: AKIAZCHZYD2SJULQYADP
