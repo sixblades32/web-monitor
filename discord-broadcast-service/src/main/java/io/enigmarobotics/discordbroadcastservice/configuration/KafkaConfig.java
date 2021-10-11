@@ -1,10 +1,10 @@
 package io.enigmarobotics.discordbroadcastservice.configuration;
 
-import io.enigmasolutions.broadcastmodels.Alert;
-import io.enigmasolutions.broadcastmodels.Recognition;
-import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.*;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,14 +37,13 @@ public class KafkaConfig {
 
     Map<String, Object> props = generateProps(discordBroadcastTweetGroupId);
 
-    return new DefaultKafkaConsumerFactory<>(props,
-        new StringDeserializer(),
-        new JsonDeserializer<>(Tweet.class, false));
+    return new DefaultKafkaConsumerFactory<>(
+        props, new StringDeserializer(), new JsonDeserializer<>(Tweet.class, false));
   }
 
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, Tweet>
-  tweetKafkaListenerContainerFactory() {
+      tweetKafkaListenerContainerFactory() {
 
     ConcurrentKafkaListenerContainerFactory<String, Tweet> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
@@ -60,14 +59,13 @@ public class KafkaConfig {
 
     Map<String, Object> props = generateProps(discordBroadcastRecognitionGroupId);
 
-    return new DefaultKafkaConsumerFactory<>(props,
-        new StringDeserializer(),
-        new JsonDeserializer<>(Recognition.class, false));
+    return new DefaultKafkaConsumerFactory<>(
+        props, new StringDeserializer(), new JsonDeserializer<>(Recognition.class, false));
   }
 
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, Recognition>
-  recognitionKafkaListenerContainerFactory() {
+      recognitionKafkaListenerContainerFactory() {
 
     ConcurrentKafkaListenerContainerFactory<String, Recognition> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
@@ -81,18 +79,37 @@ public class KafkaConfig {
 
     Map<String, Object> props = generateProps(discordBroadcastAlertGroupId);
 
-    return new DefaultKafkaConsumerFactory<>(props,
-        new StringDeserializer(),
-        new JsonDeserializer<>(Alert.class, false));
+    return new DefaultKafkaConsumerFactory<>(
+        props, new StringDeserializer(), new JsonDeserializer<>(Alert.class, false));
   }
 
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, Alert>
-  alertKafkaListenerContainerFactory() {
+      alertKafkaListenerContainerFactory() {
 
     ConcurrentKafkaListenerContainerFactory<String, Alert> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(alertConsumerFactory());
+
+    return factory;
+  }
+
+  @Bean
+  public ConsumerFactory<String, UserUpdate> userUpdatesConsumerFactory() {
+
+    Map<String, Object> props = generateProps(discordBroadcastRecognitionGroupId);
+
+    return new DefaultKafkaConsumerFactory<>(
+        props, new StringDeserializer(), new JsonDeserializer<>(UserUpdate.class, false));
+  }
+
+  @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, UserUpdate>
+      userUpdatesKafkaListenerContainerFactory() {
+
+    ConcurrentKafkaListenerContainerFactory<String, UserUpdate> factory =
+        new ConcurrentKafkaListenerContainerFactory<>();
+    factory.setConsumerFactory(userUpdatesConsumerFactory());
 
     return factory;
   }
@@ -104,12 +121,8 @@ public class KafkaConfig {
     props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
     props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
     props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
-    props.put(
-        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-        StringDeserializer.class);
-    props.put(
-        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-        JsonDeserializer.class);
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
     props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
     return props;

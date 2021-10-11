@@ -1,9 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.kafka;
 
-import io.enigmasolutions.broadcastmodels.Alert;
-import io.enigmasolutions.broadcastmodels.Recognition;
-import io.enigmasolutions.broadcastmodels.Tweet;
-import io.enigmasolutions.broadcastmodels.TwitterUser;
+import io.enigmasolutions.broadcastmodels.*;
 import io.enigmasolutions.twittermonitor.configuration.kafka.KafkaProuderPropertiesConfig;
 import java.util.List;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -15,16 +12,15 @@ public class KafkaProducer {
   private final KafkaProuderPropertiesConfig kafkaProuderPropertiesConfig;
   private final KafkaTemplate<String, Tweet> tweetKafkaTemplate;
   private final KafkaTemplate<String, Recognition> recognitionKafkaTemplate;
-  private final KafkaTemplate<String, List<TwitterUser>> userUpdatesKafkaTemplate;
+  private final KafkaTemplate<String, UserUpdate> userUpdatesKafkaTemplate;
   private final KafkaTemplate<String, Alert> alertKafkaTemplate;
 
   public KafkaProducer(
       KafkaProuderPropertiesConfig kafkaProuderPropertiesConfig,
       KafkaTemplate<String, Tweet> tweetKafkaTemplate,
       KafkaTemplate<String, Recognition> recognitionKafkaTemplate,
-      KafkaTemplate<String, List<TwitterUser>> userUpdatesKafkaTemplate,
-      KafkaTemplate<String, Alert> alertKafkaTemplate
-  ) {
+      KafkaTemplate<String, UserUpdate> userUpdatesKafkaTemplate,
+      KafkaTemplate<String, Alert> alertKafkaTemplate) {
     this.kafkaProuderPropertiesConfig = kafkaProuderPropertiesConfig;
     this.tweetKafkaTemplate = tweetKafkaTemplate;
     this.recognitionKafkaTemplate = recognitionKafkaTemplate;
@@ -41,8 +37,8 @@ public class KafkaProducer {
   }
 
   public void sendRecognitionToBaseBroadcast(Recognition recognition) {
-    recognitionKafkaTemplate.send(kafkaProuderPropertiesConfig.getTweetRecognitionBaseTopic(),
-        recognition);
+    recognitionKafkaTemplate.send(
+        kafkaProuderPropertiesConfig.getTweetRecognitionBaseTopic(), recognition);
   }
 
   public void sendRecognitionToLiveReleaseBroadcast(Recognition recognition) {
@@ -50,14 +46,14 @@ public class KafkaProducer {
         kafkaProuderPropertiesConfig.getTweetRecognitionLiveReleaseTopic(), recognition);
   }
 
-  public void sendUserUpdatesToBaseBroadcast(List<TwitterUser> userUpdates) {
-    userUpdatesKafkaTemplate.send(kafkaProuderPropertiesConfig.getUserUpdatesBaseTopic(),
-        userUpdates);
+  public void sendUserUpdatesToBaseBroadcast(UserUpdate userUpdate) {
+    userUpdatesKafkaTemplate.send(
+        kafkaProuderPropertiesConfig.getUserUpdatesBaseTopic(), userUpdate);
   }
 
-  public void sendUserUpdatesToLiveReleaseBroadcast(List<TwitterUser> userUpdates) {
-    userUpdatesKafkaTemplate.send(kafkaProuderPropertiesConfig.getUserUpdatesLiveReleaseTopic(),
-        userUpdates);
+  public void sendUserUpdatesToLiveReleaseBroadcast(UserUpdate userUpdate) {
+    userUpdatesKafkaTemplate.send(
+        kafkaProuderPropertiesConfig.getUserUpdatesLiveReleaseTopic(), userUpdate);
   }
 
   public void sentAlertBroadcast(Alert alert) {

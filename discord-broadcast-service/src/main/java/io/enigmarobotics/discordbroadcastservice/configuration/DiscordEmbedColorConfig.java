@@ -15,4 +15,5 @@ public class DiscordEmbedColorConfig {
   private int tweet;
   private int reply;
   private int alert;
+  private int userUpdates;
 }

@@ -7,10 +7,8 @@ import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerReposito
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.common.FollowsList;
 import io.enigmasolutions.twittermonitor.services.web.TwitterRegularClient;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +35,8 @@ public class TwitterHelperService {
   private List<String> baseTargetsIds;
 
   @Autowired
-  public TwitterHelperService(TwitterConsumerRepository twitterClientRepository,
-      TargetRepository targetRepository) {
+  public TwitterHelperService(
+      TwitterConsumerRepository twitterClientRepository, TargetRepository targetRepository) {
     this.targetRepository = targetRepository;
     this.twitterConsumerRepository = twitterClientRepository;
   }
@@ -52,17 +50,14 @@ public class TwitterHelperService {
   private void initTargets() {
     List<Target> targets = targetRepository.findAll();
 
-    baseTargetsIds = targets.stream()
-        .map(Target::getIdentifier)
-        .collect(Collectors.toList());
+    baseTargetsIds = targets.stream().map(Target::getIdentifier).collect(Collectors.toList());
   }
 
   public void initTwitterClients() {
     List<TwitterConsumer> consumers = twitterConsumerRepository.findAll();
 
-    this.twitterRegularClients = consumers.stream()
-        .map(TwitterRegularClient::new)
-        .collect(Collectors.toList());
+    this.twitterRegularClients =
+        consumers.stream().map(TwitterRegularClient::new).collect(Collectors.toList());
   }
 
   public Boolean checkBasePass(String id) {
@@ -146,26 +141,28 @@ public class TwitterHelperService {
 
   public void removeFromCache(String id, List<String> cache) {
     Timer timer = new Timer();
-    TimerTask timerTask = new TimerTask() {
-      @Override
-      public void run() {
-        cache.remove(id);
-      }
-    };
+    TimerTask timerTask =
+        new TimerTask() {
+          @Override
+          public void run() {
+            cache.remove(id);
+          }
+        };
 
     timer.schedule(timerTask, 60000);
   }
 
   public void removeFromUserInfosCache(User user) {
     Timer timer = new Timer();
-    TimerTask timerTask = new TimerTask() {
-      @Override
-      public void run() {
-        userInfosCache.remove(user);
-      }
-    };
+    TimerTask timerTask =
+        new TimerTask() {
+          @Override
+          public void run() {
+            userInfosCache.remove(user);
+          }
+        };
 
-    timer.schedule(timerTask, 15000);
+    timer.schedule(timerTask, 10000);
   }
 
   public List<String> getLiveReleaseTargetsIds() {
@@ -178,5 +175,9 @@ public class TwitterHelperService {
 
   public List<String> getBaseTargetsIds() {
     return baseTargetsIds;
+  }
+
+  public List<User> getUserInfosCache() {
+    return userInfosCache;
   }
 }

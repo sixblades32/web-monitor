@@ -21,6 +21,7 @@ discord:
       tweet: 5814783
       reply: 3460243
       alert: 16023551
+      user-updates: 13664492
 
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}

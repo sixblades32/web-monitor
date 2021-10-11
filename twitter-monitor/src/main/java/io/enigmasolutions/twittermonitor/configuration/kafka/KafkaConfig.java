@@ -1,9 +1,7 @@
 package io.enigmasolutions.twittermonitor.configuration.kafka;
 
-import io.enigmasolutions.broadcastmodels.Alert;
-import io.enigmasolutions.broadcastmodels.Recognition;
-import io.enigmasolutions.broadcastmodels.Tweet;
-import io.enigmasolutions.broadcastmodels.TwitterUser;
+import io.enigmasolutions.broadcastmodels.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,16 +24,12 @@ public class KafkaConfig {
 
   public <T> ProducerFactory<String, T> producerFactory() {
     Map<String, Object> props = new HashMap<>();
-    props.put(
-        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-        bootstrapAddress);
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
     props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
-    return new DefaultKafkaProducerFactory<>(props,
-        new StringSerializer(),
-        new JsonSerializer<>());
+    return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), new JsonSerializer<>());
   }
 
   @Bean
@@ -55,8 +49,8 @@ public class KafkaConfig {
   }
 
   @Bean
-  public KafkaTemplate<String, List<TwitterUser>> userUpdatesKafkaTemplate() {
-    KafkaTemplate<String, List<TwitterUser>> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+  public KafkaTemplate<String, UserUpdate> userUpdatesKafkaTemplate() {
+    KafkaTemplate<String, UserUpdate> kafkaTemplate = new KafkaTemplate<>(producerFactory());
     kafkaTemplate.setProducerListener(new LoggingProducerListener<>());
 
     return kafkaTemplate;
