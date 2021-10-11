@@ -39,15 +39,13 @@ public class MonitoringService {
   public Mono<MonitoringTarget> createMonitoringTarget(
       DefaultMonitoringTarget defaultMonitoringTarget) {
 
-    MonitoringTarget monitoringTarget =
+    return monitoringTargetRepository.save(
         MonitoringTarget.builder()
             .username(defaultMonitoringTarget.getUsername())
             .name(defaultMonitoringTarget.getName())
             .identifier(defaultMonitoringTarget.getIdentifier())
             .image(defaultMonitoringTarget.getImage())
-            .build();
-
-    return monitoringTargetRepository.save(monitoringTarget);
+            .build());
   }
 
   public Mono<MonitoringTarget> deleteMonitoringTarget(String userId) {
