@@ -1,5 +1,7 @@
 package io.enigmasolutions.twittermonitor.services.configuration;
 
+import io.enigmasolutions.broadcastmodels.FollowRequest;
+import io.enigmasolutions.broadcastmodels.TwitterUser;
 import io.enigmasolutions.dictionarymodels.DefaultMonitoringTarget;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
@@ -16,6 +18,7 @@ import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperServic
 import java.util.List;
 
 import io.enigmasolutions.twittermonitor.services.web.DictionaryClient;
+import io.enigmasolutions.twittermonitor.services.web.DiscordBroadcastClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MonitorConfigurationService {
 
+  private final DiscordBroadcastClient discordBroadcastClient;
   private final TwitterHelperService twitterHelperService;
   private final TwitterConsumerRepository twitterConsumerRepository;
   private final TwitterScraperRepository twitterScraperRepository;
@@ -35,13 +39,15 @@ public class MonitorConfigurationService {
       TwitterConsumerRepository twitterConsumerRepository,
       TwitterScraperRepository twitterScraperRepository,
       TargetRepository targetRepository,
-      DictionaryClient dictionaryClient) {
+      DictionaryClient dictionaryClient,
+      DiscordBroadcastClient discordBroadcastClient) {
 
     this.twitterHelperService = twitterHelperService;
     this.twitterConsumerRepository = twitterConsumerRepository;
     this.twitterScraperRepository = twitterScraperRepository;
     this.targetRepository = targetRepository;
     this.dictionaryClient = dictionaryClient;
+    this.discordBroadcastClient = discordBroadcastClient;
   }
 
   public void createConsumer(TwitterConsumer consumer) {
@@ -173,5 +179,32 @@ public class MonitorConfigurationService {
 
     twitterHelperService.getLiveReleaseTargetsIds().remove(user.getId());
     twitterHelperService.getLiveReleaseTargetsScreenNames().remove(user.getScreenName());
+  }
+
+  public void createFollowRequest(FollowRequest followRequest) {
+
+    User user = null;
+
+    try{
+      user = twitterHelperService.retrieveUser(followRequest.getTwitterUser().getLogin());
+    }catch (Exception e){
+      throw new NoTwitterUserMatchesException();
+    }
+
+    if (twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+      throw new TargetAlreadyAddedException();
+    }
+
+    TwitterUser twitterUser =
+        TwitterUser.builder()
+            .id(user.getId())
+            .login(user.getScreenName())
+            .name(user.getName())
+            .url(user.getUserUrl())
+            .build();
+
+    followRequest.setTwitterUser(twitterUser);
+
+    discordBroadcastClient.createFollowRequest(followRequest);
   }
 }

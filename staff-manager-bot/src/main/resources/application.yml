@@ -3,10 +3,21 @@ server:
 
 discord:
   token: ${DISCORD_BOT_TOKEN}
+  color:
+    valid: 3460243
+    invalid: 14884125
+    base: 8422380
+  prefix: .
+  command: .tmonitor
 
 dictionary-service:
   url: ${DICTIONARY_SERVICE_URL}
 
+twitter-monitor:
+  url: ${TWITTER_MONITOR_URL}
+  user:
+    name: ${MONITOR_USER_NAME}
+    password: ${MONITOR_USER_PASSWORD}
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
   producer:

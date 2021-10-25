@@ -27,6 +27,9 @@ kafka:
 dictionary-service:
   url: http://localhost:8015/api/dictionary
 
+discord-broadcast-service:
+  url: http://localhost:8045
+
 aws:
   rekognition:
     access-key: AKIAZCHZYD2SJULQYADP

@@ -1,11 +1,13 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
+import io.enigmasolutions.broadcastmodels.FollowRequest;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.services.configuration.MonitorConfigurationService;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -96,5 +98,8 @@ public class MonitorConfigurationController {
     monitorConfigurationService.deleteTemporaryTarget(body);
   }
 
-
+  @PostMapping("/request")
+  public void createRequest(@RequestBody FollowRequest followRequest) {
+    monitorConfigurationService.createFollowRequest(followRequest);
+  }
 }

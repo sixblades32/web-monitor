@@ -1,11 +1,13 @@
 package io.enigmasolutions.staffmanager.services.web;
 
 import io.enigmasolutions.dictionarymodels.CustomerDiscordGuild;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 public class DictionaryClient {
@@ -26,5 +28,15 @@ public class DictionaryClient {
         .bodyToMono(new ParameterizedTypeReference<List<CustomerDiscordGuild>>() {
         })
         .block();
+  }
+
+  public String changeChannelId(String guildId, String channelId){
+    return webClient
+            .put()
+            .uri(uriBuilder -> uriBuilder.path("/customers/guilds/" + guildId).build())
+            .body(Mono.just(channelId), String.class)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block();
   }
 }

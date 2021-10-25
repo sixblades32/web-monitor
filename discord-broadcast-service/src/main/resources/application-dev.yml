@@ -3,8 +3,9 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017
       database: discord-broadcast-service
-  main:
-    web-application-type: none
+
+server:
+  port: 8045
 
 alert:
   discord:

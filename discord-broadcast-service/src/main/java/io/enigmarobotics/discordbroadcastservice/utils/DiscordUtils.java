@@ -565,6 +565,36 @@ public class DiscordUtils {
         .build();
   }
 
+  public static Embed generateFollowRequestEmbed(FollowRequest followRequest) {
+
+    String title = "FOLLOW REQUEST FROM - " + "`" + followRequest.getGuildName() + "`";
+
+    List<Field> fields = new LinkedList<>();
+
+    Field userNameField =
+        Field.builder()
+            .inline(true)
+            .name("Twitter Username: ")
+            .value(
+                "["
+                    + followRequest.getTwitterUser().getLogin()
+                    + "]("
+                    + followRequest.getTwitterUser().getUrl()
+                    + ")")
+            .build();
+    Field userIdField =
+        Field.builder()
+            .inline(true)
+            .name("Twitter User ID: ")
+            .value(followRequest.getTwitterUser().getId())
+            .build();
+
+    fields.add(userNameField);
+    fields.add(userIdField);
+
+    return Embed.builder().title(title).fields(fields).color(13664492).build();
+  }
+
   public static DiscordBroadcastUserUpdateType convertUserUpdateType(UserUpdateType value) {
     return DiscordBroadcastUserUpdateType.values()[value.ordinal()];
   }
