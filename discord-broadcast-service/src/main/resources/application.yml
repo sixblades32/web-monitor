@@ -15,6 +15,8 @@ alert:
     url: ${ALERT_DISCORD_URL}
 
 discord:
+  role:
+    monitor-team: 901167071793135697
   embed:
     color:
       retweet: 15922277

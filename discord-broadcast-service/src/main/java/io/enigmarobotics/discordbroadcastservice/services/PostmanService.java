@@ -32,6 +32,8 @@ public class PostmanService {
 
   @Value("${alert.discord.url}")
   private String alertDiscordUrl;
+  @Value("${discord.role.monitor-team}")
+  private Long monitorTeamRoleId;
 
   @Autowired
   public PostmanService(
@@ -151,10 +153,11 @@ public class PostmanService {
   }
 
   public void sendFollowRequestEmbed(FollowRequest followRequest) {
-    Embed embed = DiscordUtils.generateFollowRequestEmbed(followRequest);
+    Embed embed =
+        DiscordUtils.generateFollowRequestEmbed(followRequest, discordEmbedColorConfig.getAlert());
 
     Message message =
-        Message.builder().content("<@&901167071793135697>").embeds(Collections.singletonList(embed)).build();
+        Message.builder().content("<@&" + monitorTeamRoleId + ">").embeds(Collections.singletonList(embed)).build();
 
     discordClient.sendEmbed(alertDiscordUrl, message);
   }

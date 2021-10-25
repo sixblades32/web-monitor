@@ -565,7 +565,7 @@ public class DiscordUtils {
         .build();
   }
 
-  public static Embed generateFollowRequestEmbed(FollowRequest followRequest) {
+  public static Embed generateFollowRequestEmbed(FollowRequest followRequest, int embedColor) {
 
     String title = "FOLLOW REQUEST FROM - " + "`" + followRequest.getGuildName() + "`";
 
@@ -592,7 +592,7 @@ public class DiscordUtils {
     fields.add(userNameField);
     fields.add(userIdField);
 
-    return Embed.builder().title(title).fields(fields).color(13664492).build();
+    return Embed.builder().title(title).fields(fields).color(embedColor).build();
   }
 
   public static DiscordBroadcastUserUpdateType convertUserUpdateType(UserUpdateType value) {

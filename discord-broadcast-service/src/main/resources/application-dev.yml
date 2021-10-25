@@ -12,6 +12,8 @@ alert:
     url: https://discord.com/api/webhooks/830449746653085707/na-oTYH5X5wL8WABdJO4uHUsD8y4jTnIj8xvBiH3x9xfmtzVq8yXY_6NjqoIWJLITIrR
 
 discord:
+  role:
+    monitor-team: 901167071793135697
   embed:
     color:
       retweet: 15922277
