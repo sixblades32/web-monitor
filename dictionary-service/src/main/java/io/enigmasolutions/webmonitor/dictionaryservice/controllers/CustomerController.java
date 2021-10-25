@@ -44,8 +44,8 @@ public class CustomerController {
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
 
-  @PutMapping("/guilds/{guildId}")
-  public void changeChannelId(@PathVariable String guildId, @RequestBody String channelId){
-    customerService.changeDiscordGuildsChannelId(guildId, channelId);
+  @PutMapping("/guilds/{guildId}/channels/{channelId}")
+  public Mono<Customer> changeChannelId(@PathVariable String guildId, @PathVariable String channelId){
+    return customerService.changeDiscordGuildsChannelId(guildId, channelId);
   }
 }

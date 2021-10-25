@@ -23,12 +23,10 @@ kafka:
     user-updates-base-topic: twitter-user-updates-broadcast-base
     user-updates-live-release-topic: twitter-user-updates-broadcast-live-release
     twitter-monitor-alert-topic: twitter-monitor-alert-broadcast
+    twitter-monitor-follow-request-topic: twitter-monitor-follow-request-broadcast
 
 dictionary-service:
   url: ${DICTIONARY_SERVICE_URL}
-
-discord-broadcast-service:
-  url: ${DISCORD_BROADCAST_SERVICE_URL}
 
 aws:
   rekognition:

@@ -100,14 +100,13 @@ public class CustomerService {
         .collect(Collectors.toList());
   }
 
-  public void changeDiscordGuildsChannelId(String guildId, String channelId) {
-    customerRepository
+  public Mono<Customer> changeDiscordGuildsChannelId(String guildId, String channelId) {
+    return customerRepository
         .findCustomerByDiscordGuild_GuildId(guildId)
-        .map(
+        .flatMap(
             customer -> {
               customer.getDiscordGuild().setChannelId(channelId);
-              return customer;
-            })
-        .subscribe(customer -> customerRepository.save(customer).block());
+              return customerRepository.save(customer);
+            });
   }
 }

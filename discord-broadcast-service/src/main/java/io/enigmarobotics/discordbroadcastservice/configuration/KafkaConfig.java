@@ -32,6 +32,9 @@ public class KafkaConfig {
   @Value(value = "${kafka.alert-consumer.group-id}")
   private String discordBroadcastAlertGroupId;
 
+  @Value(value = "${kafka.alert-consumer.group-id}")
+  private String discordBroadcastFollowRequestGroupId;
+
   @Bean
   public ConsumerFactory<String, Tweet> tweetConsumerFactory() {
 
@@ -110,6 +113,26 @@ public class KafkaConfig {
     ConcurrentKafkaListenerContainerFactory<String, UserUpdate> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(userUpdatesConsumerFactory());
+
+    return factory;
+  }
+
+  @Bean
+  public ConsumerFactory<String, FollowRequest> followRequestConsumerFactory() {
+
+    Map<String, Object> props = generateProps(discordBroadcastFollowRequestGroupId);
+
+    return new DefaultKafkaConsumerFactory<>(
+            props, new StringDeserializer(), new JsonDeserializer<>(FollowRequest.class, false));
+  }
+
+  @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, FollowRequest>
+  followRequestKafkaListenerContainerFactory() {
+
+    ConcurrentKafkaListenerContainerFactory<String, FollowRequest> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
+    factory.setConsumerFactory(followRequestConsumerFactory());
 
     return factory;
   }

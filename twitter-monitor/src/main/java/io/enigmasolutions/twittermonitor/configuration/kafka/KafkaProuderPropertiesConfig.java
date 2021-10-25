@@ -18,4 +18,5 @@ public class KafkaProuderPropertiesConfig {
   private String userUpdatesBaseTopic;
   private String userUpdatesLiveReleaseTopic;
   private String twitterMonitorAlertTopic;
+  private String twitterMonitorFollowRequestTopic;
 }

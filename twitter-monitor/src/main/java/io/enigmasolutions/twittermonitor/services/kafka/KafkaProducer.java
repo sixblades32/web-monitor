@@ -14,18 +14,21 @@ public class KafkaProducer {
   private final KafkaTemplate<String, Recognition> recognitionKafkaTemplate;
   private final KafkaTemplate<String, UserUpdate> userUpdatesKafkaTemplate;
   private final KafkaTemplate<String, Alert> alertKafkaTemplate;
+  private final KafkaTemplate<String, FollowRequest> followRequestKafkaTemplate;
 
   public KafkaProducer(
       KafkaProuderPropertiesConfig kafkaProuderPropertiesConfig,
       KafkaTemplate<String, Tweet> tweetKafkaTemplate,
       KafkaTemplate<String, Recognition> recognitionKafkaTemplate,
       KafkaTemplate<String, UserUpdate> userUpdatesKafkaTemplate,
-      KafkaTemplate<String, Alert> alertKafkaTemplate) {
+      KafkaTemplate<String, Alert> alertKafkaTemplate,
+      KafkaTemplate<String, FollowRequest> followRequestKafkaTemplate) {
     this.kafkaProuderPropertiesConfig = kafkaProuderPropertiesConfig;
     this.tweetKafkaTemplate = tweetKafkaTemplate;
     this.recognitionKafkaTemplate = recognitionKafkaTemplate;
     this.userUpdatesKafkaTemplate = userUpdatesKafkaTemplate;
     this.alertKafkaTemplate = alertKafkaTemplate;
+    this.followRequestKafkaTemplate = followRequestKafkaTemplate;
   }
 
   public void sendTweetToBaseBroadcast(Tweet tweet) {
@@ -56,7 +59,11 @@ public class KafkaProducer {
         kafkaProuderPropertiesConfig.getUserUpdatesLiveReleaseTopic(), userUpdate);
   }
 
-  public void sentAlertBroadcast(Alert alert) {
+  public void sendAlertBroadcast(Alert alert) {
     alertKafkaTemplate.send(kafkaProuderPropertiesConfig.getTwitterMonitorAlertTopic(), alert);
+  }
+
+  public void sendFollowRequestBroadcast(FollowRequest followRequest) {
+    followRequestKafkaTemplate.send(kafkaProuderPropertiesConfig.getTwitterMonitorFollowRequestTopic(), followRequest);
   }
 }

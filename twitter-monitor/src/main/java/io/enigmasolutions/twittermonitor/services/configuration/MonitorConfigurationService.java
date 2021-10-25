@@ -14,11 +14,11 @@ import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesExceptio
 import io.enigmasolutions.twittermonitor.exceptions.TargetAlreadyAddedException;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
+import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
 import java.util.List;
 
 import io.enigmasolutions.twittermonitor.services.web.DictionaryClient;
-import io.enigmasolutions.twittermonitor.services.web.DiscordBroadcastClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,12 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MonitorConfigurationService {
 
-  private final DiscordBroadcastClient discordBroadcastClient;
   private final TwitterHelperService twitterHelperService;
   private final TwitterConsumerRepository twitterConsumerRepository;
   private final TwitterScraperRepository twitterScraperRepository;
   private final TargetRepository targetRepository;
   private final DictionaryClient dictionaryClient;
+  private final KafkaProducer kafkaProducer;
 
   @Autowired
   public MonitorConfigurationService(
@@ -40,14 +40,14 @@ public class MonitorConfigurationService {
       TwitterScraperRepository twitterScraperRepository,
       TargetRepository targetRepository,
       DictionaryClient dictionaryClient,
-      DiscordBroadcastClient discordBroadcastClient) {
+      KafkaProducer kafkaProducer) {
 
     this.twitterHelperService = twitterHelperService;
     this.twitterConsumerRepository = twitterConsumerRepository;
     this.twitterScraperRepository = twitterScraperRepository;
     this.targetRepository = targetRepository;
     this.dictionaryClient = dictionaryClient;
-    this.discordBroadcastClient = discordBroadcastClient;
+    this.kafkaProducer = kafkaProducer;
   }
 
   public void createConsumer(TwitterConsumer consumer) {
@@ -205,6 +205,6 @@ public class MonitorConfigurationService {
 
     followRequest.setTwitterUser(twitterUser);
 
-    discordBroadcastClient.createFollowRequest(followRequest);
+    kafkaProducer.sendFollowRequestBroadcast(followRequest);
   }
 }
