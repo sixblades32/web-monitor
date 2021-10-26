@@ -199,16 +199,16 @@ pipelines:
                 CLUSTER_NAME: 'web-monitor'
                 SERVICE_NAME: 'details-service'
                 FORCE_NEW_DEPLOYMENT: 'true'
-    staff-manager:
+    staff-manager-bot:
       - step:
-          name: Build Staff Manager
+          name: Build Staff Manager Bot
           image: gradle:7.1-jdk11
           caches:
             - gradle
           script:
-            - gradle clean build -p staff-manager
+            - gradle clean build -p staff-manager-bot
           artifacts:
-            - staff-manager/build/libs/*
+            - staff-manager-bot/build/libs/*
       - step:
           name: Push Docker Image
           image: atlassian/pipelines-awscli
@@ -217,7 +217,7 @@ pipelines:
           caches:
             - docker
           script:
-            - cd staff-manager
+            - cd staff-manager-bot
             - echo $(ls build/libs)
             # Login to docker registry on AWS
             - eval $(aws ecr get-login --no-include-email)
