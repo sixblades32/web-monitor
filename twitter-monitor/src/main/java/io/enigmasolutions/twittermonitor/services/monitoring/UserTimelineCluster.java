@@ -40,7 +40,8 @@ public class UserTimelineCluster {
   List<RestTemplateProxy> userTimelineProxies = new ArrayList<>();
   List<RestTemplateProxy> proxiesInUse = new ArrayList<>();
 
-  public UserTimelineCluster(TwitterScraperRepository twitterScraperRepository,
+  public UserTimelineCluster(
+      TwitterScraperRepository twitterScraperRepository,
       TargetRepository targetRepository,
       TwitterHelperService twitterHelperService,
       KafkaProducer kafkaProducer,
@@ -58,30 +59,42 @@ public class UserTimelineCluster {
     try {
       List<Target> targets = getTargets();
 
-      if (userTimelineProxies.size() - proxiesInUse.size() < targets.size()) {
-        log.info("Only {} out of {} targets will be loaded, cause not enough number of available proxies",
-            userTimelineProxies.size() - proxiesInUse.size(), targets.size());
+      int availableProxiesNumber = userTimelineProxies.size() - proxiesInUse.size();
+
+      if (availableProxiesNumber <= 0) {
+        throw new NoAvailableProxyException();
+      }
+
+      if (availableProxiesNumber < targets.size()) {
+        log.info(
+            "Only {} out of {} targets will be loaded, cause not enough number of available proxies",
+            availableProxiesNumber,
+            targets.size());
         targets = targets.subList(0, userTimelineProxies.size() - proxiesInUse.size());
       }
 
-      targets.forEach(target -> {
-        User user = new User();
-        user.setScreenName(target.getUsername());
-        user.setId(target.getIdentifier());
+      targets.forEach(
+          target -> {
+            User user = new User();
+            user.setScreenName(target.getUsername());
+            user.setId(target.getIdentifier());
 
-        RestTemplateProxy proxy = getAvailableProxy();
+            RestTemplateProxy proxy = getAvailableProxy();
 
-        UserTimelineMonitor userTimelineMonitor = new UserTimelineMonitor(twitterScraperRepository,
-            twitterHelperService,
-            kafkaProducer,
-            plainTextRecognitionProcessors,
-            imageRecognitionProcessors, user, proxy);
+            UserTimelineMonitor userTimelineMonitor =
+                new UserTimelineMonitor(
+                    twitterScraperRepository,
+                    twitterHelperService,
+                    kafkaProducer,
+                    plainTextRecognitionProcessors,
+                    imageRecognitionProcessors,
+                    user,
+                    proxy);
 
-        userTimelineMonitors.add(userTimelineMonitor);
+            userTimelineMonitors.add(userTimelineMonitor);
 
-        userTimelineMonitor.start();
-      });
-
+            userTimelineMonitor.start();
+          });
 
     } catch (HttpClientErrorException e) {
 
@@ -93,17 +106,23 @@ public class UserTimelineCluster {
     }
   }
 
-  public void start(String screenName){
+  public void start(String screenName) {
     User user = twitterHelperService.retrieveUser(screenName);
     RestTemplateProxy proxy = getAvailableProxy();
 
-    if (Objects.isNull(proxy)) throw new NoAvailableProxyException();
+    if (Objects.isNull(proxy)) {
+      throw new NoAvailableProxyException();
+    }
 
-    UserTimelineMonitor userTimelineMonitor = new UserTimelineMonitor(twitterScraperRepository,
+    UserTimelineMonitor userTimelineMonitor =
+        new UserTimelineMonitor(
+            twitterScraperRepository,
             twitterHelperService,
             kafkaProducer,
             plainTextRecognitionProcessors,
-            imageRecognitionProcessors, user, proxy);
+            imageRecognitionProcessors,
+            user,
+            proxy);
 
     userTimelineMonitors.add(userTimelineMonitor);
 
@@ -111,26 +130,34 @@ public class UserTimelineCluster {
   }
 
   public void stop() {
-    userTimelineMonitors.forEach(monitor -> {
-      monitor.stop();
-      proxiesInUse.remove(monitor.getProxy());
-    });
+    userTimelineMonitors.forEach(
+        monitor -> {
+          monitor.stop();
+          proxiesInUse.remove(monitor.getProxy());
+        });
 
     userTimelineMonitors.clear();
   }
 
-  public void stop(String screenName){
-    Optional<UserTimelineMonitor> monitor = userTimelineMonitors.stream().filter(userTimelineMonitor -> userTimelineMonitor.getUser().getScreenName().equalsIgnoreCase(screenName)).findFirst();
+  public void stop(String screenName) {
+    Optional<UserTimelineMonitor> monitor =
+        userTimelineMonitors.stream()
+            .filter(
+                userTimelineMonitor ->
+                    userTimelineMonitor.getUser().getScreenName().equalsIgnoreCase(screenName))
+            .findFirst();
 
-    monitor.ifPresent(presentMonitor -> {
-      presentMonitor.stop();
-      proxiesInUse.remove(presentMonitor.getProxy());
-      userTimelineMonitors.remove(presentMonitor);
-    });
+    monitor.ifPresent(
+        presentMonitor -> {
+          presentMonitor.stop();
+          proxiesInUse.remove(presentMonitor.getProxy());
+          userTimelineMonitors.remove(presentMonitor);
+        });
   }
 
   public List<MonitorStatus> getMonitorStatus() {
-    return userTimelineMonitors.stream().map(UserTimelineMonitor::getMonitorStatus)
+    return userTimelineMonitors.stream()
+        .map(UserTimelineMonitor::getMonitorStatus)
         .collect(Collectors.toList());
   }
 
@@ -141,7 +168,9 @@ public class UserTimelineCluster {
   public void restoreFailedClient(UserTimelineClusterRestoreBody userTimelineClusterRestoreBody) {
 
     for (UserTimelineMonitor userTimelineMonitor : userTimelineMonitors) {
-      if (userTimelineMonitor.getUser().getScreenName()
+      if (userTimelineMonitor
+          .getUser()
+          .getScreenName()
           .equals(userTimelineClusterRestoreBody.getScreenName())) {
         userTimelineMonitor.restoreFailedClient(
             new TwitterCustomClient(userTimelineClusterRestoreBody.getTwitterScraper()));
@@ -152,8 +181,8 @@ public class UserTimelineCluster {
   public RestTemplateProxy getAvailableProxy() {
     RestTemplateProxy availableProxy = null;
     if (!userTimelineProxies.isEmpty()) {
-      List<RestTemplateProxy> availableProxies = userTimelineProxies
-              .stream()
+      List<RestTemplateProxy> availableProxies =
+          userTimelineProxies.stream()
               .filter(proxy -> !proxiesInUse.contains(proxy))
               .collect(Collectors.toList());
       if (!availableProxies.isEmpty()) {
@@ -166,7 +195,7 @@ public class UserTimelineCluster {
   }
 
   @PostConstruct
-  public void setUserTimelineProxies(){
+  public void setUserTimelineProxies() {
     userTimelineProxies = twitterHelperService.getProxyPull();
   }
 }
