@@ -1,6 +1,6 @@
 #!/bin/sh
 
-gradle clean build -p web-monitor/staff-manager
+gradle clean build -p web-monitor/staff-manager-bot
 
 export DISCORD_BOT_TOKEN=
 export DICTIONARY_SERVICE_URL=http://localhost:8015/api/dictionary
