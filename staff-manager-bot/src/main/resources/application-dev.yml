@@ -1,0 +1,26 @@
+server:
+  port: 8025
+
+discord:
+  color:
+    valid: 3460243
+    invalid: 14884125
+    base: 8422380
+  token: NzY0NTQ0MzY2MDY0MzA0MTQ5.X4HzbQ.23NoCYQ2Wc5PwzgCD-RcJ6utRZo
+  prefix: .
+  command: .tmonitor
+
+dictionary-service:
+  url: http://localhost:8015/api/dictionary
+
+twitter-monitor:
+  url: http://localhost:8030/twitter-monitor
+  user:
+    name: admin
+    password: password
+
+kafka:
+  bootstrap-servers: localhost:9092
+  producer:
+    twitter-staff-broadcast: twitter-staff-broadcast
+    header: Customer-Id

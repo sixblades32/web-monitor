@@ -63,4 +63,12 @@ public class KafkaConfig {
 
     return kafkaTemplate;
   }
+
+  @Bean
+  public KafkaTemplate<String, FollowRequest> followRequestKafkaTemplate() {
+    KafkaTemplate<String, FollowRequest> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+    kafkaTemplate.setProducerListener(new LoggingProducerListener<>());
+
+    return kafkaTemplate;
+  }
 }

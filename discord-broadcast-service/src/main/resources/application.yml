@@ -15,6 +15,8 @@ alert:
     url: ${ALERT_DISCORD_URL}
 
 discord:
+  role:
+    monitor-team: 901167071793135697
   embed:
     color:
       retweet: 15922277
@@ -46,4 +48,7 @@ kafka:
   user-updates-consumer-live-release:
     group-id: discord-broadcast-user-updates-live-release-group
     topic: twitter-user-updates-broadcast-live-release
+  follow-request-consumer:
+    group-id: discord-broadcast-follow-request-group
+    topic: twitter-monitor-follow-request-broadcast
 

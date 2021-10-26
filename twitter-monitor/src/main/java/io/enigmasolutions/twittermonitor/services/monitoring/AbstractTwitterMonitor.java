@@ -249,7 +249,7 @@ public abstract class AbstractTwitterMonitor {
             .reason(exception.getMessage())
             .build();
 
-        kafkaProducer.sentAlertBroadcast(alert);
+        kafkaProducer.sendAlertBroadcast(alert);
     }
 
     private void runMonitor() {

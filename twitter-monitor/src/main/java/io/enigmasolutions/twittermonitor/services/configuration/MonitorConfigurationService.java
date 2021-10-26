@@ -1,5 +1,7 @@
 package io.enigmasolutions.twittermonitor.services.configuration;
 
+import io.enigmasolutions.broadcastmodels.FollowRequest;
+import io.enigmasolutions.broadcastmodels.TwitterUser;
 import io.enigmasolutions.dictionarymodels.DefaultMonitoringTarget;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
@@ -12,6 +14,7 @@ import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesExceptio
 import io.enigmasolutions.twittermonitor.exceptions.TargetAlreadyAddedException;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
+import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
 import java.util.List;
 
@@ -28,6 +31,7 @@ public class MonitorConfigurationService {
   private final TwitterScraperRepository twitterScraperRepository;
   private final TargetRepository targetRepository;
   private final DictionaryClient dictionaryClient;
+  private final KafkaProducer kafkaProducer;
 
   @Autowired
   public MonitorConfigurationService(
@@ -35,13 +39,15 @@ public class MonitorConfigurationService {
       TwitterConsumerRepository twitterConsumerRepository,
       TwitterScraperRepository twitterScraperRepository,
       TargetRepository targetRepository,
-      DictionaryClient dictionaryClient) {
+      DictionaryClient dictionaryClient,
+      KafkaProducer kafkaProducer) {
 
     this.twitterHelperService = twitterHelperService;
     this.twitterConsumerRepository = twitterConsumerRepository;
     this.twitterScraperRepository = twitterScraperRepository;
     this.targetRepository = targetRepository;
     this.dictionaryClient = dictionaryClient;
+    this.kafkaProducer = kafkaProducer;
   }
 
   public void createConsumer(TwitterConsumer consumer) {
@@ -173,5 +179,32 @@ public class MonitorConfigurationService {
 
     twitterHelperService.getLiveReleaseTargetsIds().remove(user.getId());
     twitterHelperService.getLiveReleaseTargetsScreenNames().remove(user.getScreenName());
+  }
+
+  public void createFollowRequest(FollowRequest followRequest) {
+
+    User user = null;
+
+    try{
+      user = twitterHelperService.retrieveUser(followRequest.getTwitterUser().getLogin());
+    }catch (Exception e){
+      throw new NoTwitterUserMatchesException();
+    }
+
+    if (twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+      throw new TargetAlreadyAddedException();
+    }
+
+    TwitterUser twitterUser =
+        TwitterUser.builder()
+            .id(user.getId())
+            .login(user.getScreenName())
+            .name(user.getName())
+            .url(user.getUserUrl())
+            .build();
+
+    followRequest.setTwitterUser(twitterUser);
+
+    kafkaProducer.sendFollowRequestBroadcast(followRequest);
   }
 }
