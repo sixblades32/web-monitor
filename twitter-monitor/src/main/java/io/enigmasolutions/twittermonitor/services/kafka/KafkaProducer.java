@@ -1,11 +1,16 @@
 package io.enigmasolutions.twittermonitor.services.kafka;
 
-import io.enigmasolutions.broadcastmodels.*;
+import io.enigmasolutions.broadcastmodels.Alert;
+import io.enigmasolutions.broadcastmodels.FollowRequest;
+import io.enigmasolutions.broadcastmodels.Recognition;
+import io.enigmasolutions.broadcastmodels.Tweet;
+import io.enigmasolutions.broadcastmodels.UserUpdate;
 import io.enigmasolutions.twittermonitor.configuration.kafka.KafkaProuderPropertiesConfig;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class KafkaProducer {
 
@@ -64,6 +69,9 @@ public class KafkaProducer {
   }
 
   public void sendFollowRequestBroadcast(FollowRequest followRequest) {
-    followRequestKafkaTemplate.send(kafkaProuderPropertiesConfig.getTwitterMonitorFollowRequestTopic(), followRequest);
+    log.info(followRequest.toString());
+    log.info(kafkaProuderPropertiesConfig.getTwitterMonitorFollowRequestTopic());
+    followRequestKafkaTemplate.send(
+        kafkaProuderPropertiesConfig.getTwitterMonitorFollowRequestTopic(), followRequest);
   }
 }
