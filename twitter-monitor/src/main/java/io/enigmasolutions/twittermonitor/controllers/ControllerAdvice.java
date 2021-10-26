@@ -1,9 +1,6 @@
 package io.enigmasolutions.twittermonitor.controllers;
 
-import io.enigmasolutions.twittermonitor.exceptions.MonitorRunningException;
-import io.enigmasolutions.twittermonitor.exceptions.NoTargetMatchesException;
-import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
-import io.enigmasolutions.twittermonitor.exceptions.TargetAlreadyAddedException;
+import io.enigmasolutions.twittermonitor.exceptions.*;
 import io.enigmasolutions.twittermonitor.models.external.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,5 +37,13 @@ public class ControllerAdvice {
     ErrorResponse response = new ErrorResponse(e.getMessage());
 
     return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler(NoAvailableProxyException.class)
+  public ResponseEntity<ErrorResponse> handleNoAvailableProxyException(
+          NoAvailableProxyException e) {
+    ErrorResponse response = new ErrorResponse(e.getMessage());
+
+    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
   }
 }

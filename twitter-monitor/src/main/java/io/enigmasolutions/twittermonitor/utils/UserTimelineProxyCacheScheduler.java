@@ -1,6 +1,7 @@
 package io.enigmasolutions.twittermonitor.utils;
 
 import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
+import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
 import io.enigmasolutions.twittermonitor.services.monitoring.UserTimelineCluster;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -11,15 +12,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserTimelineProxyCacheScheduler {
 
-  private final UserTimelineCluster userTimelineCluster;
+  private final TwitterHelperService twitterHelperService;
 
-  public UserTimelineProxyCacheScheduler(UserTimelineCluster userTimelineCluster) {
-    this.userTimelineCluster = userTimelineCluster;
+  public UserTimelineProxyCacheScheduler(TwitterHelperService twitterHelperService) {
+    this.twitterHelperService = twitterHelperService;
   }
 
   @Scheduled(fixedRate = 15000)
   public void scheduleCacheUpdate() {
-    List<RestTemplateProxy> customerDiscordBroadcastConfigs = userTimelineCluster.updateProxyPull();
+    List<RestTemplateProxy> customerDiscordBroadcastConfigs = twitterHelperService.updateProxyPull();
 
     log.info(
         "Received {} UserTimelineProxy objects while updating proxies cache",

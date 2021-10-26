@@ -1,7 +1,9 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
+import io.enigmasolutions.twittermonitor.db.repositories.RestTemplateProxyRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
@@ -13,6 +15,8 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -30,15 +34,17 @@ public class TwitterHelperService {
 
   private final TwitterConsumerRepository twitterConsumerRepository;
   private final TargetRepository targetRepository;
+  private final RestTemplateProxyRepository restTemplateProxyRepository;
 
   private List<TwitterRegularClient> twitterRegularClients;
   private List<String> baseTargetsIds;
 
   @Autowired
   public TwitterHelperService(
-      TwitterConsumerRepository twitterClientRepository, TargetRepository targetRepository) {
+      TwitterConsumerRepository twitterClientRepository, TargetRepository targetRepository, RestTemplateProxyRepository restTemplateProxyRepository) {
     this.targetRepository = targetRepository;
     this.twitterConsumerRepository = twitterClientRepository;
+    this.restTemplateProxyRepository = restTemplateProxyRepository;
   }
 
   @PostConstruct
@@ -175,6 +181,16 @@ public class TwitterHelperService {
 
   public List<String> getBaseTargetsIds() {
     return baseTargetsIds;
+  }
+
+  @Cacheable(value = "proxies")
+  public List<RestTemplateProxy> getProxyPull() {
+    return restTemplateProxyRepository.findAll();
+  }
+
+  @CachePut(value = "proxies")
+  public List<RestTemplateProxy> updateProxyPull() {
+    return getProxyPull();
   }
 
   public List<User> getUserInfosCache() {
