@@ -69,8 +69,6 @@ public class KafkaProducer {
   }
 
   public void sendFollowRequestBroadcast(FollowRequest followRequest) {
-    log.info(followRequest.toString());
-    log.info(kafkaProuderPropertiesConfig.getTwitterMonitorFollowRequestTopic());
     followRequestKafkaTemplate.send(
         kafkaProuderPropertiesConfig.getTwitterMonitorFollowRequestTopic(), followRequest);
   }

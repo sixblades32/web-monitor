@@ -65,10 +65,10 @@ public class RequestCommand extends DiscordCommand {
               .build();
 
       try {
-        log.info(followRequest.toString());
         twitterMonitorClient.createFollowRequest(followRequest);
       } catch (HttpClientErrorException exception) {
         log.error(exception.getMessage());
+
         if (exception.getStatusCode() == HttpStatus.NOT_FOUND) {
           return sendEmbed(
               event,
