@@ -7,6 +7,7 @@ import io.enigmasolutions.broadcastmodels.FollowRequest;
 import io.enigmasolutions.broadcastmodels.TwitterUser;
 import io.enigmasolutions.staffmanagerbot.services.discord.EmbedGenerator;
 import io.enigmasolutions.staffmanagerbot.services.web.TwitterMonitorClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -14,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.util.List;
 
 @Component
+@Slf4j
 public class RequestCommand extends DiscordCommand {
 
   private final TwitterMonitorClient twitterMonitorClient;
@@ -63,8 +65,10 @@ public class RequestCommand extends DiscordCommand {
               .build();
 
       try {
+        log.info(followRequest.toString());
         twitterMonitorClient.createFollowRequest(followRequest);
       } catch (HttpClientErrorException exception) {
+        log.error(exception.getMessage());
         if (exception.getStatusCode() == HttpStatus.NOT_FOUND) {
           return sendEmbed(
               event,
