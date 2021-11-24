@@ -6,36 +6,41 @@ import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.services.monitoring.GraphQLUserTimelineMonitor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/graphql-user-timeline")
 public class GraphQLUserTimelineMonitorController {
 
-    private final GraphQLUserTimelineMonitor graphQLUserTimelineMonitor;
+  private final GraphQLUserTimelineMonitor graphQLUserTimelineMonitor;
 
-    @Autowired
-    public GraphQLUserTimelineMonitorController(GraphQLUserTimelineMonitor graphQLUserTimelineMonitor) {
-        this.graphQLUserTimelineMonitor = graphQLUserTimelineMonitor;
-    }
+  @Autowired
+  public GraphQLUserTimelineMonitorController(
+      GraphQLUserTimelineMonitor graphQLUserTimelineMonitor) {
+    this.graphQLUserTimelineMonitor = graphQLUserTimelineMonitor;
+  }
 
-    @PostMapping("/start")
-    public void start(@RequestBody UserStartForm user) {
-        graphQLUserTimelineMonitor.start(user.getScreenName());
-    }
+  @PostMapping("/start")
+  public void start(@RequestBody UserStartForm user) {
+    graphQLUserTimelineMonitor.start(user.getScreenName());
+  }
 
-    @PostMapping("/stop")
-    public void stop() {
-        graphQLUserTimelineMonitor.stop();
-    }
+  @PostMapping("/stop")
+  public void stop() {
+    graphQLUserTimelineMonitor.stop();
+  }
 
-    @GetMapping("/status")
-    public MonitorStatus status() {
-        return graphQLUserTimelineMonitor.getMonitorStatus();
-    }
+  @GetMapping("/status")
+  public MonitorStatus status() {
+    return graphQLUserTimelineMonitor.getMonitorStatus();
+  }
 
-    @PostMapping("/restore")
-    public void restore(@RequestBody TwitterScraper twitterScraper) {
-        graphQLUserTimelineMonitor.restoreFailedClient(new TwitterCustomClient(twitterScraper));
-    }
+  @PostMapping("/restore")
+  public void restore(@RequestBody TwitterScraper twitterScraper) {
+    graphQLUserTimelineMonitor.restoreFailedClient(new TwitterCustomClient(twitterScraper));
+  }
 }

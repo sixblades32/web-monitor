@@ -13,28 +13,30 @@ import org.springframework.web.reactive.function.client.WebClientException;
 @Service
 public class DiscordValidationService {
 
-    private final DictionaryServiceClient dictionaryServiceClient;
-    private final DiscordClient discordClient;
+  private final DictionaryServiceClient dictionaryServiceClient;
+  private final DiscordClient discordClient;
 
-    public DiscordValidationService(DictionaryServiceClient dictionaryServiceClient, DiscordClient discordClient) {
-        this.dictionaryServiceClient = dictionaryServiceClient;
-        this.discordClient = discordClient;
+  public DiscordValidationService(DictionaryServiceClient dictionaryServiceClient,
+      DiscordClient discordClient) {
+    this.dictionaryServiceClient = dictionaryServiceClient;
+    this.discordClient = discordClient;
+  }
+
+  public boolean isUserContainsMutualGuild(String discordId, String customerId) {
+    try {
+      CustomerDiscordGuild customerDiscordGuild =
+          dictionaryServiceClient.retrieveCustomerDiscordGuild(customerId);
+      DiscordGuildMember discordGuildMember =
+          discordClient.retrieveDiscordGuildMember(customerDiscordGuild.getGuildId(), discordId);
+
+      return CollectionUtils.containsAny(customerDiscordGuild.getUsersRoles(),
+          discordGuildMember.getRoles());
+    } catch (WebClientException e) {
+      log.error(e.getMessage());
+    } catch (Exception e) {
+      log.error("Unexpected exemption", e);
     }
 
-    public boolean isUserContainsMutualGuild(String discordId, String customerId) {
-        try {
-            CustomerDiscordGuild customerDiscordGuild =
-                    dictionaryServiceClient.retrieveCustomerDiscordGuild(customerId);
-            DiscordGuildMember discordGuildMember =
-                    discordClient.retrieveDiscordGuildMember(customerDiscordGuild.getGuildId(), discordId);
-
-            return CollectionUtils.containsAny(customerDiscordGuild.getUsersRoles(), discordGuildMember.getRoles());
-        } catch (WebClientException e) {
-            log.error(e.getMessage());
-        } catch (Exception e) {
-            log.error("Unexpected exemption", e);
-        }
-
-        return false;
-    }
+    return false;
+  }
 }

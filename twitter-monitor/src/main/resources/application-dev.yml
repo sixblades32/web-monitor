@@ -20,7 +20,13 @@ kafka:
     tweet-live-release-topic: twitter-tweet-broadcast-live-release
     tweet-recognition-base-topic: twitter-tweet-recognition-broadcast-base
     tweet-recognition-live-release-topic: twitter-tweet-recognition-broadcast-live-release
+    user-updates-base-topic: twitter-user-updates-broadcast-base
+    user-updates-live-release-topic: twitter-user-updates-broadcast-live-release
     twitter-monitor-alert-topic: twitter-monitor-alert-broadcast
+    twitter-monitor-follow-request-topic: twitter-monitor-follow-request-broadcast
+
+dictionary-service:
+  url: http://localhost:8015/api/dictionary
 
 aws:
   rekognition:

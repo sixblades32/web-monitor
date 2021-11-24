@@ -7,16 +7,15 @@ import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.recognition.ImageRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.recognition.PlainTextRecognitionProcessor;
 import io.enigmasolutions.twittermonitor.services.web.TwitterCustomClient;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -47,7 +46,8 @@ public class HomeTimelineTwitterMonitor extends AbstractTwitterMonitor {
         TwitterCustomClient currentClient = refreshClient();
 
         try {
-            TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH, currentClient);
+            TweetResponse tweetResponse = getTweetResponse(getParams(), TIMELINE_PATH,
+                    currentClient);
             processTweetResponse(tweetResponse);
         } catch (HttpClientErrorException exception) {
             processErrorResponse(exception, currentClient);

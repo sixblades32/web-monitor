@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserTimelineClusterRestoreBody {
-    private TwitterScraper twitterScraper;
-    private String screenName;
+
+  private TwitterScraper twitterScraper;
+  private String screenName;
 }

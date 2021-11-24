@@ -7,19 +7,19 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Component
 public class DiscordClient {
 
-    private final WebClient webClient;
+  private final WebClient webClient;
 
-    public DiscordClient() {
-        this.webClient = WebClient.builder()
-                .build();
-    }
+  public DiscordClient() {
+    this.webClient = WebClient.builder()
+        .build();
+  }
 
-    public void sendEmbed(String webhookUrl, Message message) {
-        webClient.post()
-                .uri(webhookUrl)
-                .bodyValue(message)
-                .retrieve()
-                .toBodilessEntity()
-                .block();
-    }
+  public void sendEmbed(String webhookUrl, Message message) {
+    webClient.post()
+        .uri(webhookUrl)
+        .bodyValue(message)
+        .retrieve()
+        .toBodilessEntity()
+        .block();
+  }
 }

@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Alert {
-    private Integer validMonitorsCount;
-    private Integer failedMonitorsCount;
-    private String failedMonitorId;
-    private String reason;
+
+  private Integer validMonitorsCount;
+  private Integer failedMonitorsCount;
+  private String failedMonitorId;
+  private String reason;
 }

@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class Content {
-    private ItemContent itemContent;
+
+  private ItemContent itemContent;
 }

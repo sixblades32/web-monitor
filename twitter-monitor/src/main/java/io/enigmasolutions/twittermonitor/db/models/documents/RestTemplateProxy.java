@@ -12,8 +12,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection = "user-timeline-proxies")
 public class RestTemplateProxy {
-    private String host;
-    private String port;
-    private String login;
-    private String password;
+
+  private String host;
+  private String port;
+  private String login;
+  private String password;
 }

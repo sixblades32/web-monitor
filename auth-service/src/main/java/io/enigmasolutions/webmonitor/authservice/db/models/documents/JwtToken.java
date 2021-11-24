@@ -15,10 +15,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection = "jwt-tokens")
 public class JwtToken {
-    @Id
-    private String id;
-    @Indexed(unique = true)
-    private String value;
-    @Version
-    private Long version;
+
+  @Id
+  private String id;
+  @Indexed(unique = true)
+  private String value;
+  @Version
+  private Long version;
 }

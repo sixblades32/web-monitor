@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Media {
-    private MediaType type;
-    private String statical;
-    private String animation;
+
+  private MediaType type;
+  private String statical;
+  private String animation;
 }

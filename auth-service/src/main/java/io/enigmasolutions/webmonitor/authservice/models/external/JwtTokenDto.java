@@ -7,5 +7,5 @@ import lombok.Data;
 @Builder
 public class JwtTokenDto {
 
-    private String jwt;
+  private String jwt;
 }

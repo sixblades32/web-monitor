@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Author {
 
-    private String name;
-    private String url;
-    @JsonProperty("icon_url")
-    private String iconUrl;
+  private String name;
+  private String url;
+  @JsonProperty("icon_url")
+  private String iconUrl;
 }

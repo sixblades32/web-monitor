@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class RetweetedStatusResult {
 
-    private GraphQLTweet result;
+  private GraphQLTweet result;
 }

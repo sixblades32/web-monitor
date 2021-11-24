@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Theme {
-    private Boolean isCustom;
-    private Integer tweetColor;
-    private Integer retweetColor;
-    private Integer replyColor;
-    private String generalColor;
-    private String logoUrl;
+
+  private Boolean isCustom;
+  private Integer tweetColor;
+  private Integer retweetColor;
+  private Integer replyColor;
+  private String generalColor;
+  private String logoUrl;
 }

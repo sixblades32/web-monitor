@@ -1,7 +1,6 @@
 package io.enigmasolutions.twittermonitor.services.recognition;
 
 import io.enigmasolutions.broadcastmodels.Recognition;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

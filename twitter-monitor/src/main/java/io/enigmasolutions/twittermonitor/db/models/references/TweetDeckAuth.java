@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TweetDeckAuth {
-    private String bearer;
-    private String authToken;
-    private String csrfToken;
+
+  private String bearer;
+  private String authToken;
+  private String csrfToken;
 }

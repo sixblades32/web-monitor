@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class V2Response {
-    private GlobalObjects globalObjects;
+
+  private GlobalObjects globalObjects;
 }

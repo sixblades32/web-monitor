@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Field {
-    private Boolean inline;
-    private String name;
-    private String value;
+
+  private Boolean inline;
+  private String name;
+  private String value;
 }

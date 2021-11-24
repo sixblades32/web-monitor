@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class QuotedStatusPermalink {
-    private String url;
+
+  private String url;
 }

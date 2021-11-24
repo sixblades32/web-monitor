@@ -11,14 +11,14 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/customers")
 public class CustomerController {
 
-    private final CustomerService customerService;
+  private final CustomerService customerService;
 
-    public CustomerController(CustomerService customerService) {
-        this.customerService = customerService;
-    }
+  public CustomerController(CustomerService customerService) {
+    this.customerService = customerService;
+  }
 
-    @GetMapping("/theme")
-    public Mono<CustomerTheme> getCustomerTheme() {
-        return customerService.retrieveCustomerTheme();
-    }
+  @GetMapping("/theme")
+  public Mono<CustomerTheme> getCustomerTheme() {
+    return customerService.retrieveCustomerTheme();
+  }
 }

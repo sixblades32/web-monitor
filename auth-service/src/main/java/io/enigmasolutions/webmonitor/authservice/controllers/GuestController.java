@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/guests")
 public class GuestController {
 
-    private final GuestService guestService;
+  private final GuestService guestService;
 
-    @Autowired
-    public GuestController(GuestService guestService) {
-        this.guestService = guestService;
-    }
+  @Autowired
+  public GuestController(GuestService guestService) {
+    this.guestService = guestService;
+  }
 
-    @GetMapping("/{customerId}/token")
-    public JwtTokenDto generateCustomerGuestJwtToken(
-            @PathVariable String customerId
-    ) {
-        return guestService.generateJwtToken(customerId);
-    }
+  @GetMapping("/{customerId}/token")
+  public JwtTokenDto generateCustomerGuestJwtToken(
+      @PathVariable String customerId
+  ) {
+    return guestService.generateJwtToken(customerId);
+  }
 }

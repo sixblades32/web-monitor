@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TweetImage {
-    private String userId;
-    private String image;
-    private TweetType tweetType;
-    private String userName;
-    private String retweetedFrom;
+
+  private String userId;
+  private String image;
+  private TweetType tweetType;
+  private String userName;
+  private String retweetedFrom;
 }

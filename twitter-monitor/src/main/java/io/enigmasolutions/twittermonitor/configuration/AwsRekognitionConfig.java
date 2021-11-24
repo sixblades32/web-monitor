@@ -12,20 +12,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AwsRekognitionConfig {
 
-    @Value("${aws.rekognition.access-key}")
-    private String accessKey;
+  @Value("${aws.rekognition.access-key}")
+  private String accessKey;
 
-    @Value("${aws.rekognition.secret-key}")
-    private String secretKey;
+  @Value("${aws.rekognition.secret-key}")
+  private String secretKey;
 
-    @Bean
-    public AmazonRekognition amazonRekognition() {
-        BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-        return AmazonRekognitionClientBuilder
-                .standard()
-                .withRegion(Regions.US_EAST_1)
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .build();
-    }
+  @Bean
+  public AmazonRekognition amazonRekognition() {
+    BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+    return AmazonRekognitionClientBuilder
+        .standard()
+        .withRegion(Regions.US_EAST_1)
+        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+        .build();
+  }
 
 }

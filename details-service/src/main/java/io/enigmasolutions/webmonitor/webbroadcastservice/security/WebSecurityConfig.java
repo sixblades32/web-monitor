@@ -1,5 +1,6 @@
 package io.enigmasolutions.webmonitor.webbroadcastservice.security;
 
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -12,57 +13,56 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 @Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 public class WebSecurityConfig {
 
-    private final ReactiveAuthenticationManager authenticationManager;
-    private final ServerSecurityContextRepository securityContextRepository;
+  private final ReactiveAuthenticationManager authenticationManager;
+  private final ServerSecurityContextRepository securityContextRepository;
 
-    public WebSecurityConfig(ReactiveAuthenticationManager authenticationManager, ServerSecurityContextRepository securityContextRepository) {
-        this.authenticationManager = authenticationManager;
-        this.securityContextRepository = securityContextRepository;
-    }
+  public WebSecurityConfig(ReactiveAuthenticationManager authenticationManager,
+      ServerSecurityContextRepository securityContextRepository) {
+    this.authenticationManager = authenticationManager;
+    this.securityContextRepository = securityContextRepository;
+  }
 
-    @Bean
-    public SecurityWebFilterChain securityWebFilterChain(
-            ServerHttpSecurity httpSecurity,
-            UnauthorizedAuthenticationEntryPoint authenticationEntryPoint
-    ) {
-        return httpSecurity
-                .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint)
-                .and()
-                .csrf().disable()
-                .formLogin().disable()
-                .httpBasic().disable()
-                .authorizeExchange()
-                .pathMatchers(
-                        "/actuator/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/webjars/swagger-ui/**"
-                )
-                .permitAll()
-                .anyExchange().authenticated()
-                .and()
-                .authenticationManager(authenticationManager)
-                .securityContextRepository(securityContextRepository)
-                .build();
-    }
+  @Bean
+  public SecurityWebFilterChain securityWebFilterChain(
+      ServerHttpSecurity httpSecurity,
+      UnauthorizedAuthenticationEntryPoint authenticationEntryPoint
+  ) {
+    return httpSecurity
+        .exceptionHandling()
+        .authenticationEntryPoint(authenticationEntryPoint)
+        .and()
+        .csrf().disable()
+        .formLogin().disable()
+        .httpBasic().disable()
+        .authorizeExchange()
+        .pathMatchers(
+            "/actuator/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/webjars/swagger-ui/**"
+        )
+        .permitAll()
+        .anyExchange().authenticated()
+        .and()
+        .authenticationManager(authenticationManager)
+        .securityContextRepository(securityContextRepository)
+        .build();
+  }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.applyPermitDefaultValues();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("*"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.applyPermitDefaultValues();
+    configuration.setAllowedOrigins(List.of("*"));
+    configuration.setAllowedMethods(List.of("*"));
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
 }

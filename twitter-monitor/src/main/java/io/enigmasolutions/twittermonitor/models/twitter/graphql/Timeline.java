@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class Timeline {
-    @JsonProperty("timeline")
-    private NestedTimeline nestedTimeline;
+
+  @JsonProperty("timeline")
+  private NestedTimeline nestedTimeline;
 }

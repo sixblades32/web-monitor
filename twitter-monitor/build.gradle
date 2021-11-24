@@ -18,6 +18,7 @@ jar {
 
 dependencies {
     implementation project(':broadcast-models')
+    implementation project(':dictionary-models')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.data:spring-data-mongodb'
@@ -29,6 +30,7 @@ dependencies {
     implementation 'com.amazonaws:aws-java-sdk-rekognition:1.12.15'
     implementation 'com.google.zxing:core:3.4.1'
     implementation 'com.google.zxing:javase:3.4.1'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

@@ -11,26 +11,26 @@ import reactor.core.publisher.Mono;
 @Component
 public class BroadcastWebSocketHandler implements WebSocketHandler {
 
-    private final BroadcastService broadcastService;
+  private final BroadcastService broadcastService;
 
-    public BroadcastWebSocketHandler(BroadcastService broadcastService) {
-        this.broadcastService = broadcastService;
-    }
+  public BroadcastWebSocketHandler(BroadcastService broadcastService) {
+    this.broadcastService = broadcastService;
+  }
 
-    @Override
-    public Mono<Void> handle(WebSocketSession session) {
-        return resolveUserClaims()
-                .map(claims -> claims.get("customer_id").toString())
-                .flatMap(customerId -> session.send(
-                        broadcastService
-                                .broadcast(customerId)
-                                .map(session::textMessage))
-                );
-    }
+  @Override
+  public Mono<Void> handle(WebSocketSession session) {
+    return resolveUserClaims()
+        .map(claims -> claims.get("customer_id").toString())
+        .flatMap(customerId -> session.send(
+            broadcastService
+                .broadcast(customerId)
+                .map(session::textMessage))
+        );
+  }
 
-    private Mono<Claims> resolveUserClaims() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(it -> it.getAuthentication().getCredentials())
-                .cast(Claims.class);
-    }
+  private Mono<Claims> resolveUserClaims() {
+    return ReactiveSecurityContextHolder.getContext()
+        .map(it -> it.getAuthentication().getCredentials())
+        .cast(Claims.class);
+  }
 }

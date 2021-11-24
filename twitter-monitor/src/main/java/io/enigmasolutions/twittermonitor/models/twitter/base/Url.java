@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Url {
-    private String url;
-    @JsonProperty("expanded_url")
-    private String expandedUrl;
+
+  private String url;
+  @JsonProperty("expanded_url")
+  private String expandedUrl;
 }

@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "security.jwt")
 public class JwtConfig {
 
-    private String queryParam;
-    private String secret;
+  private String queryParam;
+  private String secret;
 }

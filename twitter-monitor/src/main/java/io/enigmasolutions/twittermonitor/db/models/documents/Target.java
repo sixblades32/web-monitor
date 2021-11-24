@@ -13,8 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection = "targets")
 public class Target {
-    @Id
-    private String id;
-    private String username;
-    private String identifier;
+
+  @Id
+  private String id;
+  private String username;
+  private String identifier;
 }

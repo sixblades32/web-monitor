@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DefaultMonitoringTarget {
-    private String username;
-    private String identifier;
-    private String image;
-    private String name;
+
+  private String username;
+  private String identifier;
+  private String image;
+  private String name;
 }

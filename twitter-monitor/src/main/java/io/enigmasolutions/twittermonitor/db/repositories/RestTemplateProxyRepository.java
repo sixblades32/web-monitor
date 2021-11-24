@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RestTemplateProxyRepository extends MongoRepository<RestTemplateProxy, String> {
+
 }

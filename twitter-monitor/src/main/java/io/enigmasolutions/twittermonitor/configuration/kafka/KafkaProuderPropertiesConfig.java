@@ -11,9 +11,12 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "kafka.producer")
 public class KafkaProuderPropertiesConfig {
 
-    private String tweetBaseTopic;
-    private String tweetLiveReleaseTopic;
-    private String tweetRecognitionBaseTopic;
-    private String tweetRecognitionLiveReleaseTopic;
-    private String twitterMonitorAlertTopic;
+  private String tweetBaseTopic;
+  private String tweetLiveReleaseTopic;
+  private String tweetRecognitionBaseTopic;
+  private String tweetRecognitionLiveReleaseTopic;
+  private String userUpdatesBaseTopic;
+  private String userUpdatesLiveReleaseTopic;
+  private String twitterMonitorAlertTopic;
+  private String twitterMonitorFollowRequestTopic;
 }

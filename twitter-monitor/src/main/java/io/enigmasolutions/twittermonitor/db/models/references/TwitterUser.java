@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TwitterUser {
-    private String twitterId;
-    private String screenName;
+
+  private String twitterId;
+  private String screenName;
 }

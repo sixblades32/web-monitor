@@ -3,20 +3,24 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017
       database: discord-broadcast-service
-  main:
-    web-application-type: none
+
+server:
+  port: 8045
 
 alert:
   discord:
     url: https://discord.com/api/webhooks/830449746653085707/na-oTYH5X5wL8WABdJO4uHUsD8y4jTnIj8xvBiH3x9xfmtzVq8yXY_6NjqoIWJLITIrR
 
 discord:
+  role:
+    monitor-team: 901167071793135697
   embed:
     color:
       retweet: 15922277
       tweet: 5814783
       reply: 3460243
       alert: 16023551
+      user-updates: 13664492
 
 dictionary-service:
   url: http://localhost:8015/api/dictionary
@@ -38,3 +42,12 @@ kafka:
   alert-consumer:
     group-id: discord-broadcast-alert-group
     topic: twitter-monitor-alert-broadcast
+  user-updates-consumer-base:
+    group-id: discord-broadcast-user-updates-base-group
+    topic: twitter-user-updates-broadcast-base
+  user-updates-consumer-live-release:
+    group-id: discord-broadcast-user-updates-live-release-group
+    topic: twitter-user-updates-broadcast-live-release
+  follow-request-consumer:
+    group-id: discord-broadcast-follow-request-group
+    topic: twitter-monitor-follow-request-broadcast

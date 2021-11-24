@@ -1,5 +1,8 @@
 package io.enigmasolutions.twittermonitor.services.configuration;
 
+import io.enigmasolutions.broadcastmodels.FollowRequest;
+import io.enigmasolutions.broadcastmodels.TwitterUser;
+import io.enigmasolutions.dictionarymodels.DefaultMonitoringTarget;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
@@ -11,148 +14,200 @@ import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesExceptio
 import io.enigmasolutions.twittermonitor.exceptions.TargetAlreadyAddedException;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
+import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
+import java.util.List;
+
+import io.enigmasolutions.twittermonitor.services.web.DictionaryClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
+@Slf4j
 public class MonitorConfigurationService {
 
-    private final TwitterHelperService twitterHelperService;
-    private final TwitterConsumerRepository twitterConsumerRepository;
-    private final TwitterScraperRepository twitterScraperRepository;
-    private final TargetRepository targetRepository;
+  private final TwitterHelperService twitterHelperService;
+  private final TwitterConsumerRepository twitterConsumerRepository;
+  private final TwitterScraperRepository twitterScraperRepository;
+  private final TargetRepository targetRepository;
+  private final DictionaryClient dictionaryClient;
+  private final KafkaProducer kafkaProducer;
 
-    @Autowired
-    public MonitorConfigurationService(TwitterHelperService twitterHelperService,
-                                       TwitterConsumerRepository twitterConsumerRepository,
-                                       TwitterScraperRepository twitterScraperRepository,
-                                       TargetRepository targetRepository) {
+  @Autowired
+  public MonitorConfigurationService(
+      TwitterHelperService twitterHelperService,
+      TwitterConsumerRepository twitterConsumerRepository,
+      TwitterScraperRepository twitterScraperRepository,
+      TargetRepository targetRepository,
+      DictionaryClient dictionaryClient,
+      KafkaProducer kafkaProducer) {
 
-        this.twitterHelperService = twitterHelperService;
-        this.twitterConsumerRepository = twitterConsumerRepository;
-        this.twitterScraperRepository = twitterScraperRepository;
-        this.targetRepository = targetRepository;
+    this.twitterHelperService = twitterHelperService;
+    this.twitterConsumerRepository = twitterConsumerRepository;
+    this.twitterScraperRepository = twitterScraperRepository;
+    this.targetRepository = targetRepository;
+    this.dictionaryClient = dictionaryClient;
+    this.kafkaProducer = kafkaProducer;
+  }
+
+  public void createConsumer(TwitterConsumer consumer) {
+
+    twitterConsumerRepository.insert(consumer);
+  }
+
+  public List<TwitterConsumer> getConsumers() {
+
+    return twitterConsumerRepository.findAll();
+  }
+
+  public void deleteConsumer(TwitterConsumer twitterConsumer) {
+
+    String id = twitterConsumer.getId();
+
+    twitterConsumerRepository.deleteById(id);
+  }
+
+  public void createScraper(TwitterScraper scraper) {
+
+    twitterScraperRepository.insert(scraper);
+  }
+
+  public List<TwitterScraper> getScrapers() {
+    return twitterScraperRepository.findAll();
+  }
+
+  public void deleteScraper(TwitterScraper twitterScraper) {
+
+    String id = twitterScraper.getId();
+
+    twitterConsumerRepository.deleteById(id);
+  }
+
+  public List<Target> getGlobalTargets() {
+
+    return targetRepository.findAll();
+  }
+
+  @Transactional
+  public void createGlobalTarget(UserStartForm body) {
+    User user;
+
+    try {
+      user = twitterHelperService.retrieveUser(body.getScreenName());
+    } catch (Exception e) {
+      throw new NoTwitterUserMatchesException();
     }
 
-    public void createConsumer(TwitterConsumer consumer) {
-
-        twitterConsumerRepository.insert(consumer);
+    if (twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+      throw new TargetAlreadyAddedException();
     }
 
-    public List<TwitterConsumer> getConsumers() {
+    Target target =
+        Target.builder()
+            .username(user.getScreenName().toLowerCase())
+            .identifier(user.getId())
+            .build();
 
-        return twitterConsumerRepository.findAll();
+    DefaultMonitoringTarget defaultMonitoringTarget =
+        DefaultMonitoringTarget.builder()
+            .username(user.getScreenName())
+            .identifier(user.getId())
+            .image(user.getUserImage())
+            .name(user.getName())
+            .build();
+
+    targetRepository.insert(target);
+    dictionaryClient.createMonitoringTarget(defaultMonitoringTarget);
+
+    twitterHelperService.getBaseTargetsIds().add(user.getId());
+  }
+
+  @Transactional
+  public void deleteGlobalTarget(UserStartForm body) {
+    User user;
+
+    try {
+      user = twitterHelperService.retrieveUser(body.getScreenName());
+    } catch (Exception e) {
+      throw new NoTwitterUserMatchesException();
     }
 
-    public void deleteConsumer(TwitterConsumer twitterConsumer) {
-
-        String id = twitterConsumer.getId();
-
-        twitterConsumerRepository.deleteById(id);
+    if (!twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+      throw new NoTargetMatchesException();
     }
 
-    public void createScraper(TwitterScraper scraper) {
+    targetRepository.deleteTargetByIdentifier(user.getId());
+    dictionaryClient.deleteMonitoringTarget(user.getId());
 
-        twitterScraperRepository.insert(scraper);
+    twitterHelperService.getBaseTargetsIds().remove(user.getId());
+  }
+
+  public List<String> getTemporaryTargets() {
+
+    return twitterHelperService.getLiveReleaseTargetsScreenNames();
+  }
+
+  public void createTemporaryTarget(UserStartForm body) {
+    User user;
+
+    try {
+      user = twitterHelperService.retrieveUser(body.getScreenName());
+    } catch (Exception e) {
+      throw new NoTwitterUserMatchesException();
     }
 
-    public List<TwitterScraper> getScrapers() {
-        return twitterScraperRepository.findAll();
+    if (twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
+      throw new TargetAlreadyAddedException();
     }
 
-    public void deleteScraper(TwitterScraper twitterScraper) {
+    twitterHelperService.getLiveReleaseTargetsIds().add(user.getId());
+    twitterHelperService.getLiveReleaseTargetsScreenNames().add(user.getScreenName());
+  }
 
-        String id = twitterScraper.getId();
+  public void deleteTemporaryTarget(UserStartForm body) {
+    User user;
 
-        twitterConsumerRepository.deleteById(id);
+    try {
+      user = twitterHelperService.retrieveUser(body.getScreenName());
+    } catch (Exception e) {
+      throw new NoTwitterUserMatchesException();
     }
 
-    public List<Target> getGlobalTargets() {
-
-        return targetRepository.findAll();
+    if (!twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
+      throw new NoTargetMatchesException();
     }
 
-    @Transactional
-    public void createGlobalTarget(UserStartForm body) {
-        User user;
+    twitterHelperService.getLiveReleaseTargetsIds().remove(user.getId());
+    twitterHelperService.getLiveReleaseTargetsScreenNames().remove(user.getScreenName());
+  }
 
-        try {
-            user = twitterHelperService.retrieveUser(body.getScreenName());
-        } catch (Exception e) {
-            throw new NoTwitterUserMatchesException();
-        }
+  public void createFollowRequest(FollowRequest followRequest) {
 
-        if (twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
-            throw new TargetAlreadyAddedException();
-        }
+    User user = null;
 
-        Target target = Target.builder()
-                .username(user.getScreenName().toLowerCase())
-                .identifier(user.getId())
-                .build();
-
-        targetRepository.insert(target);
-        twitterHelperService.getBaseTargetsIds().add(user.getId());
+    try{
+      user = twitterHelperService.retrieveUser(followRequest.getTwitterUser().getLogin());
+    }catch (Exception e){
+      log.error(e.getMessage());
+      throw new NoTwitterUserMatchesException();
     }
 
-    @Transactional
-    public void deleteGlobalTarget(UserStartForm body) {
-        User user;
-
-        try {
-            user = twitterHelperService.retrieveUser(body.getScreenName());
-        } catch (Exception e) {
-            throw new NoTwitterUserMatchesException();
-        }
-
-        if (!twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
-            throw new NoTargetMatchesException();
-        }
-
-        targetRepository.deleteTargetByIdentifier(user.getId());
-        twitterHelperService.getBaseTargetsIds().remove(user.getId());
+    if (twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+      throw new TargetAlreadyAddedException();
     }
 
-    public List<String> getTemporaryTargets() {
+    TwitterUser twitterUser =
+        TwitterUser.builder()
+            .id(user.getId())
+            .login(user.getScreenName())
+            .name(user.getName())
+            .url(user.getUserUrl())
+            .build();
 
-        return twitterHelperService.getLiveReleaseTargetsScreenNames();
-    }
+    followRequest.setTwitterUser(twitterUser);
 
-    public void createTemporaryTarget(UserStartForm body) {
-        User user;
-
-        try {
-            user = twitterHelperService.retrieveUser(body.getScreenName());
-        } catch (Exception e) {
-            throw new NoTwitterUserMatchesException();
-        }
-
-        if (twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
-            throw new TargetAlreadyAddedException();
-        }
-
-        twitterHelperService.getLiveReleaseTargetsIds().add(user.getId());
-        twitterHelperService.getLiveReleaseTargetsScreenNames().add(user.getScreenName());
-    }
-
-    public void deleteTemporaryTarget(UserStartForm body) {
-        User user;
-
-        try {
-            user = twitterHelperService.retrieveUser(body.getScreenName());
-        } catch (Exception e) {
-            throw new NoTwitterUserMatchesException();
-        }
-
-        if (!twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
-            throw new NoTargetMatchesException();
-        }
-
-        twitterHelperService.getLiveReleaseTargetsIds().remove(user.getId());
-        twitterHelperService.getLiveReleaseTargetsScreenNames().remove(user.getScreenName());
-    }
+    kafkaProducer.sendFollowRequestBroadcast(followRequest);
+  }
 }

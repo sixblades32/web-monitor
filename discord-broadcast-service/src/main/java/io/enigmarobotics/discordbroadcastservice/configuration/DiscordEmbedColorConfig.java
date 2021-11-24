@@ -11,8 +11,9 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "discord.embed.color")
 public class DiscordEmbedColorConfig {
 
-    private int retweet;
-    private int tweet;
-    private int reply;
-    private int alert;
+  private int retweet;
+  private int tweet;
+  private int reply;
+  private int alert;
+  private int userUpdates;
 }

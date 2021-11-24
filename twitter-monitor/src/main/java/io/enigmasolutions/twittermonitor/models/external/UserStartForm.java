@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class UserStartForm {
-    private String screenName;
+
+  private String screenName;
 }

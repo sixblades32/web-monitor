@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GraphQLUser {
 
-    @JsonProperty("rest_id")
-    private String restId;
-    private UserLegacy legacy;
+  @JsonProperty("rest_id")
+  private String restId;
+  private UserLegacy legacy;
 }
