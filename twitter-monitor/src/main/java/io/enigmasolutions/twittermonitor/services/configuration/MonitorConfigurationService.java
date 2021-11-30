@@ -12,17 +12,23 @@ import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepositor
 import io.enigmasolutions.twittermonitor.exceptions.NoTargetMatchesException;
 import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
 import io.enigmasolutions.twittermonitor.exceptions.TargetAlreadyAddedException;
+import io.enigmasolutions.twittermonitor.exceptions.TargetIsPrivateException;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import io.enigmasolutions.twittermonitor.services.web.DictionaryClient;
+import io.enigmasolutions.twittermonitor.services.web.TwitterRegularClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
 
 @Service
 @Slf4j
@@ -187,9 +193,9 @@ public class MonitorConfigurationService {
 
     User user = null;
 
-    try{
+    try {
       user = twitterHelperService.retrieveUser(followRequest.getTwitterUser().getLogin());
-    }catch (Exception e){
+    } catch (Exception e) {
       log.error(e.getMessage());
       throw new NoTwitterUserMatchesException();
     }
@@ -210,4 +216,26 @@ public class MonitorConfigurationService {
 
     kafkaProducer.sendFollowRequestBroadcast(followRequest);
   }
+
+  public void follow(String screenName) {
+    User user = null;
+
+    try {
+      user = twitterHelperService.retrieveUser(screenName);
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      throw new NoTwitterUserMatchesException();
+    }
+
+    if(user.getIsProtected()) {
+      throw new TargetIsPrivateException();
+    }
+
+    User finalUser = user;
+
+    CompletableFuture.runAsync(() -> {
+      twitterHelperService.follow(finalUser);
+    });
+  }
+
 }

@@ -46,4 +46,12 @@ public class ControllerAdvice {
 
     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
   }
+
+  @ExceptionHandler(TargetIsPrivateException.class)
+  public ResponseEntity<ErrorResponse> handleTargetIsPrivateException(
+          TargetIsPrivateException e) {
+    ErrorResponse response = new ErrorResponse(e.getMessage());
+
+    return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+  }
 }

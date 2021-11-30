@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import lombok.Data;
 
 @Data
-public class FollowsList {
+public class FollowingData {
 
   private LinkedList<String> ids;
 }
