@@ -4,6 +4,7 @@ import io.enigmasolutions.broadcastmodels.FollowRequest;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.references.Proxy;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.services.configuration.MonitorConfigurationService;
 import java.util.List;
@@ -101,5 +102,10 @@ public class MonitorConfigurationController {
   @PostMapping("/follow/users/{screenName}")
   public void follow(@PathVariable String screenName) {
     monitorConfigurationService.follow(screenName);
+  }
+
+  @PostMapping("/follow/proxies")
+  public void follow(@RequestBody List<Proxy> proxies) {
+    monitorConfigurationService.updateFollowProxies(proxies);
   }
 }

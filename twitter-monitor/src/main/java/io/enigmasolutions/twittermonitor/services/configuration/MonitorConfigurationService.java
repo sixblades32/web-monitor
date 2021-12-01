@@ -6,6 +6,7 @@ import io.enigmasolutions.dictionarymodels.DefaultMonitoringTarget;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.references.Proxy;
 import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
@@ -235,5 +236,9 @@ public class MonitorConfigurationService {
         () -> {
           twitterHelperService.follow(finalUser);
         });
+  }
+
+  public void updateFollowProxies(List<Proxy> proxies) {
+    twitterHelperService.updateFollowProxies(proxies);
   }
 }

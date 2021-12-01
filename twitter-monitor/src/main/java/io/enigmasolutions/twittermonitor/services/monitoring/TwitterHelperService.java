@@ -6,10 +6,12 @@ import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.references.Proxy;
 import io.enigmasolutions.twittermonitor.db.repositories.RestTemplateProxyRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
+import io.enigmasolutions.twittermonitor.exceptions.InvalidProxyNumberException;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.models.twitter.common.FollowingData;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
@@ -219,9 +221,7 @@ public class TwitterHelperService {
     params.add("user_id", user.getId());
     params.add("follow", "true");
 
-    int delay = FOLLOW_DELAY/followers.size();
-
-    System.out.println(delay);
+    int delay = FOLLOW_DELAY / followers.size();
 
     followers.forEach(follower -> {
       try {
@@ -239,6 +239,24 @@ public class TwitterHelperService {
                 .build());
       }
     });
+  }
+
+  public void updateFollowProxies(List<Proxy> proxies){
+
+    List<TwitterScraper> scrapers = twitterScraperRepository.findAll();
+    List<TwitterScraper> followScrapers = scrapers.stream().filter(twitterScraper -> twitterScraper.getCredentials().getConsumerKey().length() == 25).collect(Collectors.toList());
+
+    if (proxies.size() != followScrapers.size()) {
+      throw new InvalidProxyNumberException(followScrapers.size());
+    }
+
+    for (int i = 0; i < proxies.size(); i++) {
+
+      TwitterScraper scraper = followScrapers.get(i);
+      scraper.setProxy(proxies.get(i));
+
+      twitterScraperRepository.save(scraper);
+    }
   }
 
   public boolean isFollows(String clientId, String userId){
