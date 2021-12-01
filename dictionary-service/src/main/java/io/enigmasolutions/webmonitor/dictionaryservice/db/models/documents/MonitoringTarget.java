@@ -14,10 +14,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "monitoring-targets")
 public class MonitoringTarget {
 
-  @Id
-  private String id;
+  @Id private String id;
   private String username;
   private String identifier;
   private String image;
   private String name;
+  private String type;
 }

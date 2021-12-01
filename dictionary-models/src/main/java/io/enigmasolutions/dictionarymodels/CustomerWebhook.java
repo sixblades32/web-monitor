@@ -9,11 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DefaultMonitoringTarget {
-
-  private String username;
-  private String identifier;
-  private String image;
-  private String name;
-  private String type;
+public class CustomerWebhook {
+    private String url;
+    private String type;
 }

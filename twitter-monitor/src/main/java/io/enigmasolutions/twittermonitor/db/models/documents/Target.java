@@ -18,4 +18,5 @@ public class Target {
   private String id;
   private String username;
   private String identifier;
+  private String type;
 }

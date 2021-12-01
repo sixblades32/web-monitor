@@ -29,6 +29,7 @@ public class MonitoringService {
                       .username(monitoringTarget.getUsername())
                       .image(monitoringTarget.getImage())
                       .name(monitoringTarget.getName())
+                      .type(monitoringTarget.getType())
                       .build();
 
               return Mono.just(defaultMonitoringTarget);
@@ -45,6 +46,7 @@ public class MonitoringService {
             .name(defaultMonitoringTarget.getName())
             .identifier(defaultMonitoringTarget.getIdentifier())
             .image(defaultMonitoringTarget.getImage())
+            .type(defaultMonitoringTarget.getType())
             .build());
   }
 

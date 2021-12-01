@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CustomerDiscordBroadcast {
 
-  private List<String> baseWebhooks;
-  private List<String> staffBaseWebhooks;
-  private List<String> liveWebhooks;
+  private List<CustomerWebhook> baseCustomerWebhooks;
+  private List<CustomerWebhook> staffBaseCustomerWebhooks;
+  private List<CustomerWebhook> liveCustomerWebhooks;
 }
 

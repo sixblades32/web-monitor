@@ -79,10 +79,10 @@ public class CustomerService {
                   CustomerDiscordBroadcastConfig.builder()
                       .customerDiscordBroadcast(
                           CustomerDiscordBroadcast.builder()
-                              .baseWebhooks(customer.getDiscordBroadcast().getBaseWebhooks())
-                              .staffBaseWebhooks(
-                                  customer.getDiscordBroadcast().getStaffBaseWebhooks())
-                              .liveWebhooks(customer.getDiscordBroadcast().getLiveWebhooks())
+                              .baseCustomerWebhooks(customer.getDiscordBroadcast().getBaseCustomerWebhooks())
+                              .staffBaseCustomerWebhooks(
+                                  customer.getDiscordBroadcast().getStaffBaseCustomerWebhooks())
+                              .liveCustomerWebhooks(customer.getDiscordBroadcast().getLiveCustomerWebhooks())
                               .build())
                       .theme(
                           CustomerTheme.builder()

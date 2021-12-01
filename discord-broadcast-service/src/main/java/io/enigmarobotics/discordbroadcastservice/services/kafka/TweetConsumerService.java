@@ -45,24 +45,24 @@ public class TweetConsumerService {
     Message message = generateTweetMessage(tweet);
 
     PROCESSING_EXECUTOR.execute(() -> {
-      postmanService.processBase(message);
+      postmanService.processBase(message, tweet.getUser().getType());
     });
 
     PROCESSING_EXECUTOR.execute(() -> {
-      postmanService.processStaffBase(message);
+      postmanService.processStaffBase(message, tweet.getUser().getType());
     });
 
     Message videoMessage = generateVideoMessage(tweet);
 
     PROCESSING_EXECUTOR.execute(() -> {
       if (videoMessage != null) {
-        postmanService.processBase(videoMessage);
+        postmanService.processBase(videoMessage, tweet.getUser().getType());
       }
     });
 
     PROCESSING_EXECUTOR.execute(() -> {
       if (videoMessage != null) {
-        postmanService.processStaffBase(videoMessage);
+        postmanService.processStaffBase(videoMessage, tweet.getUser().getType());
       }
     });
   }
@@ -75,12 +75,12 @@ public class TweetConsumerService {
 
     PROCESSING_EXECUTOR.execute(() -> {
       Message message = generateTweetMessage(tweet);
-      postmanService.processLive(message);
+      postmanService.processLive(message, tweet.getUser().getType());
     });
     PROCESSING_EXECUTOR.execute(() -> {
       Message videoMessage = generateVideoMessage(tweet);
       if (videoMessage != null) {
-        postmanService.processLive(videoMessage);
+        postmanService.processLive(videoMessage, tweet.getUser().getType());
       }
     });
   }

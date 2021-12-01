@@ -1,6 +1,7 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
 import io.enigmasolutions.broadcastmodels.Alert;
+import io.enigmasolutions.broadcastmodels.TwitterUser;
 import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
@@ -29,7 +30,7 @@ import org.springframework.util.MultiValueMap;
 @Slf4j
 public class TwitterHelperService {
 
-  private final List<String> liveReleaseTargetsIds = new LinkedList<>();
+  private final HashMap<String, String> liveReleaseTargets = new HashMap<>();
   private final List<String> liveReleaseTargetsScreenNames = new LinkedList<>();
   private final List<String> tweetsCache = new LinkedList<>();
   private final List<User> userInfosCache = new LinkedList<>();
@@ -44,9 +45,9 @@ public class TwitterHelperService {
 
   private List<TwitterRegularClient> helpers;
   private List<TwitterRegularClient> followers;
-  private List<String> baseTargetsIds;
+  private HashMap<String, String> baseTargets;
 
-  private final int FOLLOW_DELAY = 600000;
+  private static final int FOLLOW_DELAY = 600000;
 
   @Autowired
   public TwitterHelperService(
@@ -70,7 +71,7 @@ public class TwitterHelperService {
   private void initTargets() {
     List<Target> targets = targetRepository.findAll();
 
-    baseTargetsIds = targets.stream().map(Target::getIdentifier).collect(Collectors.toList());
+    baseTargets = targets.stream().collect(Collectors.toMap(Target::getIdentifier, Target::getType, (existing, replacement) -> existing, HashMap::new));
   }
 
   public void initHelpers() {
@@ -82,12 +83,26 @@ public class TwitterHelperService {
             .collect(Collectors.toList());
   }
 
-  public Boolean checkBasePass(String id) {
-    return baseTargetsIds.contains(id);
+  public Boolean checkBasePass(TwitterUser user) {
+    String userType = baseTargets.get(user.getId());
+    Boolean isPassed = userType != null;
+
+    if (isPassed) {
+      user.setType(userType);
+    }
+
+    return isPassed;
   }
 
-  public Boolean checkLiveReleasePass(String id) {
-    return liveReleaseTargetsIds.contains(id);
+  public Boolean checkLiveReleasePass(TwitterUser user) {
+    String userType = liveReleaseTargets.get(user.getId());
+    Boolean isPassed = userType != null;
+
+    if (isPassed) {
+      user.setType(userType);
+    }
+
+    return isPassed;
   }
 
   public User retrieveUser(String screenName) {
@@ -230,16 +245,16 @@ public class TwitterHelperService {
     return getFollowsList(clientId).getIds().contains(userId);
   }
 
-  public List<String> getLiveReleaseTargetsIds() {
-    return liveReleaseTargetsIds;
+  public HashMap<String, String> getLiveReleaseTargets() {
+    return liveReleaseTargets;
   }
 
   public List<String> getLiveReleaseTargetsScreenNames() {
     return liveReleaseTargetsScreenNames;
   }
 
-  public List<String> getBaseTargetsIds() {
-    return baseTargetsIds;
+  public HashMap<String, String> getBaseTargets() {
+    return baseTargets;
   }
 
   @Cacheable(value = "proxies")

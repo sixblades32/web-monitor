@@ -15,6 +15,7 @@ import java.util.List;
 public class TwitterUser {
 
   private List<UserUpdateType> updateTypes;
+  private String type;
   private String name;
   private String icon;
   private String login;

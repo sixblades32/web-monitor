@@ -6,4 +6,5 @@ import lombok.Data;
 public class UserStartForm {
 
   private String screenName;
+  private String type;
 }
