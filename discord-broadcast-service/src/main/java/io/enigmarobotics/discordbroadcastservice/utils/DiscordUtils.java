@@ -431,6 +431,11 @@ public class DiscordUtils {
   public static Embed generateAlertEmbed(Alert alert, int embedColor) {
     Footer footer = Footer.builder().text("Enigma Robotics").build();
 
+    if (alert.getValidMonitorsCount() == null && alert.getFailedMonitorsCount() == null) {
+      alert.setValidMonitorsCount(0);
+      alert.setFailedMonitorsCount(0);
+    }
+
     Field validMonitorsField =
         Field.builder()
             .inline(false)
