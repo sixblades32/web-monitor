@@ -36,7 +36,7 @@ public class TwitterCustomClient {
   }
 
   public TwitterCustomClient(TwitterScraper twitterScraper, RestTemplateProxy proxy) {
-    this.twitterScraper = twitterScraper;
+    this(twitterScraper);
 
     String host = proxy.getHost();
     int port = Integer.parseInt(proxy.getPort());

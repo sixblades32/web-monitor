@@ -6,17 +6,20 @@ import io.enigmasolutions.dictionarymodels.DefaultMonitoringTarget;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.references.Proxy;
 import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
 import io.enigmasolutions.twittermonitor.exceptions.NoTargetMatchesException;
 import io.enigmasolutions.twittermonitor.exceptions.NoTwitterUserMatchesException;
 import io.enigmasolutions.twittermonitor.exceptions.TargetAlreadyAddedException;
+import io.enigmasolutions.twittermonitor.exceptions.TargetIsPrivateException;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
 import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.monitoring.TwitterHelperService;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import io.enigmasolutions.twittermonitor.services.web.DictionaryClient;
 import lombok.extern.slf4j.Slf4j;
@@ -100,7 +103,7 @@ public class MonitorConfigurationService {
       throw new NoTwitterUserMatchesException();
     }
 
-    if (twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+    if (twitterHelperService.getBaseTargets().get(user.getId()) != null) {
       throw new TargetAlreadyAddedException();
     }
 
@@ -108,6 +111,7 @@ public class MonitorConfigurationService {
         Target.builder()
             .username(user.getScreenName().toLowerCase())
             .identifier(user.getId())
+            .type(body.getType())
             .build();
 
     DefaultMonitoringTarget defaultMonitoringTarget =
@@ -116,12 +120,13 @@ public class MonitorConfigurationService {
             .identifier(user.getId())
             .image(user.getUserImage())
             .name(user.getName())
+            .type(body.getType())
             .build();
 
     targetRepository.insert(target);
     dictionaryClient.createMonitoringTarget(defaultMonitoringTarget);
 
-    twitterHelperService.getBaseTargetsIds().add(user.getId());
+    twitterHelperService.getBaseTargets().put(user.getId(), body.getType());
   }
 
   @Transactional
@@ -134,14 +139,14 @@ public class MonitorConfigurationService {
       throw new NoTwitterUserMatchesException();
     }
 
-    if (!twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+    if (twitterHelperService.getBaseTargets().get(user.getId()) == null) {
       throw new NoTargetMatchesException();
     }
 
     targetRepository.deleteTargetByIdentifier(user.getId());
     dictionaryClient.deleteMonitoringTarget(user.getId());
 
-    twitterHelperService.getBaseTargetsIds().remove(user.getId());
+    twitterHelperService.getBaseTargets().remove(user.getId());
   }
 
   public List<String> getTemporaryTargets() {
@@ -158,11 +163,11 @@ public class MonitorConfigurationService {
       throw new NoTwitterUserMatchesException();
     }
 
-    if (twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
+    if (twitterHelperService.getLiveReleaseTargets().get(user.getId()) != null) {
       throw new TargetAlreadyAddedException();
     }
 
-    twitterHelperService.getLiveReleaseTargetsIds().add(user.getId());
+    twitterHelperService.getLiveReleaseTargets().put(user.getId(), body.getType());
     twitterHelperService.getLiveReleaseTargetsScreenNames().add(user.getScreenName());
   }
 
@@ -175,11 +180,11 @@ public class MonitorConfigurationService {
       throw new NoTwitterUserMatchesException();
     }
 
-    if (!twitterHelperService.getLiveReleaseTargetsIds().contains(user.getId())) {
+    if (twitterHelperService.getLiveReleaseTargets().get(user.getId()) == null) {
       throw new NoTargetMatchesException();
     }
 
-    twitterHelperService.getLiveReleaseTargetsIds().remove(user.getId());
+    twitterHelperService.getLiveReleaseTargets().remove(user.getId());
     twitterHelperService.getLiveReleaseTargetsScreenNames().remove(user.getScreenName());
   }
 
@@ -187,14 +192,14 @@ public class MonitorConfigurationService {
 
     User user = null;
 
-    try{
+    try {
       user = twitterHelperService.retrieveUser(followRequest.getTwitterUser().getLogin());
-    }catch (Exception e){
+    } catch (Exception e) {
       log.error(e.getMessage());
       throw new NoTwitterUserMatchesException();
     }
 
-    if (twitterHelperService.getBaseTargetsIds().contains(user.getId())) {
+    if (twitterHelperService.getBaseTargets().get(user.getId()) != null) {
       throw new TargetAlreadyAddedException();
     }
 
@@ -209,5 +214,31 @@ public class MonitorConfigurationService {
     followRequest.setTwitterUser(twitterUser);
 
     kafkaProducer.sendFollowRequestBroadcast(followRequest);
+  }
+
+  public void follow(String screenName) {
+    User user = null;
+
+    try {
+      user = twitterHelperService.retrieveUser(screenName);
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      throw new NoTwitterUserMatchesException();
+    }
+
+    if (user.getIsProtected()) {
+      throw new TargetIsPrivateException();
+    }
+
+    User finalUser = user;
+
+    CompletableFuture.runAsync(
+        () -> {
+          twitterHelperService.follow(finalUser);
+        });
+  }
+
+  public void updateFollowProxies(List<Proxy> proxies) {
+    twitterHelperService.updateFollowProxies(proxies);
   }
 }

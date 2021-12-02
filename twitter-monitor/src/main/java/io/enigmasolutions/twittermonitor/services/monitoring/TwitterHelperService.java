@@ -1,13 +1,20 @@
 package io.enigmasolutions.twittermonitor.services.monitoring;
 
+import io.enigmasolutions.broadcastmodels.Alert;
+import io.enigmasolutions.broadcastmodels.TwitterUser;
 import io.enigmasolutions.twittermonitor.db.models.documents.RestTemplateProxy;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
+import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.references.Proxy;
 import io.enigmasolutions.twittermonitor.db.repositories.RestTemplateProxyRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TargetRepository;
 import io.enigmasolutions.twittermonitor.db.repositories.TwitterConsumerRepository;
+import io.enigmasolutions.twittermonitor.db.repositories.TwitterScraperRepository;
+import io.enigmasolutions.twittermonitor.exceptions.InvalidProxyNumberException;
 import io.enigmasolutions.twittermonitor.models.twitter.base.User;
-import io.enigmasolutions.twittermonitor.models.twitter.common.FollowsList;
+import io.enigmasolutions.twittermonitor.models.twitter.common.FollowingData;
+import io.enigmasolutions.twittermonitor.services.kafka.KafkaProducer;
 import io.enigmasolutions.twittermonitor.services.web.TwitterRegularClient;
 
 import java.util.*;
@@ -25,7 +32,7 @@ import org.springframework.util.MultiValueMap;
 @Slf4j
 public class TwitterHelperService {
 
-  private final List<String> liveReleaseTargetsIds = new LinkedList<>();
+  private final HashMap<String, String> liveReleaseTargets = new HashMap<>();
   private final List<String> liveReleaseTargetsScreenNames = new LinkedList<>();
   private final List<String> tweetsCache = new LinkedList<>();
   private final List<User> userInfosCache = new LinkedList<>();
@@ -35,43 +42,69 @@ public class TwitterHelperService {
   private final TwitterConsumerRepository twitterConsumerRepository;
   private final TargetRepository targetRepository;
   private final RestTemplateProxyRepository restTemplateProxyRepository;
+  private final TwitterScraperRepository twitterScraperRepository;
+  private final KafkaProducer kafkaProducer;
 
-  private List<TwitterRegularClient> twitterRegularClients;
-  private List<String> baseTargetsIds;
+  private List<TwitterRegularClient> helpers;
+  private List<TwitterRegularClient> followers;
+  private HashMap<String, String> baseTargets;
+
+  private static final int FOLLOW_DELAY = 600000;
 
   @Autowired
   public TwitterHelperService(
-      TwitterConsumerRepository twitterClientRepository, TargetRepository targetRepository, RestTemplateProxyRepository restTemplateProxyRepository) {
+      TwitterConsumerRepository twitterClientRepository, TwitterScraperRepository twitterScraperRepository,
+      TargetRepository targetRepository,
+      RestTemplateProxyRepository restTemplateProxyRepository, KafkaProducer kafkaProducer) {
     this.targetRepository = targetRepository;
     this.twitterConsumerRepository = twitterClientRepository;
+    this.twitterScraperRepository = twitterScraperRepository;
     this.restTemplateProxyRepository = restTemplateProxyRepository;
+    this.kafkaProducer = kafkaProducer;
   }
 
   @PostConstruct
   public void init() {
     initTargets();
-    initTwitterClients();
+    initHelpers();
+    initFollowers();
   }
 
   private void initTargets() {
     List<Target> targets = targetRepository.findAll();
 
-    baseTargetsIds = targets.stream().map(Target::getIdentifier).collect(Collectors.toList());
+    baseTargets = targets.stream().collect(Collectors.toMap(Target::getIdentifier, Target::getType, (existing, replacement) -> existing, HashMap::new));
   }
 
-  public void initTwitterClients() {
+  public void initHelpers() {
     List<TwitterConsumer> consumers = twitterConsumerRepository.findAll();
 
-    this.twitterRegularClients =
-        consumers.stream().map(TwitterRegularClient::new).collect(Collectors.toList());
+    this.helpers =
+        consumers.stream()
+            .map(consumer -> new TwitterRegularClient(consumer.getCredentials()))
+            .collect(Collectors.toList());
   }
 
-  public Boolean checkBasePass(String id) {
-    return baseTargetsIds.contains(id);
+  public Boolean checkBasePass(TwitterUser user) {
+    String userType = baseTargets.get(user.getId());
+    Boolean isPassed = userType != null;
+
+    if (isPassed) {
+      user.setType(userType);
+    }
+
+    return isPassed;
   }
 
-  public Boolean checkLiveReleasePass(String id) {
-    return liveReleaseTargetsIds.contains(id);
+  public Boolean checkLiveReleasePass(TwitterUser user) {
+    String userType = liveReleaseTargets.get(user.getId());
+    Boolean isPassed = userType != null;
+
+    if (isPassed) {
+      user.setType(userType);
+    }
+
+    return isPassed;
   }
 
   public User retrieveUser(String screenName) {
@@ -89,7 +122,7 @@ public class TwitterHelperService {
     return user;
   }
 
-  public FollowsList getFollowsList(String id) {
+  public FollowingData getFollowsList(String id) {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("user_id", id);
     params.add("stringify_ids", "true");
@@ -99,8 +132,8 @@ public class TwitterHelperService {
   }
 
   public TwitterRegularClient refreshClient() {
-    TwitterRegularClient client = twitterRegularClients.remove(0);
-    twitterRegularClients.add(client);
+    TwitterRegularClient client = helpers.remove(0);
+    helpers.add(client);
 
     return client;
   }
@@ -171,16 +204,75 @@ public class TwitterHelperService {
     timer.schedule(timerTask, 10000);
   }
 
-  public List<String> getLiveReleaseTargetsIds() {
-    return liveReleaseTargetsIds;
+  public void initFollowers() {
+    List<TwitterScraper> twitterScrapers = twitterScraperRepository.findAll();
+
+    this.followers = twitterScrapers.stream()
+            .filter(twitterScraper -> twitterScraper.getCredentials().getConsumerKey().length() == 25)
+            .map(twitterScraper -> new TwitterRegularClient(twitterScraper.getCredentials(),
+                    twitterScraper.getTwitterUser().getTwitterId(),
+                    twitterScraper.getProxy()))
+            .collect(Collectors.toList());
+  }
+
+  public void follow(User user) {
+
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+    params.add("user_id", user.getId());
+    params.add("follow", "true");
+
+    int delay = FOLLOW_DELAY / followers.size();
+
+    followers.forEach(follower -> {
+      try {
+        if(!isFollows(follower.getClientId(), user.getId())){
+          follower.follow(params);
+          log.info(follower.getClientId() + "successfully followed to " + user.getScreenName());
+
+          Thread.sleep(delay);
+        }
+      } catch (Exception exception) {
+        log.error(exception.getMessage());
+        kafkaProducer.sendAlertBroadcast(Alert.builder()
+                .failedMonitorId(follower.getClientId())
+                .reason("Error while following. Reason: " + exception.getMessage())
+                .build());
+      }
+    });
+  }
+
+  public void updateFollowProxies(List<Proxy> proxies){
+
+    List<TwitterScraper> scrapers = twitterScraperRepository.findAll();
+    List<TwitterScraper> followScrapers = scrapers.stream().filter(twitterScraper -> twitterScraper.getCredentials().getConsumerKey().length() == 25).collect(Collectors.toList());
+
+    if (proxies.size() != followScrapers.size()) {
+      throw new InvalidProxyNumberException(followScrapers.size());
+    }
+
+    for (int i = 0; i < proxies.size(); i++) {
+
+      TwitterScraper scraper = followScrapers.get(i);
+      scraper.setProxy(proxies.get(i));
+
+      twitterScraperRepository.save(scraper);
+    }
+  }
+
+  public boolean isFollows(String clientId, String userId){
+    return getFollowsList(clientId).getIds().contains(userId);
+  }
+
+  public HashMap<String, String> getLiveReleaseTargets() {
+    return liveReleaseTargets;
   }
 
   public List<String> getLiveReleaseTargetsScreenNames() {
     return liveReleaseTargetsScreenNames;
   }
 
-  public List<String> getBaseTargetsIds() {
-    return baseTargetsIds;
+  public HashMap<String, String> getBaseTargets() {
+    return baseTargets;
   }
 
   @Cacheable(value = "proxies")

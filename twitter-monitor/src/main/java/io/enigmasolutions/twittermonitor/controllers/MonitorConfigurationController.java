@@ -4,17 +4,13 @@ import io.enigmasolutions.broadcastmodels.FollowRequest;
 import io.enigmasolutions.twittermonitor.db.models.documents.Target;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterConsumer;
 import io.enigmasolutions.twittermonitor.db.models.documents.TwitterScraper;
+import io.enigmasolutions.twittermonitor.db.models.references.Proxy;
 import io.enigmasolutions.twittermonitor.models.external.UserStartForm;
 import io.enigmasolutions.twittermonitor.services.configuration.MonitorConfigurationService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/config")
@@ -101,5 +97,15 @@ public class MonitorConfigurationController {
   @PostMapping("/request")
   public void createRequest(@RequestBody FollowRequest followRequest) {
     monitorConfigurationService.createFollowRequest(followRequest);
+  }
+
+  @PostMapping("/follow/users/{screenName}")
+  public void follow(@PathVariable String screenName) {
+    monitorConfigurationService.follow(screenName);
+  }
+
+  @PostMapping("/follow/proxies")
+  public void follow(@RequestBody List<Proxy> proxies) {
+    monitorConfigurationService.updateFollowProxies(proxies);
   }
 }

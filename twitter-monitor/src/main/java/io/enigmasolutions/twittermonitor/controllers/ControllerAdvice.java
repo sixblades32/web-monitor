@@ -2,6 +2,7 @@ package io.enigmasolutions.twittermonitor.controllers;
 
 import io.enigmasolutions.twittermonitor.exceptions.*;
 import io.enigmasolutions.twittermonitor.models.external.ErrorResponse;
+import io.enigmasolutions.twittermonitor.models.external.ProxyUpdatingErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,5 +46,21 @@ public class ControllerAdvice {
     ErrorResponse response = new ErrorResponse(e.getMessage());
 
     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(TargetIsPrivateException.class)
+  public ResponseEntity<ErrorResponse> handleTargetIsPrivateException(
+          TargetIsPrivateException e) {
+    ErrorResponse response = new ErrorResponse(e.getMessage());
+
+    return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler(InvalidProxyNumberException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidProxyNumberException(
+          InvalidProxyNumberException e) {
+    ErrorResponse response = new ProxyUpdatingErrorResponse(e.getMessage(), e.getRequiredNumber());
+
+    return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
   }
 }

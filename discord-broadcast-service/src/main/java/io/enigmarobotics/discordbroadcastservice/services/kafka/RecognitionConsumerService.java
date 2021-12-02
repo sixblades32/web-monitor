@@ -40,11 +40,11 @@ public class RecognitionConsumerService {
     Message message = generateRecognitionMessage(recognition);
 
     PROCESSING_EXECUTOR.execute(() -> {
-      postmanService.processBase(message);
+      postmanService.processBase(message, recognition.getBriefTweet().getUser().getType());
     });
 
     PROCESSING_EXECUTOR.execute(() -> {
-      postmanService.processStaffBase(message);
+      postmanService.processStaffBase(message, recognition.getBriefTweet().getUser().getType());
     });
   }
 
@@ -56,7 +56,7 @@ public class RecognitionConsumerService {
 
     PROCESSING_EXECUTOR.execute(() -> {
       Message message = generateRecognitionMessage(recognition);
-      postmanService.processLive(message);
+      postmanService.processLive(message, recognition.getBriefTweet().getUser().getType());
     });
   }
 

@@ -47,12 +47,12 @@ public class UserUpdatesConsumerService {
 
     PROCESSING_EXECUTOR.execute(
         () -> {
-          postmanService.processBase(message);
+          postmanService.processBase(message, userUpdates.getOld().getType());
         });
 
     PROCESSING_EXECUTOR.execute(
         () -> {
-          postmanService.processStaffBase(message);
+          postmanService.processStaffBase(message, userUpdates.getOld().getType());
         });
   }
 
@@ -67,7 +67,7 @@ public class UserUpdatesConsumerService {
 
     PROCESSING_EXECUTOR.execute(
         () -> {
-          postmanService.processLive(message);
+          postmanService.processLive(message, userUpdates.getOld().getType());
         });
   }
 

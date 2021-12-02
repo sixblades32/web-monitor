@@ -1,4 +1,4 @@
-package io.enigmasolutions.twittermonitor.models.external;
+package io.enigmasolutions.dictionarymodels;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ErrorResponse {
-  private String result;
+public class CustomerWebhook {
+    private String url;
+    private String type;
 }

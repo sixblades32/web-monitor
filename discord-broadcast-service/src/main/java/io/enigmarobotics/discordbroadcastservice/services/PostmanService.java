@@ -9,6 +9,7 @@ import io.enigmarobotics.discordbroadcastservice.services.web.DiscordClient;
 import io.enigmarobotics.discordbroadcastservice.utils.DiscordUtils;
 import io.enigmasolutions.broadcastmodels.FollowRequest;
 import io.enigmasolutions.dictionarymodels.CustomerDiscordBroadcastConfig;
+import io.enigmasolutions.dictionarymodels.CustomerWebhook;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,7 +52,7 @@ public class PostmanService {
     log.info("Alert embed sent to alert webhook.");
   }
 
-  public void processBase(Message message) {
+  public void processBase(Message message, String userType) {
 
     dictionaryClientService
         .getCustomersConfigs()
@@ -65,8 +66,8 @@ public class PostmanService {
                                 objectMapper.writeValueAsString(message), Message.class);
 
                         String url =
-                            getRandomWebhook(
-                                customerConfig.getCustomerDiscordBroadcast().getBaseWebhooks());
+                            getWebhook(
+                                customerConfig.getCustomerDiscordBroadcast().getBaseCustomerWebhooks(), userType);
 
                         if (customerConfig.getTheme().getIsCustom() && localMessage != null) {
                           setColors(localMessage, customerConfig);
@@ -81,7 +82,7 @@ public class PostmanService {
                     }));
   }
 
-  public void processStaffBase(Message message) {
+  public void processStaffBase(Message message, String userType) {
     dictionaryClientService
         .getCustomersConfigs()
         .forEach(
@@ -94,10 +95,10 @@ public class PostmanService {
                                 objectMapper.writeValueAsString(message), Message.class);
 
                         String url =
-                            getRandomWebhook(
+                            getWebhook(
                                 customerConfig
                                     .getCustomerDiscordBroadcast()
-                                    .getStaffBaseWebhooks());
+                                    .getStaffBaseCustomerWebhooks(), userType);
 
                         if (url == null) {
                           return;
@@ -119,7 +120,7 @@ public class PostmanService {
                     }));
   }
 
-  public void processLive(Message message) {
+  public void processLive(Message message, String userType) {
 
     dictionaryClientService
         .getCustomersConfigs()
@@ -133,8 +134,8 @@ public class PostmanService {
                                 objectMapper.writeValueAsString(message), Message.class);
 
                         String url =
-                            getRandomWebhook(
-                                customerConfig.getCustomerDiscordBroadcast().getLiveWebhooks());
+                            getWebhook(
+                                customerConfig.getCustomerDiscordBroadcast().getLiveCustomerWebhooks(), userType);
 
                         if (customerConfig.getTheme().getIsCustom() && localMessage != null) {
                           setColors(localMessage, customerConfig);
@@ -162,14 +163,17 @@ public class PostmanService {
     discordClient.sendEmbed(alertDiscordUrl, message);
   }
 
-  private String getRandomWebhook(List<String> webhooks) {
-    Random rand = new Random();
+  private String getWebhook(List<CustomerWebhook> webhooks, String userType) {
 
-    if (webhooks.size() > 0) {
-      return webhooks.get(rand.nextInt(webhooks.size()));
+    String webhookUrl = null;
+
+    Optional<CustomerWebhook> webhook = webhooks.stream().filter(customerWebhook -> customerWebhook.getType().equals(userType)).findFirst();
+
+    if (webhook.isPresent()) {
+      webhookUrl = webhook.get().getUrl();
     }
 
-    return null;
+    return webhookUrl;
   }
 
   private void setColors(

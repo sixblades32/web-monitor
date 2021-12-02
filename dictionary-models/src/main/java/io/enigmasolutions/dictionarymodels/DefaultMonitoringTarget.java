@@ -15,4 +15,5 @@ public class DefaultMonitoringTarget {
   private String identifier;
   private String image;
   private String name;
+  private String type;
 }
