@@ -160,7 +160,7 @@ public abstract class AbstractTwitterMonitor {
         && exception.getStatusCode().value() != 401) {
 
       reshuffleClients(twitterCustomClient);
-      processRateLimitError(exception, twitterCustomClient);
+      processTemporaryError(exception, twitterCustomClient);
       calculateDelay();
 
       processingExecutor.execute(() -> processAlertTarget(exception, twitterCustomClient));
@@ -176,19 +176,28 @@ public abstract class AbstractTwitterMonitor {
     failedCustomClients.add(twitterCustomClient);
   }
 
-  private void processRateLimitError(
+  private void processTemporaryError(
       HttpClientErrorException exception, TwitterCustomClient twitterCustomClient) {
+    Long delay = null;
+    final long RATE_LIMIT_DELAY = 60000;
+    final long TIMEOUT_DELAY = 10000;
 
     if (exception.getStatusCode().value() == 429) {
-      TimerTask timerTask =
-          new TimerTask() {
-            @Override
-            public void run() {
-              restoreFailedClient(twitterCustomClient);
-            }
-          };
+      delay = RATE_LIMIT_DELAY;
+    } else if (exception.getStatusCode().value() == 408) {
+      delay = TIMEOUT_DELAY;
+    }
 
-      timer.schedule(timerTask, 60000);
+    if (delay != null) {
+      TimerTask timerTask =
+              new TimerTask() {
+                @Override
+                public void run() {
+                  restoreFailedClient(twitterCustomClient);
+                }
+              };
+
+      timer.schedule(timerTask, delay);
     }
   }
 
